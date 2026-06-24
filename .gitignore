@@ -1,0 +1,21 @@
+.DS_Store
+
+# Local secrets and machine-specific executables.
+/env/
+/bin/
+
+# Runtime/cache artifacts.
+*.log
+*.tmp
+*.bak
+*.sqlite
+*.sqlite-*
+*.db
+.cache/
+cache/
+
+# Private key material.
+*.key
+*.pem
+*.p12
+*.pfx

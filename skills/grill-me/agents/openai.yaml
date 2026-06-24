@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grill Me"
+  short_description: "Stress-test decisions with sharp questions"
+  default_prompt: "Use $grill-me to pressure-test this decision with no more than two sharp questions at a time."

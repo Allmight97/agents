@@ -1,0 +1,7 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Write concise continuation handoffs"
+  default_prompt: "Use $handoff to write a concise session handoff for continuing this work in a new thread."
+
+policy:
+  allow_implicit_invocation: true

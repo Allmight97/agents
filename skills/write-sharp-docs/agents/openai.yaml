@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Sharp Docs"
+  short_description: "Improve TPM and engineering docs"
+  default_prompt: "Use $write-sharp-docs to rewrite this document for decision clarity, reader action, and high-taste technical-program documentation."

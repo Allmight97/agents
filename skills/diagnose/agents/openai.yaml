@@ -1,0 +1,7 @@
+interface:
+  display_name: "Diagnose"
+  short_description: "Disciplined bug and regression diagnosis"
+  default_prompt: "Use $diagnose to build a reproducible feedback loop and debug this issue."
+
+policy:
+  allow_implicit_invocation: true

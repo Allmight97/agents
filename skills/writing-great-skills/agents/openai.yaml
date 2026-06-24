@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Great Skills"
+  short_description: "Audit and improve skill quality"
+  default_prompt: "Use $writing-great-skills to audit this skill for invocation, hierarchy, no-ops, and failure modes."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AGENTS.md Steward"
+  short_description: "Maintain concise agent guidance"
+  default_prompt: "Use $agents-md-steward to audit and tighten this repo's AGENTS.md guidance without adding process noise."

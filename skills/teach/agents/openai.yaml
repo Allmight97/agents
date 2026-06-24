@@ -1,0 +1,7 @@
+interface:
+  display_name: "Teach"
+  short_description: "Stateful multi-session teaching workspace"
+  default_prompt: "Use $teach to create or continue a durable learning workspace for this topic."
+
+policy:
+  allow_implicit_invocation: false

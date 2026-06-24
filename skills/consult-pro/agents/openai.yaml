@@ -1,0 +1,4 @@
+interface:
+  display_name: "Consult Pro"
+  short_description: "Draft rigorous ChatGPT Pro handoff prompts"
+  default_prompt: "Use $consult-pro to draft a paste-ready Pro critique prompt for this repo decision."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resolve Merge Conflicts"
+  short_description: "Resolve merge/rebase conflicts safely"
+  default_prompt: "Use $resolving-merge-conflicts to resolve the current merge or rebase conflict safely and run the project checks."
