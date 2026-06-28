@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "personal",
+  "description": "JStar's shared personal Claude skills.",
+  "owner": {
+    "name": "Allmight97"
+  },
+  "plugins": [
+    {
+      "name": "personal-skills",
+      "description": "Shared personal skills for Claude Desktop, Cowork, and Claude Code.",
+      "source": "./",
+      "skills": "./skills",
+      "category": "productivity"
+    }
+  ]
+}
