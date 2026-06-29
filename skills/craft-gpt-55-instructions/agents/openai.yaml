@@ -1,4 +1,0 @@
-interface:
-  display_name: "Craft GPT-5.5 Instructions"
-  short_description: "Craft taste-driven GPT-5.5 instructions and AGENTS.md files"
-  default_prompt: "Use $craft-gpt-55-instructions to draft or revise this instruction file for GPT-5.5."
