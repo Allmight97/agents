@@ -55,13 +55,19 @@ That is the path Codex expects inside a Git marketplace checkout. Do not keep a
 second root-level `plugins/marketplace.json`; it causes this Mac to see duplicate
 `personal` marketplace roots.
 
-Future plugins should be added as their own entries in both Codex marketplace
-catalogs. Installing `personal-skills` does not install `whittle`, and installing
+Future plugins should be added as their own entries in the Codex marketplace
+catalog. Installing `personal-skills` does not install `whittle`, and installing
 `whittle` does not install `personal-skills`.
 
 To publish a new shared skill for Codex, edit `skills/<skill-name>/SKILL.md`,
-commit, push, and reinstall or update `personal-skills@personal`. The Codex
-plugin manifest does not need a per-skill edit.
+commit, push, refresh the marketplace, and reinstall `personal-skills@personal`:
+
+```bash
+codex plugin marketplace upgrade personal
+codex plugin add personal-skills@personal
+```
+
+The Codex plugin manifest does not need a per-skill edit.
 
 To publish a new plugin, create the plugin, add one marketplace entry for it, and
 commit/push. Do not fold separate plugins into `personal-skills`.
