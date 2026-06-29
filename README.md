@@ -23,6 +23,14 @@ claude plugin install personal-skills@personal
 
 Plugin skills are namespaced, for example `/personal-skills:diagnose`.
 
+The same Claude marketplace also lists `whittle` as a separate plugin sourced
+from `Allmight97/whittle`. Installing `personal-skills` does not install
+`whittle`; install it separately when wanted:
+
+```bash
+claude plugin install whittle@personal
+```
+
 To publish a new skill, add `skills/<skill-name>/SKILL.md`, commit it, push to
 `main`, then update or reload the installed plugin. The Claude plugin manifest
 does not need a per-skill edit.
