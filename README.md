@@ -8,8 +8,7 @@ metadata, and small shared agent configuration.
 - `skills/`: personal reusable skills.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
 - `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
-- `plugins/marketplace.json`: Codex personal marketplace used by this Mac.
-- `.agents/plugins/marketplace.json`: Codex marketplace catalog for GitHub repo subscribers.
+- `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
 - `mcp/README.md`: local MCP notes.
 
 ## Claude Marketplace
@@ -34,8 +33,13 @@ and `bin/`; GitHub installation uses the tracked repo contents only.
 
 ## Codex Marketplace
 
-Codex installs the same shared skill tree as the `personal-skills` plugin from
-the local `personal` marketplace:
+Codex subscribes to this repo as the `personal` marketplace:
+
+```bash
+codex plugin marketplace add Allmight97/agents
+```
+
+Then Codex installs the shared skill tree as the `personal-skills` plugin:
 
 ```bash
 codex plugin add personal-skills@personal
@@ -46,10 +50,10 @@ The installed plugin exposes namespaced skills, for example
 disabled once the plugin install is validated, otherwise Codex may see duplicate
 skills.
 
-`plugins/marketplace.json` is the active local catalog because Codex discovers
-the default personal marketplace from `/Users/jstar`. The nested
-`.agents/plugins/marketplace.json` is intentionally duplicated for another Codex
-install that subscribes to this GitHub repo as a marketplace source.
+The Codex catalog intentionally lives at `.agents/plugins/marketplace.json`.
+That is the path Codex expects inside a Git marketplace checkout. Do not keep a
+second root-level `plugins/marketplace.json`; it causes this Mac to see duplicate
+`personal` marketplace roots.
 
 Future plugins should be added as their own entries in both Codex marketplace
 catalogs. Installing `personal-skills` does not install `whittle`, and installing
