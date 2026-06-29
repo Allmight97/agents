@@ -7,7 +7,9 @@ metadata, and small shared agent configuration.
 
 - `skills/`: personal reusable skills.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
-- `plugins/marketplace.json`: personal plugin marketplace.
+- `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
+- `plugins/marketplace.json`: Codex personal marketplace used by this Mac.
+- `.agents/plugins/marketplace.json`: Codex marketplace catalog for GitHub repo subscribers.
 - `mcp/README.md`: local MCP notes.
 
 ## Claude Marketplace
@@ -29,6 +31,36 @@ does not need a per-skill edit.
 Install from GitHub rather than the local `/Users/jstar/.agents` path. Claude's
 local-path plugin cache can copy ignored local-only directories such as `env/`
 and `bin/`; GitHub installation uses the tracked repo contents only.
+
+## Codex Marketplace
+
+Codex installs the same shared skill tree as the `personal-skills` plugin from
+the local `personal` marketplace:
+
+```bash
+codex plugin add personal-skills@personal
+```
+
+The installed plugin exposes namespaced skills, for example
+`personal-skills:diagnose`. Keep direct symlinks from `/Users/jstar/.codex/skills`
+disabled once the plugin install is validated, otherwise Codex may see duplicate
+skills.
+
+`plugins/marketplace.json` is the active local catalog because Codex discovers
+the default personal marketplace from `/Users/jstar`. The nested
+`.agents/plugins/marketplace.json` is intentionally duplicated for another Codex
+install that subscribes to this GitHub repo as a marketplace source.
+
+Future plugins should be added as their own entries in both Codex marketplace
+catalogs. Installing `personal-skills` does not install `whittle`, and installing
+`whittle` does not install `personal-skills`.
+
+To publish a new shared skill for Codex, edit `skills/<skill-name>/SKILL.md`,
+commit, push, and reinstall or update `personal-skills@personal`. The Codex
+plugin manifest does not need a per-skill edit.
+
+To publish a new plugin, create the plugin, add one marketplace entry for it, and
+commit/push. Do not fold separate plugins into `personal-skills`.
 
 ## Local Only
 

@@ -1,0 +1,34 @@
+{
+  "name": "personal-skills",
+  "version": "0.1.0",
+  "description": "Shared personal skills for Codex, Claude Desktop, Cowork, and Claude Code.",
+  "author": {
+    "name": "Allmight97",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "keywords": [
+    "agent-skills",
+    "personal-workflows",
+    "productivity"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Personal Skills",
+    "shortDescription": "Shared personal agent skills",
+    "longDescription": "Reusable personal skills for diagnosis, writing, design, security, architecture, and workflow support.",
+    "developerName": "Allmight97",
+    "category": "Productivity",
+    "capabilities": [
+      "Instructions"
+    ],
+    "websiteURL": "https://github.com/Allmight97/agents",
+    "defaultPrompt": [
+      "Use diagnose to debug this issue.",
+      "Use write-sharp-docs to improve this doc.",
+      "Use impeccable to review this UI."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
