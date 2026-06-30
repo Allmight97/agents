@@ -21,15 +21,9 @@ claude plugin marketplace add Allmight97/agents
 claude plugin install personal-skills@personal
 ```
 
-Plugin skills are namespaced, for example `/personal-skills:diagnose`.
-
-The same Claude marketplace also lists `whittle` as a separate plugin sourced
-from `Allmight97/whittle`. Installing `personal-skills` does not install
-`whittle`; install it separately when wanted:
-
-```bash
-claude plugin install whittle@personal
-```
+Plugin skills are namespaced, for example `/personal-skills:diagnose` and
+`/personal-skills:whittle`. Whittle lives in this shared skill tree, not as a
+separate plugin.
 
 To publish a new skill, add `skills/<skill-name>/SKILL.md`, commit it, push to
 `main`, then update or reload the installed plugin. The Claude plugin manifest
@@ -64,8 +58,8 @@ second root-level `plugins/marketplace.json`; it causes this Mac to see duplicat
 `personal` marketplace roots.
 
 Future plugins should be added as their own entries in the Codex marketplace
-catalog. Installing `personal-skills` does not install `whittle`, and installing
-`whittle` does not install `personal-skills`.
+catalog only when they are genuinely separate products. Personal workflow skills,
+including Whittle, belong in `personal-skills`.
 
 To publish a new shared skill for Codex, edit `skills/<skill-name>/SKILL.md`,
 commit, push, refresh the marketplace, and reinstall `personal-skills@personal`:
@@ -78,7 +72,7 @@ codex plugin add personal-skills@personal
 The Codex plugin manifest does not need a per-skill edit.
 
 To publish a new plugin, create the plugin, add one marketplace entry for it, and
-commit/push. Do not fold separate plugins into `personal-skills`.
+commit/push. Do not split ordinary personal skills out of `personal-skills`.
 
 ## Local Only
 

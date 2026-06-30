@@ -12,15 +12,6 @@
       "source": "./",
       "skills": "./skills",
       "category": "productivity"
-    },
-    {
-      "name": "whittle",
-      "description": "Minimal-solution mode for AI agents. YAGNI, stdlib first, smallest correct implementation.",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/Allmight97/whittle.git"
-      },
-      "category": "productivity"
     }
   ]
 }
