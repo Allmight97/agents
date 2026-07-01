@@ -33,24 +33,29 @@ Install from GitHub rather than the local `/Users/jstar/.agents` path. Claude's
 local-path plugin cache can copy ignored local-only directories such as `env/`
 and `bin/`; GitHub installation uses the tracked repo contents only.
 
-## Codex Marketplace
+## Codex Skill Source
 
-Codex subscribes to this repo as the `personal` marketplace:
+On this development Mac, Codex reads the local clone directly because
+`/Users/jstar/.agents/skills` is the documented user-scope skill root. Do not
+also install `personal-skills@personal` in Codex here; that creates duplicate
+skills from the local tree and the plugin cache.
+
+For a fresh machine without the `/Users/jstar/.agents` clone, Codex can subscribe
+to this repo as the `personal` marketplace:
 
 ```bash
 codex plugin marketplace add Allmight97/agents
 ```
 
-Then Codex installs the shared skill tree as the `personal-skills` plugin:
+Then install the shared skill tree as the `personal-skills` plugin:
 
 ```bash
 codex plugin add personal-skills@personal
 ```
 
-The installed plugin exposes namespaced skills, for example
-`personal-skills:diagnose`. Keep direct symlinks from `/Users/jstar/.codex/skills`
-disabled once the plugin install is validated, otherwise Codex may see duplicate
-skills.
+The plugin exposes namespaced skills, for example `personal-skills:diagnose`.
+Use either the local user-scope tree or the plugin install, not both. Codex does
+not merge duplicate skill names across roots.
 
 The Codex catalog intentionally lives at `.agents/plugins/marketplace.json`.
 That is the path Codex expects inside a Git marketplace checkout. Do not keep a
@@ -62,7 +67,8 @@ catalog only when they are genuinely separate products. Personal workflow skills
 including Whittle, belong in `personal-skills`.
 
 To publish a new shared skill for Codex, edit `skills/<skill-name>/SKILL.md`,
-commit, push, refresh the marketplace, and reinstall `personal-skills@personal`:
+commit, and push. On machines using the plugin path, refresh the marketplace and
+reinstall `personal-skills@personal`:
 
 ```bash
 codex plugin marketplace upgrade personal

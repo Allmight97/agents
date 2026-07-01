@@ -13,6 +13,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
   sediment, no-ops, plugin-specific toggle boundaries, and flavor lines.
 - Moved Whittle publishing into `personal-skills`; removed standalone
   `whittle@personal` marketplace entries.
+- Clarified Codex source policy: this development Mac uses the local
+  `/Users/jstar/.agents/skills` tree directly, while fresh machines can install
+  `personal-skills@personal` from the marketplace.
 
 ### Removed
 - Standalone Whittle skill surfaces for `whittle-debt` and `whittle-audit`;
