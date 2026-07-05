@@ -1,6 +1,6 @@
 ---
 name: agents-md-steward
-description: Maintain AGENTS.md, CLAUDE.md, CODEX.md, and similar repo instruction networks. Use when asked to create, edit, audit, prune, harmonize, compress, or route agent-facing guidance; when guidance files feel bloated, narrative, stale, duplicated, or too generic; when deciding whether a rule belongs in root instructions, nested owner instructions, a skill, a spec, an issue, or ordinary docs; or when the user asks to scrutinize opportunities for new instruction files without defaulting to adding more files.
+description: Maintain AGENTS.md, CLAUDE.md, CODEX.md, and similar repo instruction networks. Use when asked to create, edit, audit, prune, harmonize, compress, or route agent-facing guidance; when guidance files feel bloated, narrative, stale, duplicated, or too generic; when deciding whether a rule belongs in root instructions, nested owner instructions, a skill, a spec, an issue, ordinary docs, or a memory store; or when the user asks to scrutinize opportunities for new instruction files without defaulting to adding more files.
 ---
 
 # AGENTS.md Steward
@@ -44,6 +44,9 @@ or routed.
   instruction files or into skills.
 - Do not duplicate the same rule across root, nested files, and skills. Keep the
   broad invariant at root and the operational procedure in the owner surface.
+- Do not promote memory or learnings entries into root or nested instruction
+  files automatically. Each promotion must pass classification and earn its
+  always-loaded cost.
 - Do not create a new nested instruction file unless a path has distinct rules
   that future agents cannot reliably infer from code and existing guidance.
 - When a refactor, test, command, or owner-local doc would remove the need for a
@@ -60,6 +63,7 @@ Classify proposed guidance before writing:
 | Repeatable workflow, decision routing, external reference procedure | Skill |
 | Temporary plan, roadmap, implementation state | Spec or issue |
 | Historical explanation or rationale | Ordinary docs or decision record, only if durable |
+| Durable personal learning or recurring correction, not repo-invariant | Memory store, only with explicit user authorization and dedupe against existing entries |
 | Generic advice, recap, agent shorthand, stale process | Delete |
 
 ## New File Gate

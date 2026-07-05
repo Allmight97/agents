@@ -14,6 +14,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
   shell aliases and background stdin blocking.
 
 ### Changed
+- Made `agents-md-steward` memory-aware for routing durable personal learnings:
+  classify memory stores as a destination, require explicit authorization and
+  dedupe before memory writes, and prevent automatic promotion into always-loaded
+  instruction files.
 - Integrated Whittle as two shared skills. Folded `whittle-audit` into
   `whittle-review` as a repo-audit scope branch and dropped `whittle-debt`
   because the `whittle:` marker convention was not adopted.
