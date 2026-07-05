@@ -12,6 +12,12 @@
       "source": "./",
       "skills": "./skills",
       "category": "productivity"
+    },
+    {
+      "name": "codex",
+      "description": "Lean Codex (GPT-5.5) delegation via the codex CLI: rescue subagent, native review, prompting guidance.",
+      "source": "./plugins/codex",
+      "category": "productivity"
     }
   ]
 }
