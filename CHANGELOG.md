@@ -8,11 +8,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 - `codex@personal` plugin (`plugins/codex/`): lean Codex (GPT-5.5) delegation
   wrapping the `codex` CLI directly — `codex-rescue` subagent, `/codex:rescue`,
-  `/codex:review` (native reviewer passthrough), and the `gpt-5-5-prompting`
-  internal skill (adapted from openai/codex-plugin-cc, Apache-2.0; see plugin
-  NOTICE). Replaces the vendor `codex@openai-codex` plugin, whose updates
-  clobbered local GPT-5.5 retarget mutations and whose companion-runtime
-  job-store surface (`status`/`result`/`cancel`/`transfer`) we don't use.
+  `/codex:review`, and the `gpt-5-5-prompting` internal skill (adapted from
+  Apache-2.0 upstream; see plugin NOTICE). Replaces the removed vendor plugin.
+  The rescue agent invokes `command codex ... </dev/null` to neutralize user
+  shell aliases and background stdin blocking.
 
 ### Changed
 - Integrated Whittle as two shared skills. Folded `whittle-audit` into

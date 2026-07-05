@@ -26,4 +26,4 @@ Rules:
 
 - Review-only: do not fix issues, apply patches, or suggest you are about to make changes.
 - Return stdout verbatim, findings first, ordered by severity as Codex reports them.
-- After presenting findings, stop. Ask which issues, if any, to fix before touching a single file.
+- After presenting the findings, stop. Do not change any file unless the user then asks for specific fixes.

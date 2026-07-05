@@ -4,7 +4,7 @@ argument-hint: "[--background|--wait] [--resume|--fresh] [--model <model|spark>]
 allowed-tools: Agent
 ---
 
-Invoke the `codex:codex-rescue` subagent via the `Agent` tool (`subagent_type: "codex:codex-rescue"`), forwarding the raw user request below as the prompt. It is a subagent, not a skill — do not route it through the Skill tool.
+Invoke the `codex:codex-rescue` subagent via the `Agent` tool (`subagent_type: "codex:codex-rescue"`), forwarding the request below as the prompt after handling the command-owned execution flags. It is a subagent, not a skill — do not route it through the Skill tool.
 
 Raw user request:
 $ARGUMENTS
