@@ -1,7 +1,7 @@
 {
   "name": "codex",
-  "version": "0.1.1",
-  "description": "Lean Codex (GPT-5.5) delegation via the codex CLI: rescue subagent, native review, prompting guidance.",
+  "version": "0.2.0",
+  "description": "Lean Codex (GPT-5.5) delegation for Claude/Fable: rescue, review, setup, transfer, adversarial review.",
   "author": {
     "name": "Allmight97"
   }
