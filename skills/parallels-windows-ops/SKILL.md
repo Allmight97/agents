@@ -19,6 +19,14 @@ Completion criterion: capture host hardware, Parallels version/license state, VM
 
 If the VM is paused or stopped, report that state. Do not start, resume, suspend, shut down, or reconfigure the VM unless the user asked for an access test or approved that action.
 
+For an approved active test window, disable idle auto-pause with:
+
+```bash
+prlctl set "<vm>" --pause-idle off
+```
+
+Decide at the end whether idle auto-pause earns its keep as a resource saver or should stay off for reliable background access.
+
 ## Access Ladder
 
 Prefer the lowest-friction truthful control surface:
@@ -29,6 +37,8 @@ Prefer the lowest-friction truthful control surface:
 4. Use Computer Use through Parallels Desktop for visual confirmation or unscriptable GUI flows.
 
 Treat Computer Use as pixel/keyboard control inside the Parallels window. It does not expose a native Windows accessibility tree, so first-run dialogs, focus shifts, and overlays can break unattended GUI work.
+
+Keep Windows guest commands small and observable. On the July 6, 2026 VM, larger `powershell -EncodedCommand ...` batches hung under `prlctl exec`, while direct `cmd /c`, `reg`, `sc`, `schtasks`, and short PowerShell probes were reliable.
 
 ## Cross-Talk Classification
 
