@@ -1,0 +1,49 @@
+{
+  "name": "build-macos-apps",
+  "version": "0.2.0",
+  "description": "Build, run, test, debug, instrument, and implement Apple 27-era macOS, iOS, and watchOS apps with Swift, SwiftUI, Xcode, and shell-first workflows.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "macos",
+    "ios",
+    "watchos",
+    "swift",
+    "swiftui",
+    "appkit",
+    "xcode",
+    "xcode27",
+    "swiftpm",
+    "debugging",
+    "codesign",
+    "logging",
+    "telemetry",
+    "oslog"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Build macOS Apps",
+    "shortDescription": "Build and debug Apple 27 macOS, iOS, and watchOS apps with SwiftUI and Xcode guidance",
+    "longDescription": "JStar's personal Apple 27-ready build plugin for discovering local Xcode and SwiftPM projects, verifying Xcode 27 toolchains and SDKs, building and running macOS apps, proving iOS and watchOS simulator workflows, implementing native SwiftUI and AppKit surfaces, adding lightweight Logger telemetry, triaging tests, and inspecting signing, entitlements, capabilities, and runtime failures.",
+    "developerName": "JStar",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Allmight97/agents",
+    "defaultPrompt": [
+      "Build/debug an Apple 27 SwiftUI app, verify Xcode 27, or prove iOS/watchOS simulator workflows"
+    ],
+    "screenshots": [],
+    "brandColor": "#1F6FEB",
+    "composerIcon": "./assets/build-macos-apps-small.svg",
+    "logo": "./assets/app-icon.png"
+  }
+}
