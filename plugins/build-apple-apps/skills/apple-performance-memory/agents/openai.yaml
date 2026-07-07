@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Performance / Memory"
+  short_description: "Profile Apple app performance, hangs, leaks, and memory growth"
+  default_prompt: "Use $apple-performance-memory to diagnose Apple app runtime cost with comparable before/after proof."

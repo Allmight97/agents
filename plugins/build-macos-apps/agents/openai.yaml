@@ -1,6 +1,0 @@
-interface:
-  display_name: "Build macOS Apps"
-  short_description: "Build and debug Apple 27 macOS, iOS, and watchOS apps with SwiftUI and Xcode guidance"
-  icon_small: "./assets/build-macos-apps-small.svg"
-  icon_large: "./assets/app-icon.png"
-  default_prompt: "Build/debug an Apple 27 SwiftUI app, verify Xcode 27, or prove iOS/watchOS simulator workflows."

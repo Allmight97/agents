@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Build / Run / Debug"
+  short_description: "Build, run, test, launch, log, screenshot, and debug Apple apps"
+  default_prompt: "Use $apple-build-run-debug to discover the Apple project, build/run the right target, and summarize the real blocker if it fails."

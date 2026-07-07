@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Foundation Models"
+  short_description: "Add on-device Foundation Models features with availability, structure, and proof"
+  default_prompt: "Use $apple-foundation-models to design or implement a local Apple Foundation Models feature with fallback and instrumentation."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple SwiftUI Patterns"
+  short_description: "Build and refactor Apple SwiftUI, Liquid Glass, and platform UI surfaces"
+  default_prompt: "Use $apple-swiftui-patterns to shape or refactor a native Apple SwiftUI surface with platform-appropriate structure."

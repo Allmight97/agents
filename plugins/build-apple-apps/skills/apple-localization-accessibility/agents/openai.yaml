@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Localization / Accessibility"
+  short_description: "Localize and accessibility-test Apple apps with app-native proof"
+  default_prompt: "Use $apple-localization-accessibility to localize or accessibility-check an Apple app surface with concrete proof."

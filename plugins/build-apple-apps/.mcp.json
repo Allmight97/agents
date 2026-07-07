@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "xcodebuildmcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "xcodebuildmcp@2.6.2",
+        "mcp"
+      ],
+      "env": {
+        "DEVELOPER_DIR": "/Applications/Xcode-beta.app/Contents/Developer",
+        "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,simulator-management,device,macos,project-discovery,project-scaffolding,swift-package,debugging,ui-automation,doctor,coverage,utilities,xcode-ide"
+      }
+    }
+  }
+}

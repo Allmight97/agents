@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Preview Browser"
+  short_description: "Mirror iOS Simulator and SwiftUI previews inside the Codex browser"
+  default_prompt: "Use $apple-preview-browser to show an iOS Simulator or SwiftUI package previews in the Codex browser with proof."

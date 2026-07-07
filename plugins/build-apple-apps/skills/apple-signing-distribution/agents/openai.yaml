@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Signing / Distribution"
+  short_description: "Diagnose Apple signing, entitlement, provisioning, and distribution blockers"
+  default_prompt: "Use $apple-signing-distribution to classify and fix an Apple signing or distribution failure without mutating account state."

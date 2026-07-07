@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple App Intents"
+  short_description: "Expose Apple app actions and entities to system surfaces"
+  default_prompt: "Use $apple-app-intents to design and implement a small App Intents surface with entities, shortcuts, and app handoff."

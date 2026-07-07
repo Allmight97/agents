@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple 27 Toolchain"
+  short_description: "Verify Xcode 27, SDKs, simulators, devices, and MCP readiness"
+  default_prompt: "Use $apple-27-toolchain to verify the Apple 27 toolchain and classify missing Xcode, SDK, simulator, or device pieces."
