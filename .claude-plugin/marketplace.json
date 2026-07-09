@@ -15,7 +15,7 @@
     },
     {
       "name": "codex",
-      "description": "Lean Codex (GPT-5.5) delegation via the codex CLI: rescue subagent, native review, prompting guidance.",
+      "description": "Lean, model-dynamic Codex delegation via the CLI: intentional rescue, native review, and prompting guidance.",
       "source": "./plugins/codex",
       "category": "productivity"
     }

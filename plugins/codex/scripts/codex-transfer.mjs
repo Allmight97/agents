@@ -13,7 +13,7 @@ const CLAUDE_PROJECTS_DIR = path.join(os.homedir(), ".claude", "projects");
 const CODEX_HOME = path.resolve(process.env.CODEX_HOME || path.join(os.homedir(), ".codex"));
 const IMPORT_COMPLETED_METHOD = "externalAgentConfig/import/completed";
 const IMPORT_TIMEOUT_MS = 2 * 60 * 1000;
-const PLUGIN_VERSION = "0.2.0";
+const PLUGIN_VERSION = "0.3.0";
 
 function shellEscape(value) {
   return `'${String(value).replace(/'/g, `'\"'\"'`)}'`;

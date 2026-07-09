@@ -1,4 +1,4 @@
-skills/gpt-5-5-prompting/ is adapted from openai/codex-plugin-cc
+skills/codex-prompting/ is adapted from openai/codex-plugin-cc
 (Copyright 2026 OpenAI), licensed under the Apache License, Version 2.0
-(see LICENSE-APACHE-2.0). Modified for GPT-5.5-oriented, direct codex CLI
+(see LICENSE-APACHE-2.0). Modified for model-dynamic, direct Codex CLI
 prompting.

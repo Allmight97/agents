@@ -1,6 +1,6 @@
 ---
-description: Delegate a task to Codex (GPT-5.5) via the codex-rescue subagent
-argument-hint: "[--background|--wait] [--resume|--fresh] [--model <model|spark>] [--effort <none|minimal|low|medium|high|xhigh>] [what Codex should investigate, solve, or continue]"
+description: Delegate a task to Codex via the codex-rescue subagent
+argument-hint: "[--background|--wait] [--resume|--fresh] [--model <sol|terra|luna|model>] [--effort <none|minimal|low|medium|high|xhigh|max|ultra>] [what Codex should investigate, solve, or continue]"
 allowed-tools: Agent
 ---
 
