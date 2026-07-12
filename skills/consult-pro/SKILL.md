@@ -1,6 +1,6 @@
 ---
 name: consult-pro
-description: Build, refine, and synthesize ChatGPT Pro / GPT-5.5 Pro consultation prompts. Use when the user asks for a paste-ready Pro prompt, wants Pro to audit/review/critique a repo or plan, needs a follow-up after a Pro response, wants Pro feedback checked against local evidence, or wants a manual Pro consultation loop without browser monitoring.
+description: Build, refine, and synthesize ChatGPT Pro consultation prompts. Use when the user asks for a paste-ready Pro prompt, wants Pro to audit, review, or critique a repo or plan, needs a follow-up after a Pro response, wants Pro feedback checked against local evidence, or wants a manual Pro consultation loop without browser monitoring.
 ---
 
 # Consult Pro
@@ -15,8 +15,8 @@ blind spots, then validate its response against local evidence before acting.
 
 This skill owns the manual Pro consultation loop: prompt packaging, follow-up,
 and response synthesis. It does not own the underlying repo decision, skill
-design, or instruction rewrite; use the relevant project skill, `$writing-great-skills`,
-or `$craft-gpt-55-instructions` for that work after Pro's claims are checked.
+design, or instruction rewrite; use the relevant project skill or
+`$writing-great-skills` for that work after Pro's claims are checked.
 
 ## Workflow
 
@@ -53,5 +53,5 @@ or `$craft-gpt-55-instructions` for that work after Pro's claims are checked.
   asks such as "give feedback."
 - Ask Pro to distinguish `adopt`, `purge`, `defer`, and `reject` when the output
   affects repo changes.
-- Skip praise, apologies, and boilerplate like "You are GPT-5.5 Pro"; ask for
+- Skip praise, apologies, and model-identity boilerplate; ask for
   evidence-backed findings and a decision-oriented recommendation.

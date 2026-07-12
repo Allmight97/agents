@@ -30,8 +30,14 @@ Break the plan into **tracer bullet** issues. Each issue is a thin vertical slic
 - Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
 - A completed slice is demoable or verifiable on its own
 - Any prefactoring should be done first
+- Each slice fits one fresh agent context, including only the discovery needed to complete it safely
 
 </vertical-slice-rules>
+
+For a genuinely wide mechanical refactor where a vertical slice would be
+artificial, use **expand → migrate → contract**: add the compatible path, move
+callers in bounded batches, then remove the old path. Keep each issue independently
+verifiable and state its dependency explicitly.
 
 ### 4. Quiz the user
 

@@ -1,7 +1,9 @@
-# Personal Agent Workspace
+# Personal Agent Marketplace
 
-Private workspace for personal agent skills, Claude/Codex plugin marketplace
-metadata, and small shared agent configuration.
+Canonical source for personal skills, Claude/Codex marketplace metadata, and
+small shared agent configuration. GitHub `main` is the publication source;
+agent harnesses consume the published plugins rather than a permanent local
+skills checkout.
 
 ## Tracked
 
@@ -33,15 +35,9 @@ Install from GitHub rather than the local `/Users/jstar/.agents` path. Claude's
 local-path plugin cache can copy ignored local-only directories such as `env/`
 and `bin/`; GitHub installation uses the tracked repo contents only.
 
-## Codex Skill Source
+## Codex Marketplace
 
-On this development Mac, Codex reads the local clone directly because
-`/Users/jstar/.agents/skills` is the documented user-scope skill root. Do not
-also install `personal-skills@personal` in Codex here; that creates duplicate
-skills from the local tree and the plugin cache.
-
-For a fresh machine without the `/Users/jstar/.agents` clone, Codex can subscribe
-to this repo as the `personal` marketplace:
+Subscribe Codex to this repo as the `personal` marketplace:
 
 ```bash
 codex plugin marketplace add Allmight97/agents
@@ -54,8 +50,10 @@ codex plugin add personal-skills@personal
 ```
 
 The plugin exposes namespaced skills, for example `personal-skills:diagnose`.
-Use either the local user-scope tree or the plugin install, not both. Codex does
-not merge duplicate skill names across roots.
+Do not keep a checkout at `/Users/jstar/.agents/skills`: Codex discovers that as
+a user-scope skill root, which duplicates the marketplace plugin. A local
+working clone used to author a change belongs in an ordinary project or
+temporary work directory and can be removed after publication.
 
 The Codex catalog intentionally lives at `.agents/plugins/marketplace.json`.
 That is the path Codex expects inside a Git marketplace checkout. Do not keep a
@@ -66,9 +64,10 @@ Future plugins should be added as their own entries in the Codex marketplace
 catalog only when they are genuinely separate products. Personal workflow skills,
 including Whittle, belong in `personal-skills`.
 
-To publish a new shared skill for Codex, edit `skills/<skill-name>/SKILL.md`,
-commit, and push. On machines using the plugin path, refresh the marketplace and
-reinstall `personal-skills@personal`:
+To publish a new shared skill for Codex, clone or update this repository in an
+ordinary working directory, edit `skills/<skill-name>/SKILL.md`, validate,
+commit, and push. Then refresh the existing marketplace and install or update
+`personal-skills@personal`:
 
 ```bash
 codex plugin marketplace upgrade personal
@@ -80,7 +79,12 @@ The Codex plugin manifest does not need a per-skill edit.
 To publish a new plugin, create the plugin, add one marketplace entry for it, and
 commit/push. Do not split ordinary personal skills out of `personal-skills`.
 
-## Local Only
+## Machine-Local Support
+
+`/Users/jstar/.agents` may remain as a non-repository machine-state directory
+for paths already used by local clients:
 
 - `env/`: machine-local environment files.
 - `bin/`: machine-local executable shims and MCP binaries.
+
+Those directories are not the personal-skill source of truth.

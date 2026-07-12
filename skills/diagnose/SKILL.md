@@ -13,6 +13,10 @@ When exploring the codebase, read the project's canonical language and decision 
 
 **Phase 1 is the core.** Everything else is mechanical. If you have a fast, deterministic, agent-runnable pass/fail signal for the bug, you will find the cause — bisection, hypothesis-testing, and instrumentation all just consume that signal. If you don't have one, no amount of staring at code will save you.
 
+Before broad code reading or theorizing, build and run a tight red-capable loop.
+Do not advance to hypotheses until it has produced the reported failure at least
+once.
+
 Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give up.**
 
 ### Ways to construct one — try them in roughly this order
@@ -79,7 +83,9 @@ Do not proceed until you reproduce and minimise the bug.
 
 ## Phase 3 — Hypothesise
 
-Generate **3–5 ranked hypotheses** before testing any of them. Single-hypothesis generation anchors on the first plausible idea.
+Only after the Phase 1 loop has gone red, generate **3–5 ranked hypotheses**
+before testing any of them. Single-hypothesis generation anchors on the first
+plausible idea.
 
 Each hypothesis must be **falsifiable**: state the prediction it makes.
 

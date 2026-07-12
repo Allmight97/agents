@@ -6,9 +6,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Added
-- `codex@personal` plugin (`plugins/codex/`): lean Codex (GPT-5.5) delegation
+- `codex@personal` plugin (`plugins/codex/`): lean, model-dynamic Codex delegation
   wrapping the `codex` CLI directly — `codex-rescue` subagent, `/codex:rescue`,
-  `/codex:review`, and the `gpt-5-5-prompting` internal skill (adapted from
+  `/codex:review`, and the `codex-prompting` internal skill (adapted from
   Apache-2.0 upstream; see plugin NOTICE). Replaces the removed vendor plugin.
   The rescue agent invokes `command codex ... </dev/null` to neutralize user
   shell aliases and background stdin blocking.
@@ -25,9 +25,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
   sediment, no-ops, plugin-specific toggle boundaries, and flavor lines.
 - Moved Whittle publishing into `personal-skills`; removed standalone
   `whittle@personal` marketplace entries.
-- Clarified Codex source policy: this development Mac uses the local
-  `/Users/jstar/.agents/skills` tree directly, while fresh machines can install
-  `personal-skills@personal` from the marketplace.
+- Made `impeccable` resolve bundled scripts from its installed skill directory
+  instead of a machine-specific checkout path.
+- Made `consult-pro` model-dynamic and removed its dead GPT-5.5 instruction
+  dependency.
+- Tightened `diagnose` around a red-capable loop and `to-issues` around
+  one-context slices plus expand-migrate-contract migrations.
+- Changed Codex source policy: GitHub `main` is canonical and Codex consumes
+  `personal-skills@personal`; `/Users/jstar/.agents` remains only for
+  machine-local support where required.
 
 ### Removed
 - Standalone Whittle skill surfaces for `whittle-debt` and `whittle-audit`;
