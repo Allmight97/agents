@@ -1,6 +1,6 @@
 ---
 name: write-sharp-docs
-description: Write, rewrite, critique, and manage high-taste technical program and engineering documents. Use when Codex is asked for better docs, specs, RFCs, decision memos, launch or readiness docs, completion records, Google Docs-ready drafts, less LLM-y writing, senior TPM or staff-engineer polish, document pruning, audience fit, decision clarity, or durable knowledge management.
+description: Write, rewrite, critique, and manage high-taste technical program and engineering documents. Use when asked for better docs, specs, RFCs, decision memos, launch or readiness docs, completion records, Google Docs-ready drafts, less LLM-y writing, senior TPM or staff-engineer polish, document pruning, audience fit, decision clarity, or durable knowledge management.
 ---
 
 # Write Sharp Docs

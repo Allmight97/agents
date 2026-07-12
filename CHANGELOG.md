@@ -1,73 +1,73 @@
 # Changelog
 
-All notable changes to this personal agent workspace are recorded here.
-Format based on [Keep a Changelog](https://keepachangelog.com/).
+This file records released behavior, interface, availability, and ownership
+changes across the repository. It does not preserve intermediate churn,
+unchanged surfaces, or commit-by-commit narration.
+
+## Release convention
+
+- The repository release version is also the `personal-skills` plugin version.
+- Tags named `vX.Y.Z` identify repository releases. Nested plugins keep their
+  own versions and are named inline; use component-prefixed tags such as
+  `codex-v0.4.0` only if a nested plugin ever needs a separate tag.
+- One completed revision pass becomes one repository release, including a pass
+  that changes only a nested plugin.
+- Use a patch for compatible fixes and bounded refinements. While the repository
+  is pre-1.0, use a minor for new capabilities and incompatible changes. Treat
+  `1.0.0` as a deliberate stability commitment.
+- `[Unreleased]` exists only while a pass is active. Before publication, move
+  its entries into a dated version section, synchronize the root Claude and
+  Codex manifests, commit, and tag the release.
+- Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
+  sections and git tags use the base version only.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-12
+
 ### Added
-- `codex@personal` plugin (`plugins/codex/`): lean, model-dynamic Codex delegation
-  wrapping the `codex` CLI directly — `codex-rescue` subagent, `/codex:rescue`,
-  `/codex:review`, and the `codex-prompting` internal skill (adapted from
-  Apache-2.0 upstream; see plugin NOTICE). Replaces the removed vendor plugin.
-  The rescue agent invokes `command codex ... </dev/null` to neutralize user
-  shell aliases and background stdin blocking.
+
+- Published the shared skill tree as `personal-skills@personal` for Claude and
+  Codex marketplace installation.
+- Added `codex@personal` 0.3.0 for model-dynamic Codex delegation from Claude:
+  rescue, review, setup, transfer, and adversarial review.
+- Added the Codex-only `build-apple-apps@personal` 0.1.0 plugin for Apple 27,
+  Swift, SwiftUI, Xcode, simulator, signing, performance, and distribution work.
+- Added `parallels-windows-ops`, `whittle`, and `whittle-review` to the shared
+  personal skill tree.
 
 ### Changed
-- Made `agents-md-steward` memory-aware for routing durable personal learnings:
-  classify memory stores as a destination, require explicit authorization and
-  dedupe before memory writes, and prevent automatic promotion into always-loaded
-  instruction files.
-- Integrated Whittle as two shared skills. Folded `whittle-audit` into
-  `whittle-review` as a repo-audit scope branch and dropped `whittle-debt`
-  because the `whittle:` marker convention was not adopted.
-- Refined all whittle skills against `writing-great-skills` audit loop: cut
-  sediment, no-ops, plugin-specific toggle boundaries, and flavor lines.
-- Moved Whittle publishing into `personal-skills`; removed standalone
-  `whittle@personal` marketplace entries.
-- Made `impeccable` resolve bundled scripts from its installed skill directory
-  instead of a machine-specific checkout path.
-- Made `consult-pro` model-dynamic and removed its dead GPT-5.5 instruction
-  dependency.
+
+- Established one-pass-one-release versioning across the repository, with root
+  personal-skills manifests synchronized and nested plugin versions named
+  explicitly.
+- Made GitHub `main` canonical for personal skills; Claude and Codex consume the
+  marketplace plugin while `/Users/jstar/.agents` retains machine-local support
+  only.
+- Made `agents-md-steward` route durable personal learnings through authorized,
+  deduplicated memory updates instead of promoting them into always-loaded
+  guidance automatically.
+- Made `impeccable` resolve bundled scripts from its installed skill directory.
+- Made `consult-pro` model-dynamic and removed its GPT-5.5-specific dependency.
 - Tightened `diagnose` around a red-capable loop and `to-issues` around
-  one-context slices plus expand-migrate-contract migrations.
+  one-agent-context slices plus expand-migrate-contract migrations.
 - Made `write-sharp-docs` lead mixed-status documents with current-state
   orientation, finding-to-disposition chains, progressive disclosure, and a
-  clear distinction between implementation records and process narration;
-  session-transfer structure remains owned by `handoff`.
-- Changed Codex source policy: GitHub `main` is canonical and Codex consumes
-  `personal-skills@personal`; `/Users/jstar/.agents` remains only for
-  machine-local support where required.
+  clear implementation-record boundary; `handoff` remains the owner of
+  session-transfer structure.
+- Consolidated Whittle into one implementation skill and one read-only review
+  skill inside `personal-skills`.
 
 ### Removed
-- Standalone Whittle skill surfaces for `whittle-debt` and `whittle-audit`;
-  repo-wide audit now lives in `whittle-review`.
-- Standalone `whittle` plugin catalog entries sourced from
-  `Allmight97/whittle.git`.
 
-## 2026-06-29
+- Moved `ask-abb` out of the shared tree to the Audiobook Boss project-local
+  skill owner.
+- Removed the obsolete GPT-5.5 prompt-instruction skill.
 
-### Added
-- Whittle listed in Claude and Codex marketplace manifests as a separate plugin
-  sourced from `Allmight97/whittle.git`.
-
-## 2026-06-25
-
-### Changed
-- Moved ABB router skill (`ask-abb`) out of shared skills into the
-  audiobook-boss project-local skills tree.
-
-## 2026-06-24
+## [0.1.0] - 2026-06-24
 
 ### Added
-- `skills/codebase-design/`, `skills/create-presentation-artifact/`,
-  `skills/grill-me/`, `skills/improve-codebase-architecture/`,
-  `skills/resolving-merge-conflicts/`, `skills/to-issues/`,
-  `skills/write-sharp-docs/`, `skills/writing-great-skills/`.
-- Codex marketplace catalog at `.agents/plugins/marketplace.json`.
 
-## 2026-06-16
-
-### Added
-- Initial personal agent workspace: shared skills, Claude/Codex plugin
-  manifests, local `env/` and `bin/` directories.
+- Established the personal agent workspace and initial shared skill set for
+  diagnosis, consultation, design, security, teaching, planning, handoff,
+  architecture, and document work.

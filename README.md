@@ -27,9 +27,8 @@ Plugin skills are namespaced, for example `/personal-skills:diagnose` and
 `/personal-skills:whittle`. Whittle lives in this shared skill tree, not as a
 separate plugin.
 
-To publish a new skill, add `skills/<skill-name>/SKILL.md`, commit it, push to
-`main`, then update or reload the installed plugin. The Claude plugin manifest
-does not need a per-skill edit.
+To publish a new skill or revision, follow the repository release workflow
+below, then update or reload the installed plugin.
 
 Install from GitHub rather than the local `/Users/jstar/.agents` path. Claude's
 local-path plugin cache can copy ignored local-only directories such as `env/`
@@ -64,20 +63,33 @@ Future plugins should be added as their own entries in the Codex marketplace
 catalog only when they are genuinely separate products. Personal workflow skills,
 including Whittle, belong in `personal-skills`.
 
-To publish a new shared skill for Codex, clone or update this repository in an
-ordinary working directory, edit `skills/<skill-name>/SKILL.md`, validate,
-commit, and push. Then refresh the existing marketplace and install or update
-`personal-skills@personal`:
+After publishing a repository release, refresh the existing marketplace and
+install or update `personal-skills@personal`:
 
 ```bash
 codex plugin marketplace upgrade personal
 codex plugin add personal-skills@personal
 ```
 
-The Codex plugin manifest does not need a per-skill edit.
-
 To publish a new plugin, create the plugin, add one marketplace entry for it, and
-commit/push. Do not split ordinary personal skills out of `personal-skills`.
+include its version in the repository release. Do not split ordinary personal
+skills out of `personal-skills`.
+
+## Release Workflow
+
+One completed revision pass becomes one repository release. Follow the version
+rules at the top of `CHANGELOG.md`:
+
+1. Make the bounded skill, plugin, or repository changes.
+2. Move the net released changes from `[Unreleased]` into a dated version
+   section; omit intermediate churn and unchanged surfaces.
+3. Synchronize the root Claude and Codex `personal-skills` base versions. Give
+   changed nested plugins their own component versions and name them in the same
+   changelog section.
+4. Validate changed skills plus both plugin manifests.
+5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
+6. Refresh the existing marketplaces and update installed plugins in each
+   harness.
 
 ## Machine-Local Support
 
