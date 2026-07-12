@@ -33,7 +33,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
   one-context slices plus expand-migrate-contract migrations.
 - Made `write-sharp-docs` lead mixed-status documents with current-state
   orientation, finding-to-disposition chains, progressive disclosure, and a
-  clear distinction between implementation records and process narration.
+  clear distinction between implementation records and process narration;
+  session-transfer structure remains owned by `handoff`.
 - Changed Codex source policy: GitHub `main` is canonical and Codex consumes
   `personal-skills@personal`; `/Users/jstar/.agents` remains only for
   machine-local support where required.

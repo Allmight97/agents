@@ -1,6 +1,6 @@
 ---
 name: write-sharp-docs
-description: Write, rewrite, critique, and manage high-taste technical program and engineering documents. Use when Codex is asked for better docs, specs, RFCs, decision memos, launch or readiness docs, completion records, handoffs, Google Docs-ready drafts, less LLM-y writing, senior TPM or staff-engineer polish, document pruning, audience fit, decision clarity, or durable knowledge management.
+description: Write, rewrite, critique, and manage high-taste technical program and engineering documents. Use when Codex is asked for better docs, specs, RFCs, decision memos, launch or readiness docs, completion records, Google Docs-ready drafts, less LLM-y writing, senior TPM or staff-engineer polish, document pruning, audience fit, decision clarity, or durable knowledge management.
 ---
 
 # Write Sharp Docs
@@ -16,6 +16,10 @@ Identify five facts before drafting or editing:
 - **Surface**: chat answer, Markdown, Google Doc, Google Sheet, Google Slides, issue, PR description, or repo doc.
 
 If the user points at Google Drive, Docs, Sheets, or Slides, use the relevant Google connector skill when available for live file state, edits, comments, export, import, or file organization. Do not rely on web search or model memory for live enterprise document state.
+
+If the job is packaging the current session for a fresh task, `handoff` owns the
+artifact and its structure. Use this skill only to improve handoff prose when
+the user explicitly asks for that editorial pass.
 
 ## State Before Story
 
@@ -50,7 +54,6 @@ Choose the smallest structure that does the job:
 - **RFC or design doc**: decision needed, recommendation, context, constraints, options, tradeoffs, rollout, risks, open questions.
 - **Decision memo**: decision, recommendation, evidence, options considered, impact, owners, date, revisit trigger.
 - **Launch or readiness doc**: current status, launch criteria, risks, owners, verification, rollback, communications, unresolved decisions.
-- **Handoff**: current state, intended outcome, changed files or docs, commands or links, next actions, known risks.
 - **Audit or completion record**: current-state ledger, material findings and dispositions, completed changes with proof, remaining work, deferred decisions.
 
 For a long document, disclose progressively:
