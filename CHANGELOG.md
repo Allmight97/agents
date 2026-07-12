@@ -23,6 +23,20 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-12
+
+### Added
+
+- Added `code-review` as the read-only owner for changed-code correctness,
+  requested behavior, regressions, proof gaps, and merge readiness.
+
+### Changed
+
+- Routed over-engineering-only reviews to `whittle-review` and repository-wide
+  structural scans to the explicit `improve-codebase-architecture` workflow.
+- Made Whittle line-count summaries conditional on defensible estimates and
+  added an explicit stop against manufacturing another cleanup round.
+
 ## [0.2.0] - 2026-07-12
 
 ### Added

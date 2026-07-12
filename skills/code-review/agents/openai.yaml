@@ -1,0 +1,4 @@
+interface:
+  display_name: Code Review
+  short_description: Review changed code for correctness and merge readiness
+  default_prompt: Use $code-review to review this branch or PR and give me a severity-ranked merge verdict.

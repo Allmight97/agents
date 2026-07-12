@@ -4,7 +4,8 @@ description: >
   Review for over-engineering without applying fixes: find what to delete,
   replace with stdlib/native, or shrink. Use when asked to review a diff or
   audit a repo for unnecessary complexity, bloat, deletion candidates, or YAGNI
-  violations. Correctness, security, and performance are out of scope.
+  violations. Correctness, requested behavior, merge readiness, security, and
+  performance are out of scope; route ordinary code review to code-review.
 ---
 
 Review for unnecessary complexity. One line per finding:
@@ -53,14 +54,19 @@ and dependency trees from findings.
 
 `L30-44: shrink: manual loop builds dict. dict(zip(keys, values)), 1 line.`
 
-## Scoring
+## Stop Condition
 
-Diff: end with `net: -<N> lines possible.`
-Repo: end with `net: -<N> lines, -<M> deps possible.`
-Nothing to cut: `Lean already. Ship.`
+Line count is evidence, not the objective. Never recommend a cut solely to
+increase the total. When the estimate is defensible, end with `net: about -<N>
+lines possible` and, for repo audits, `-<M> deps possible`. Otherwise end with
+`cuts: <N> concrete candidates` rather than manufacturing precision.
+
+When the remaining ideas are taste, speculative, or governed indirection, stop:
+`Lean already. Ship.` Do not invent another cleanup round.
 
 ## Out of scope
 
-Correctness bugs, security holes, and performance -- route them to a normal
-review pass. A single smoke test or `assert`-based self-check is the whittle
-minimum, not bloat; never flag it for deletion. Lists findings, applies nothing.
+Correctness bugs, requested behavior, merge readiness, security holes, and
+performance route to `code-review` or the matching specialist. A single smoke
+test or `assert`-based self-check is the whittle minimum, not bloat; never flag
+it for deletion. Lists findings, applies nothing.
