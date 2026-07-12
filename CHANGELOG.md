@@ -31,6 +31,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
   dependency.
 - Tightened `diagnose` around a red-capable loop and `to-issues` around
   one-context slices plus expand-migrate-contract migrations.
+- Made `write-sharp-docs` lead mixed-status documents with current-state
+  orientation, finding-to-disposition chains, progressive disclosure, and a
+  clear distinction between implementation records and process narration.
 - Changed Codex source policy: GitHub `main` is canonical and Codex consumes
   `personal-skills@personal`; `/Users/jstar/.agents` remains only for
   machine-local support where required.
