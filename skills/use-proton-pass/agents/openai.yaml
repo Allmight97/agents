@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use Proton Pass"
+  short_description: "Read-only Proton Pass CLI and portal access"
+  default_prompt: "Use $use-proton-pass to retrieve the named credential and access the requested portal."

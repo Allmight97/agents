@@ -23,6 +23,14 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-17
+
+### Added
+
+- Added `use-proton-pass` for read-only Proton Pass agent sessions, non-disclosing
+  credential handoffs, portal login, secret injection, scope diagnosis, and
+  versioned pass-cli behavior references.
+
 ## [0.3.0] - 2026-07-12
 
 ### Added

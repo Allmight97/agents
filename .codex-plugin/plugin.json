@@ -1,6 +1,6 @@
 {
   "name": "personal-skills",
-  "version": "0.3.0+codex.20260712211132",
+  "version": "0.4.0+codex.20260718030033",
   "description": "Shared personal skills for Codex, Claude Desktop, Cowork, and Claude Code.",
   "author": {
     "name": "Allmight97",
@@ -17,7 +17,7 @@
   "interface": {
     "displayName": "Personal Skills",
     "shortDescription": "Shared personal agent skills",
-    "longDescription": "Reusable personal skills for diagnosis, writing, design, security, architecture, and workflow support.",
+    "longDescription": "Reusable personal skills for diagnosis, writing, design, security, credential access, architecture, and workflow support.",
     "developerName": "Allmight97",
     "category": "Productivity",
     "capabilities": [
@@ -27,7 +27,8 @@
     "defaultPrompt": [
       "Use diagnose to debug this issue.",
       "Use write-sharp-docs to improve this doc.",
-      "Use impeccable to review this UI."
+      "Use impeccable to review this UI.",
+      "Use use-proton-pass to access the requested account."
     ],
     "brandColor": "#2563EB"
   }

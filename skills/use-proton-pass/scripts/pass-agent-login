@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+pass_agent="${script_dir}/pass-agent"
+
+if "$pass_agent" info >/dev/null 2>&1 && "$pass_agent" test >/dev/null 2>&1; then
+  printf '%s\n' 'The Proton Pass agent session is already active.'
+  exit 0
+fi
+
+agent_token=${PROTON_PASS_PERSONAL_ACCESS_TOKEN:-}
+if [[ -z "$agent_token" ]]; then
+  if [[ ! -t 0 ]]; then
+    printf '%s\n' 'Run this helper in a terminal so the token can be entered without echo.' >&2
+    exit 2
+  fi
+  printf '%s' 'Proton Pass agent token: ' >&2
+  IFS= read -r -s agent_token
+  printf '\n' >&2
+fi
+
+cleanup() {
+  unset agent_token PROTON_PASS_PERSONAL_ACCESS_TOKEN
+}
+trap cleanup EXIT HUP INT TERM
+
+PROTON_PASS_PERSONAL_ACCESS_TOKEN="$agent_token" "$pass_agent" login
+"$pass_agent" test >/dev/null
+printf '%s\n' 'The Proton Pass agent session is active.'

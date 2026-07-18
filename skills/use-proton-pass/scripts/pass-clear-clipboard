@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v pbcopy >/dev/null 2>&1; then
+  printf '%s\n' 'pbcopy is not available.' >&2
+  exit 127
+fi
+
+pbcopy < /dev/null
+printf '%s\n' 'System clipboard cleared.'

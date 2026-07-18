@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v pass-cli >/dev/null 2>&1; then
+  printf '%s\n' 'pass-cli is not installed or not on PATH.' >&2
+  exit 127
+fi
+
+if [[ $# -eq 0 ]]; then
+  printf '%s\n' 'A pass-cli command is required.' >&2
+  exit 2
+fi
+
+allowed=false
+case "$1" in
+  -h|--help|-V|--version|info|test|login|logout)
+    allowed=true
+    ;;
+  run)
+    allowed=true
+    for arg in "${@:2}"; do
+      [[ "$arg" == '--' ]] && break
+      if [[ "$arg" == '--no-masking' ]]; then
+        printf '%s\n' 'Blocked: --no-masking can disclose resolved secrets.' >&2
+        exit 64
+      fi
+    done
+    ;;
+  inject)
+    allowed=true
+    has_out_file=false
+    for arg in "$@"; do
+      case "$arg" in
+        -o|--out-file|--out-file=*) has_out_file=true ;;
+      esac
+    done
+    if [[ "$has_out_file" != true ]]; then
+      printf '%s\n' 'Blocked: inject must use --out-file so rendered secrets are not printed.' >&2
+      exit 64
+    fi
+    ;;
+  share)
+    [[ ${2:-} == 'list' ]] && allowed=true
+    ;;
+  vault)
+    [[ ${2:-} == 'list' ]] && allowed=true
+    ;;
+  item)
+    case "${2:-}" in
+      list|view|get|show|totp)
+        allowed=true
+        ;;
+      attachment)
+        [[ ${3:-} == 'download' ]] && allowed=true
+        ;;
+    esac
+    ;;
+  agent)
+    case "${2:-}" in
+      list|monitor|instructions)
+        allowed=true
+        ;;
+    esac
+    ;;
+  personal-access-token)
+    if [[ ${2:-} == 'list' ]]; then
+      allowed=true
+    elif [[ ${2:-} == 'access' && ${3:-} == 'list-access' ]]; then
+      allowed=true
+    fi
+    ;;
+  user)
+    [[ ${2:-} == 'info' ]] && allowed=true
+    ;;
+  password)
+    case "${2:-}" in
+      generate|score)
+        allowed=true
+        ;;
+    esac
+    ;;
+  ssh-agent)
+    allowed=true
+    for arg in "$@"; do
+      case "$arg" in
+        --create-new-identities|--create-new-identities=*)
+          printf '%s\n' 'Blocked: --create-new-identities can write SSH keys to Proton Pass.' >&2
+          exit 64
+          ;;
+      esac
+    done
+    ;;
+esac
+
+if [[ "$allowed" != true ]]; then
+  printf '%s\n' 'Blocked: the use-proton-pass helper permits read-only Proton Pass operations only.' >&2
+  exit 64
+fi
+
+session_dir=${PROTON_PASS_SESSION_DIR:-"${HOME}/.agents/state/proton-pass/codex"}
+mkdir -p "$session_dir"
+chmod 700 "$session_dir"
+export PROTON_PASS_SESSION_DIR="$session_dir"
+
+exec pass-cli "$@"
