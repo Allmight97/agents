@@ -23,6 +23,21 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-29
+
+### Added
+
+- Added `externalize-structure` to turn dependency-heavy or stateful material
+  into the smallest useful inline table, flow, tree, timeline, graph, wireframe,
+  or prose form.
+
+### Changed
+
+- Made `use-proton-pass` recover its disposable CLI session from a
+  session-scoped Viewer PAT stored in macOS Keychain, with non-disclosing
+  clipboard provisioning and explicit missing, rejected, or expired token
+  outcomes.
+
 ## [0.4.0] - 2026-07-17
 
 ### Added

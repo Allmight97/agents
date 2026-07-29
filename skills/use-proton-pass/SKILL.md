@@ -12,7 +12,10 @@ Use Proton Pass as the read-only credential source without placing secret values
 Resolve paths from this skill's installed directory, not the current working directory:
 
 - `scripts/pass-agent`: run `pass-cli` in the dedicated machine-local agent session.
-- `scripts/pass-agent-login`: authenticate that session from a hidden terminal prompt.
+- `scripts/pass-agent-ensure`: validate the derived CLI session and recreate it from the durable PAT stored in macOS Keychain.
+- `scripts/pass-agent-provision`: store or replace that durable PAT in macOS Keychain, then authenticate the session. Use `--from-clipboard` after reducing Proton's copied instructions to a raw token.
+- `scripts/pass-agent-token-from-clipboard`: reduce Proton's copied agent-setup markdown to the raw PAT in the clipboard without printing it.
+- `scripts/pass-agent-login`: authenticate once without storing the PAT. Use only when durable provisioning is explicitly unwanted.
 - `scripts/pass-copy-secret`: copy one field or TOTP code to the system clipboard without printing it.
 - `scripts/pass-clear-clipboard`: clear the system clipboard after use.
 
@@ -23,11 +26,12 @@ Read `references/verified-contract.md` before diagnosing permissions, choosing a
 ## Start a task
 
 1. Run `pass-cli --version` when installation is unverified. If missing, use the official installation instructions at <https://protonpass.github.io/pass-cli/get-started/installation/>.
-2. Run `scripts/pass-agent info >/dev/null`, then `scripts/pass-agent test >/dev/null`. This catches a locally present session that the server has invalidated. Do not repeat both checks before every command.
-3. If the session is invalid, ask the user to run `scripts/pass-agent-login` in a visible terminal. Do not ask them to paste a PAT into chat.
+2. Run `scripts/pass-agent-ensure`. It validates both local session presence and the server connection, then recreates a missing or invalid derived session from the Viewer PAT stored in macOS Keychain.
+3. Exit `3` means no durable PAT is provisioned. Ask the user to run `scripts/pass-agent-provision` in a visible terminal. Exit `4` means Proton rejected the stored PAT because it expired, was revoked, or lost authorization; create a replacement and rerun provisioning. Do not ask the user to paste a PAT into chat.
+   - When Proton shows agent setup instructions instead of a raw token, copy the instructions, run `scripts/pass-agent-token-from-clipboard`, then run `scripts/pass-agent-provision --from-clipboard`. The token moves directly from the clipboard into Keychain, the clipboard is cleared, and the token is not printed or passed as a process argument.
 4. Identify the exact destination, account/item, fields, and requested action. Ask only when ambiguity could select the wrong account or transmit a credential to the wrong destination.
 
-Do not log out or reauthenticate after an arbitrary failure. First classify authentication, authorization, lookup, argument, or network failure. Clear a session only after confirmed stale-session evidence.
+Do not log out or reprovision after an arbitrary failure. First classify authentication, authorization, lookup, argument, or network failure. The derived CLI session is disposable; the Keychain PAT is the durable recovery credential.
 
 ## Choose the narrowest path
 
@@ -90,7 +94,7 @@ When checking scope from an owner session, use `personal-access-token access lis
 ## Keep secrets out of durable surfaces
 
 - Never place a PAT, password, TOTP seed/code, recovery code, private key, session file, vault export, or retrieved secret in a skill, repository, memory, issue, commit, message, command argument, or tool output.
-- Passing an agent token from Proton's creation flow to its intended agent is expected. Persist the resulting isolated session, not the raw token.
+- Passing an agent token from Proton's creation flow to its intended agent is expected. On macOS, persist it only in the dedicated Keychain item created by `pass-agent-provision`; never persist it in a file, shell history, environment profile, note, or skill.
 - Do not read browser password stores, cookies, local storage, Proton session files, or clipboard contents.
 - Do not enable shell tracing around Proton Pass commands.
 - If a secret reaches an unintended audience or durable surface, report the exact exposure boundary and recommend rotation. Do not call an intended one-time agent handoff a compromise by itself.
@@ -99,10 +103,10 @@ When checking scope from an owner session, use `personal-access-token access lis
 
 Use this order:
 
-1. `scripts/pass-agent info >/dev/null`
-2. `scripts/pass-agent test`
+1. `scripts/pass-agent-ensure`
+2. If it exits `3`, provision the missing durable PAT. If it exits `4`, replace the rejected or expired PAT.
 3. the failed command's `--help`
 4. a narrow share/vault/item metadata check
-5. reauthentication only for confirmed authentication expiry
+5. manual one-shot login only when durable Keychain provisioning is explicitly unwanted
 
 Report whether the failure is installation, session, network, permission, lookup ambiguity, unsupported browser interaction, or command usage. Do not dump full command output when it contains account or vault metadata.

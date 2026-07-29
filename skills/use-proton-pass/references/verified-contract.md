@@ -16,6 +16,8 @@ Use this reference when pass-cli behavior, permission scope, audit coverage, or 
 - `PROTON_PASS_SESSION_DIR` isolates session data. The skill defaults to `~/.agents/state/proton-pass/codex`.
 - On macOS, the default key provider stores the session encryption key in Keychain. Do not switch automatically to the filesystem or environment key providers.
 - `info` describes the local session; `test` verifies an authenticated connection. A primary user report shows that server-side invalidation can leave stale local session state, so task startup runs both once.
+- The CLI session created from a PAT is not the durable credential. Proton can invalidate or discard that derived session while the PAT remains usable. The macOS helper stores the Viewer PAT in a separate, session-directory-scoped Keychain item and uses it only to recover the derived session.
+- Proton requires PAT expiration. Use the longest justified term, treat expiry/revocation as a distinct provisioning failure, and replace the Keychain item rather than repeatedly performing one-shot login.
 - `logout` removes local authentication data and the stored key. `logout --force` removes local state without completing remote invalidation. Use either only for an intended logout or confirmed stale-session recovery.
 
 ## Item reads and references

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+pass_agent="${script_dir}/pass-agent"
+session_dir=${PROTON_PASS_SESSION_DIR:-"${HOME}/.agents/state/proton-pass/codex"}
+keychain_service=${PROTON_PASS_AGENT_KEYCHAIN_SERVICE:-"com.openai.codex.proton-pass-agent"}
+keychain_account=$(printf '%s' "$session_dir" | shasum -a 256 | awk '{print $1}')
+
+if "$pass_agent" info >/dev/null 2>&1 && "$pass_agent" test >/dev/null 2>&1; then
+  printf '%s\n' 'The Proton Pass agent session is active.'
+  exit 0
+fi
+
+if [[ $(uname -s) != Darwin ]]; then
+  printf '%s\n' 'Automatic session recovery currently requires macOS Keychain.' >&2
+  exit 3
+fi
+
+agent_token=$(
+  security find-generic-password \
+    -a "$keychain_account" \
+    -s "$keychain_service" \
+    -w 2>/dev/null
+) || {
+  printf '%s\n' 'No durable Proton Pass agent token is provisioned for this session.' >&2
+  printf '%s\n' 'Run scripts/pass-agent-provision in a visible terminal.' >&2
+  exit 3
+}
+
+cleanup() {
+  unset agent_token PROTON_PASS_PERSONAL_ACCESS_TOKEN
+}
+trap cleanup EXIT HUP INT TERM
+
+if ! PROTON_PASS_PERSONAL_ACCESS_TOKEN="$agent_token" "$pass_agent" login >/dev/null; then
+  printf '%s\n' 'The stored Proton Pass agent token was rejected or has expired.' >&2
+  printf '%s\n' 'Create a replacement token, then rerun scripts/pass-agent-provision.' >&2
+  exit 4
+fi
+
+"$pass_agent" test >/dev/null
+printf '%s\n' 'The Proton Pass agent session was recovered from macOS Keychain.'

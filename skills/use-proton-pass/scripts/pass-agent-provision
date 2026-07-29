@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $(uname -s) != Darwin ]]; then
+  printf '%s\n' 'Durable token provisioning currently requires macOS Keychain.' >&2
+  exit 3
+fi
+
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+session_dir=${PROTON_PASS_SESSION_DIR:-"${HOME}/.agents/state/proton-pass/codex"}
+keychain_service=${PROTON_PASS_AGENT_KEYCHAIN_SERVICE:-"com.openai.codex.proton-pass-agent"}
+keychain_account=$(printf '%s' "$session_dir" | shasum -a 256 | awk '{print $1}')
+
+if [[ ${1:-} == --from-clipboard ]]; then
+  "${script_dir}/pass-agent-store-token.swift" "$keychain_service" "$keychain_account"
+  "${script_dir}/pass-agent-ensure"
+  exit 0
+fi
+
+if [[ $# -ne 0 ]]; then
+  printf '%s\n' 'Usage: pass-agent-provision [--from-clipboard]' >&2
+  exit 2
+fi
+
+if [[ ! -t 0 ]]; then
+  printf '%s\n' 'Run this helper in a visible terminal and paste the Proton Pass agent token at the hidden prompt.' >&2
+  exit 2
+fi
+
+printf '%s\n' 'Paste the Proton Pass agent token at the Keychain password prompt.'
+security add-generic-password \
+  -U \
+  -a "$keychain_account" \
+  -s "$keychain_service" \
+  -l 'Codex Proton Pass agent token' \
+  -j 'Viewer-scoped PAT used to recover the dedicated pass-cli session' \
+  -w
+
+"${script_dir}/pass-agent-ensure"
