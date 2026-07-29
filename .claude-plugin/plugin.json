@@ -1,7 +1,6 @@
 {
-  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "personal-skills",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Shared personal skills for Claude Desktop, Cowork, and Claude Code.",
   "author": {
     "name": "Allmight97"

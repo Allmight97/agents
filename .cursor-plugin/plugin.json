@@ -1,0 +1,17 @@
+{
+  "name": "personal-skills",
+  "displayName": "Personal Skills",
+  "version": "0.5.1",
+  "description": "Shared personal skills for Cursor, Codex, Claude Desktop, Cowork, and Claude Code.",
+  "author": {
+    "name": "Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "keywords": [
+    "agent-skills",
+    "personal-workflows",
+    "productivity"
+  ],
+  "skills": "./skills"
+}

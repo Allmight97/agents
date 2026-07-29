@@ -16,12 +16,21 @@ unchanged surfaces, or commit-by-commit narration.
   is pre-1.0, use a minor for new capabilities and incompatible changes. Treat
   `1.0.0` as a deliberate stability commitment.
 - `[Unreleased]` exists only while a pass is active. Before publication, move
-  its entries into a dated version section, synchronize the root Claude and
-  Codex manifests, commit, and tag the release.
+  its entries into a dated version section, synchronize the root Cursor,
+  Claude, and Codex manifests, commit, and tag the release.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
 ## [Unreleased]
+
+## [0.5.1] - 2026-07-29
+
+### Fixed
+
+- Added native Cursor plugin and marketplace manifests while keeping the shared
+  skill tree single-source across Cursor, Claude, and Codex.
+- Removed Claude manifest `$schema` hints that Claude ignores at runtime but
+  Cursor 3.13 treats as unsupported plugin schema versions.
 
 ## [0.5.0] - 2026-07-29
 

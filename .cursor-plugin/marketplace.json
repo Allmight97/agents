@@ -1,0 +1,15 @@
+{
+  "name": "personal",
+  "owner": {
+    "name": "Allmight97"
+  },
+  "description": "JStar's shared personal Cursor skills.",
+  "plugins": [
+    {
+      "name": "personal-skills",
+      "source": ".",
+      "description": "Shared personal skills for Cursor, Codex, Claude Desktop, Cowork, and Claude Code.",
+      "version": "0.5.1"
+    }
+  ]
+}

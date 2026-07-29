@@ -1,6 +1,6 @@
 # Personal Agent Marketplace
 
-Canonical source for personal skills, Claude/Codex marketplace metadata, and
+Canonical source for personal skills, Cursor/Claude/Codex marketplace metadata, and
 small shared agent configuration. GitHub `main` is the publication source;
 agent harnesses consume the published plugins rather than a permanent local
 skills checkout.
@@ -8,6 +8,7 @@ skills checkout.
 ## Tracked
 
 - `skills/`: personal reusable skills.
+- `.cursor-plugin/`: Cursor marketplace/plugin manifests for `personal-skills`.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
 - `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
@@ -33,6 +34,17 @@ below, then update or reload the installed plugin.
 Install from GitHub rather than the local `/Users/jstar/.agents` path. Claude's
 local-path plugin cache can copy ignored local-only directories such as `env/`
 and `bin/`; GitHub installation uses the tracked repo contents only.
+
+## Cursor Marketplace
+
+Add this repository as a private marketplace in Cursor, then install
+`personal-skills`. Cursor reads the native `.cursor-plugin/marketplace.json`
+and `.cursor-plugin/plugin.json` manifests while sharing the same root
+`skills/` tree used by Claude and Codex.
+
+Keep Cursor metadata in `.cursor-plugin/` rather than relying on Cursor's
+fallback parsing of Claude manifests. The harness manifests are intentionally
+thin wrappers around one shared skill source.
 
 ## Codex Marketplace
 
@@ -83,10 +95,10 @@ rules at the top of `CHANGELOG.md`:
 1. Make the bounded skill, plugin, or repository changes.
 2. Move the net released changes from `[Unreleased]` into a dated version
    section; omit intermediate churn and unchanged surfaces.
-3. Synchronize the root Claude and Codex `personal-skills` base versions. Give
-   changed nested plugins their own component versions and name them in the same
-   changelog section.
-4. Validate changed skills plus both plugin manifests.
+3. Synchronize the root Cursor, Claude, and Codex `personal-skills` base
+   versions. Give changed nested plugins their own component versions and name
+   them in the same changelog section.
+4. Validate changed skills plus all three plugin manifests.
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
 6. Refresh the existing marketplaces and update installed plugins in each
    harness.
