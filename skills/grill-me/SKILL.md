@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interview the user about a plan, design, implementation, or decision until the action-changing branches are resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, get grilled on a proposal, compare options, or explicitly says "grill me"; ask no more than two sharp questions at a time and stay project-agnostic while using provided artifacts as evidence when useful.
+description: Interview the user about a plan, design, implementation, or decision until the action-changing branches are resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, get grilled on a proposal, compare options, or explicitly says "grill me"; ask no more than two sharp questions at a time. Stay project-agnostic unless a repository owns material facts, constraints, terminology, or durable capture; then inspect its guidance and source before asking.
 ---
 
 # Grill Me
@@ -11,13 +11,10 @@ implementation, risk, proof path, or next action.
 
 ## Boundary
 
-Use this for project-agnostic plans, personal decisions, general technical
-design, or repo discussions that do not need project-specific durable routing.
-Use source artifacts as evidence when available, but do not switch into durable
-routing unless current repo truth or accepted-decision capture is actually
-needed. If a repo has a dedicated alignment skill and the prompt depends on that
-repo's current truth, docs, issue/spec routing, or durable capture, prefer that
-repo-specific skill.
+Use this for personal decisions, product or design questions, general technical
+design, and repository discussions. Stay project-agnostic when no repository
+owns the decision. When one does, follow its applicable instructions and source
+without importing repository-specific nouns or routing into this shared skill.
 
 ## First Response
 
@@ -33,13 +30,19 @@ two-question cap.
 ## Loop
 
 1. Name the decision or proposal being grilled in one sentence.
-2. Identify the highest-leverage unresolved branch.
+2. For repository-grounded work, inspect the nearest applicable `AGENTS.md`,
+   owner documentation, code, and tests needed to resolve material facts.
 3. Separate facts from decisions: resolve discoverable facts from artifacts or
    tools, and put each action-changing decision to the user.
-4. Ask one or two sharp questions at a time.
-5. Include your recommended answer so the user can accept, reject, or refine.
+4. Identify the highest-leverage unresolved branch.
+5. Ask one or two sharp questions at a time with your recommended answer.
 6. After each answer, lock the decision, narrow the next branch, inspect more
    source material, or summarize the coherent shape.
+
+For repository-grounded work, identify the owning behavior when instructions,
+documentation, code, or tests conflict. Ask which source should change only
+when that choice is a genuine user decision. When durable capture is part of
+the accepted outcome, use the repository-defined destination and shape.
 
 ## Question Quality
 
@@ -78,3 +81,7 @@ When the conversation stabilizes, summarize:
 - the main risks or open questions,
 - the recommended next action,
 - and the proof or evidence that would change the recommendation.
+
+For repository-grounded work, also name the owner or boundary, resolved facts,
+and intended durable-capture destination when relevant. Make the summary usable
+by a fresh agent without hidden dependence on the conversation.

@@ -21,6 +21,14 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.7.1] - 2026-07-31
+
+### Changed
+
+- Made `grill-me` stay project-agnostic for personal and non-repository
+  decisions while inspecting applicable guidance, owner docs, code, and tests
+  when a repository owns material facts or durable capture.
+
 ## [0.7.0] - 2026-07-31
 
 ### Added
