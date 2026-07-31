@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wayfinder"
+  short_description: "Map foggy work into a GitHub roadmap"
+  default_prompt: "Use $wayfinder to calibrate this effort, map only the uncertainty that earns durable tracking, and recommend the right execution shape."

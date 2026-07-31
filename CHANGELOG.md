@@ -21,6 +21,19 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.7.0] - 2026-07-31
+
+### Added
+
+- Added `wayfinder` to calibrate large or materially foggy efforts, preserve
+  accepted program truth, resolve only action-changing uncertainty, and carry
+  one GitHub-native parent roadmap from discovery into execution slicing.
+
+### Changed
+
+- Made `to-issues` publish parent and blocking relationships through native
+  GitHub issue relationships without duplicating them in issue bodies.
+
 ## [0.6.1] - 2026-07-31
 
 ### Changed

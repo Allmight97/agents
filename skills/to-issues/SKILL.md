@@ -1,6 +1,6 @@
 ---
 name: to-issues
-description: Break an approved plan or parent GitHub issue into vertical-slice child issues when the user explicitly asks to slice, split into issues, or create grabbable tickets. Do not use during initial alignment before the user approves a breakdown.
+description: Break an approved plan or parent GitHub issue into vertical-slice child issues, using native parent and blocking relationships when GitHub provides them. Use when the user explicitly asks to slice, split into issues, or create grabbable tickets. Do not use during initial alignment before the user approves a breakdown.
 ---
 
 # To Issues
@@ -59,7 +59,19 @@ Iterate until the user approves the breakdown.
 
 For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
 
-Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
+Publish issues in dependency order (blockers first) so you can reference real
+issue identifiers in the native blocked-by relationship or fallback body field.
+
+When publishing to GitHub, use its native relationships as the source of truth:
+
+- create children with `gh issue create --parent <parent>`;
+- add dependencies with `--blocked-by` during creation or
+  `gh issue edit --add-blocked-by` afterward;
+- omit the `Parent` and `Blocked by` body sections below when those native
+  relationships carry the same information.
+
+Use the body sections only when the active tracker lacks native parent or
+dependency relationships. Do not encode a second copy of a native relationship.
 
 <issue-template>
 ## Parent
@@ -86,4 +98,5 @@ Or "None - can start immediately" if no blockers.
 
 </issue-template>
 
-Do NOT close or modify any parent issue.
+Keep the parent issue's title, body, and state unchanged. Add only the approved
+native sub-issue or dependency relationships needed to publish the breakdown.
