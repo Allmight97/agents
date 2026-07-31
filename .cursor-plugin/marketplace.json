@@ -9,7 +9,7 @@
       "name": "personal-skills",
       "source": ".",
       "description": "Shared personal skills for Cursor, Codex, Claude Desktop, Cowork, and Claude Code.",
-      "version": "0.7.2"
+      "version": "0.7.3"
     }
   ]
 }

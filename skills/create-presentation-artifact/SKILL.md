@@ -1,6 +1,6 @@
 ---
 name: create-presentation-artifact
-description: Create durable user-facing presentation artifacts, usually self-contained HTML, for research synthesis, decisions, plans, code understanding, reviews, dashboards, and briefing surfaces. Use for requested artifacts, visual syntheses, decision aids, interactive checklists, or revisitable material where prose would make the reader reconstruct comparisons, dependencies, branches, state, ownership, or completion. Do not use for ordinary summaries, repo source-of-truth docs, production UI implementation, stateful teaching workspaces, skill edits, or agent guidance.
+description: Create durable user-facing presentation artifacts, usually self-contained HTML or a comparison workspace, for research synthesis, decisions, plans, code understanding, reviews, dashboards, and briefing surfaces. Use for requested artifacts, visual syntheses, decision aids, interactive checklists, multi-candidate comparisons, or revisitable material where prose would make the reader reconstruct comparisons, dependencies, branches, state, ownership, or completion. Do not use for ordinary summaries, repo source-of-truth docs, production UI implementation, stateful teaching workspaces, skill edits, or agent guidance.
 ---
 
 # Create Presentation Artifact
@@ -39,6 +39,14 @@ screen should normally contain one title, one plain-language answer, and no
 more than three material state or scope facts. Keep visible introductory prose
 under roughly 60 words unless comprehension genuinely requires more.
 
+Use the subject's actual name or decision as the primary title. Put a literal
+one-sentence identity directly beneath it: what the subject is, what it does,
+and any prerequisite or boundary whose omission could change the reader's
+interpretation. Treat a tagline as optional secondary voice after orientation,
+never as a substitute for it. Read the opening literally; if a compact phrase
+supports a materially wrong interpretation, rewrite it instead of expecting
+the reader to infer the intended scope.
+
 Across the artifact, narrative prose should be the minority. For a technical
 onboarding or research briefing, default to no more than about 1,000 visible
 words, excluding code tokens and a compact source index. Put necessary evidence
@@ -75,6 +83,8 @@ Before building, verify the representation:
   return without rebuilding context.
 - **Subtraction:** prose repeated by a visual, label, table, or state marker is
   removed.
+- **Literal reading:** the title and first sentence remain accurate when read
+  without charitable interpretation, domain familiarity, or marketing context.
 
 If a check fails, change the representation before adding explanation. Minimal
 cognitive friction does not mean deleting necessary information or hiding the
@@ -182,7 +192,16 @@ Choose the smallest shape that fits the job:
 - **Code understanding:** module map, call path, boundary labels, annotated findings, reviewer focus.
 - **Review/report:** metric cards, finding list, severity chips, evidence links, action queue.
 - **Interactive aid:** tabs, filters, toggles, checkboxes, sliders, copy/export actions.
+- **Comparison workspace:** stable candidate controls, optional multi-subject
+  controls, equal side-by-side frames, focused single-candidate views, and
+  full-output access.
 - **Deck-like briefing:** full-width sections with navigation and keyboard-friendly flow when presentation is central.
+
+For several complete outputs that must be compared repeatedly, read
+[`references/comparison-workspace.md`](references/comparison-workspace.md).
+Use one local workspace by default. When hosting is requested or already
+authorized, use one shared private host instead of separate sites when it
+reduces authentication, navigation, or comparison friction.
 
 ## Build Rules
 

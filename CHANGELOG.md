@@ -21,6 +21,16 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.7.3] - 2026-07-31
+
+### Changed
+
+- Made `create-presentation-artifact` lead with literal subject identity and
+  reject compact openings that require charitable interpretation.
+- Added a comparison-workspace pattern for equal side-by-side inspection,
+  candidate focus, optional multi-subject switching, and same-origin full
+  output without making hosting the default.
+
 ## [0.7.2] - 2026-07-31
 
 ### Changed

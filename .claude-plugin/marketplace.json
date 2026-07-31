@@ -9,7 +9,7 @@
       "name": "personal-skills",
       "description": "Shared personal skills for Claude Desktop, Cowork, and Claude Code.",
       "source": "./",
-      "version": "0.7.2",
+      "version": "0.7.3",
       "skills": "./skills",
       "category": "productivity"
     },

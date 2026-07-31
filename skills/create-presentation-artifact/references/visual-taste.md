@@ -57,8 +57,10 @@ They describe transferable mechanics rather than reusable templates.
 
 Before delivery, verify:
 
-- the first screen explains the subject before asking the reader to decode a
-  metaphor;
+- the first screen names and explains the subject literally before using a
+  tagline, metaphor, or compressed claim;
+- the opening cannot be read literally as a materially different product,
+  prerequisite, state, or scope;
 - the visual language is specific to the subject and consistent across the
   artifact;
 - repeated cards, pills, gradients, glass effects, and oversized slogans have
