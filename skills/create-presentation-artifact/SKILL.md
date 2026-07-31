@@ -10,16 +10,75 @@ learning, and handoff surfaces. The usual output is a single-file HTML artifact.
 
 ## Outcome Standard
 
-Build artifacts that reduce decision friction.
-
-Never make the reader simulate structure that the artifact can keep visible.
-Prefer recognition over recall: expose active state, scope, relationships, and
+Minimize the cognitive work required to form an accurate operational model.
+Transfer reconstruction, comparison, sequencing, state tracking, ownership,
+and completion proof from the reader into the artifact. Preserve necessary
+complexity, but embody it in visible structure instead of narrative. Prefer
+recognition over recall: expose active state, scope, relationships, and
 completion. Let visuals replace redundant prose rather than decorate it.
 
-Lead with the useful answer, then make the supporting detail easy to scan. A
-strong artifact should feel like a compact briefing surface: recommendation
-first, tradeoffs visible, uncertainty labeled, sources/currency included, and
-the next action obvious.
+Lead with the useful answer, then make supporting detail easy to scan. Keep the
+primary path and current state visible. A reader should not have to join facts
+from distant paragraphs, remember earlier definitions, or decode a metaphor to
+understand the next section.
+
+## Reader And Editorial Contract
+
+Before drafting, identify:
+
+- **audience:** who will use the artifact;
+- **job:** decide, orient, compare, learn, review, plan, act, or hand off;
+- **current state:** what is true now;
+- **reader familiarity:** new, working knowledge, or expert;
+- **next action:** what the reader should be able to do after the first layer;
+- **durability:** one-time aid, active work surface, or durable reference.
+
+Write for that reader, not an imaginary general audience. Put state before
+story and literal orientation before voice, metaphor, or framing. The first
+screen should normally contain one title, one plain-language answer, and no
+more than three material state or scope facts. Keep visible introductory prose
+under roughly 60 words unless comprehension genuinely requires more.
+
+Across the artifact, narrative prose should be the minority. For a technical
+onboarding or research briefing, default to no more than about 1,000 visible
+words, excluding code tokens and a compact source index. Put necessary evidence
+depth in collapsed details. A paragraph must earn its place over a label,
+annotation, table, diagram, or state marker and should rarely exceed three
+sentences. Exceed the budget only when the reader's job cannot be completed
+accurately within it.
+
+After factual synthesis and before visual styling, edit the copy:
+
+- Keep text that helps the reader decide, act, navigate, or understand a
+  consequential boundary.
+- Convert repeated fields, sequence, ownership, state, and comparison into
+  visible structure.
+- Move useful depth behind progressive disclosure.
+- Delete reader-direction, scene-setting, process narration, repeated
+  qualifications, consultant language, and prose that narrates a visible
+  relationship.
+- Separate fact, inference, uncertainty, and recommendation when the
+  distinction changes action or confidence.
+
+A self-contained artifact does not need every true fact on its first screen.
+The first layer must stand alone; later layers carry evidence, history, and
+reference detail.
+
+Before building, verify the representation:
+
+- **Scan:** without reading full paragraphs, the reader can identify the
+  subject, current state, primary relationship, consequential boundary, and
+  next action.
+- **Reconstruction:** facts that must be combined are adjacent or visibly
+  connected; the reader does not perform the join mentally.
+- **Resume:** headings, labels, and visible state let the reader look away and
+  return without rebuilding context.
+- **Subtraction:** prose repeated by a visual, label, table, or state marker is
+  removed.
+
+If a check fails, change the representation before adding explanation. Minimal
+cognitive friction does not mean deleting necessary information or hiding the
+primary path behind interaction.
 
 Choose the visual posture from audience, domain, and reuse context. Default to restrained presentation design unless the material calls for a stronger register:
 
@@ -28,6 +87,12 @@ Choose the visual posture from audience, domain, and reuse context. Default to r
 - color used to encode status, priority, confidence, risk, or category;
 - cards only for real units of information, not nested decoration;
 - responsive layout that remains useful on narrow screens.
+
+Before styling, read
+[`references/visual-taste.md`](references/visual-taste.md). Choose its five art
+direction decisions and apply its Taste Check. Restrained presentation is an
+explicit visual-system choice, not a bypass. Use the examples as mechanics,
+not templates to copy.
 
 ## Boundaries
 
@@ -132,9 +197,6 @@ Choose the smallest shape that fits the job:
   needed, and keep the presentation layer external by default.
 - Inline CSS and small JavaScript. Avoid build steps and external dependencies unless clearly useful.
 - Put the conclusion, recommendation, or key action at the top.
-- Design for scanning first, detail second.
-- Keep enough state visible that the reader can look away and resume by
-  recognition rather than reconstructing prior steps.
 - Use progressive disclosure for dense material: tabs, details/summary, side nav, filters, or compact matrices.
 - Use semantic HTML and accessible controls: real buttons, labels, headings, focus states, keyboard-friendly interactions.
 - Use stable responsive layout: grids, tables with horizontal overflow, sticky nav where useful, mobile-friendly breakpoints.

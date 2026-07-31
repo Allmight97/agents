@@ -21,6 +21,18 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.7.2] - 2026-07-31
+
+### Changed
+
+- Made `create-presentation-artifact` minimize cognitive reconstruction through
+  an explicit reader job, visible operational structure, artifact-wide prose
+  budget, progressive disclosure, and a subtraction pass derived from the
+  repository's sharp-writing guidance.
+- Added subject-specific visual-taste guidance distilled from successful
+  generated artifacts, including domain metaphor, structural form, type roles,
+  semantic color, surface behavior, and an anti-slop taste check.
+
 ## [0.7.1] - 2026-07-31
 
 ### Changed
