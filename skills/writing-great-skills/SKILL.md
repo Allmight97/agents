@@ -26,7 +26,9 @@ Default shared strategy: leave skills model-invocable, make descriptions tight, 
 
 A model-visible description does two jobs: state what the skill does and list the branches that should trigger it. Every word pays context load.
 
-- Front-load the skill's leading word.
+- Front-load a pretrained leading word users already use in prompts, docs, or
+  code. Coined labels spend definition tokens and weaken invocation unless the
+  skill truly needs new domain language.
 - Keep one trigger per branch. Synonyms that rename the same branch are duplication.
 - Cut identity that belongs in the body. Keep the description to triggers plus any reach clause another skill needs.
 - Avoid long example catalogs. Use representative examples only when they change trigger accuracy.
@@ -47,7 +49,10 @@ Push too little down and `SKILL.md` sprawls. Push too much down and the agent mi
 Split only when the cut earns one of the costs:
 
 - Split by invocation when a distinct leading word should trigger independently or another skill must reach the material.
-- Split by sequence when visible post-completion steps tempt the agent to rush the current step.
+- Split by sequence when visible post-completion steps tempt the agent to rush
+  the current step. Make the split a real context boundary, such as a fresh
+  subagent or new task; new headings inside one loaded skill leave the pull
+  intact.
 - Keep shared reference in one place when several skills need the same nouns, rules, or taxonomy.
 
 ## Pruning
@@ -68,6 +73,9 @@ for provenance or license handling.
 - **Sediment**: stale layers remain because adding feels safer than removing. Delete stale lines instead of adding compensating text.
 - **Sprawl**: `SKILL.md` is too long even when live and unique. Use the information hierarchy.
 - **No-op**: a line changes nothing relative to default model behavior. Delete or replace with a stronger leading word.
+- **Negation**: prohibitions prime the behavior they name. State the positive
+  target; reserve a prohibition for a hard guardrail and pair it with what to do
+  instead.
 
 ## Audit Loop
 

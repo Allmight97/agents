@@ -34,8 +34,8 @@ two-question cap.
 
 1. Name the decision or proposal being grilled in one sentence.
 2. Identify the highest-leverage unresolved branch.
-3. Inspect available artifacts when they can answer the question more reliably
-   than the user can.
+3. Separate facts from decisions: resolve discoverable facts from artifacts or
+   tools, and put each action-changing decision to the user.
 4. Ask one or two sharp questions at a time.
 5. Include your recommended answer so the user can accept, reject, or refine.
 6. After each answer, lock the decision, narrow the next branch, inspect more
@@ -64,6 +64,12 @@ Keep pushing until one of these is true:
 - the remaining uncertainty is explicitly bounded,
 - the next proof step is clear,
 - or the user wants to stop.
+
+Reaching a stop condition ends the questioning. Confirm the shared understanding
+before handing off. Confirmation locks the decisions; it does not authorize a
+new action. Proceed only when the user has explicitly requested that action with
+adequate scope, whether earlier in the conversation or after the decisions are
+resolved.
 
 ## Output
 

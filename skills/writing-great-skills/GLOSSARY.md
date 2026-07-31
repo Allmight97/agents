@@ -121,7 +121,7 @@ Avoid: doc, resource, knowledge base.
 
 ### Leading Word
 
-A compact concept already living in the model's prior knowledge that anchors behavior in few tokens. Use leading words in descriptions and bodies when they improve invocation or execution.
+A compact concept already living in the model's prior knowledge that anchors behavior in few tokens. Prefer a word users already use in prompts, docs, or code so it strengthens invocation as well as execution. A coined term recruits no prior knowledge and must earn its definition cost.
 
 Avoid: keyword, term, motif.
 
@@ -141,7 +141,7 @@ Avoid: load-bearing, staleness, freshness.
 
 ### Premature Completion
 
-Ending the current step before it is genuinely done. Defend first by sharpening the completion criterion, then by splitting sequence only when the rush is observed and cannot be solved locally.
+Ending the current step before it is genuinely done. Defend first by sharpening the completion criterion, then by splitting sequence only when the rush is observed and cannot be solved locally. A split hides post-completion steps only across a real context boundary, such as a fresh subagent or new task; headings or inline calls inside one loaded context do not.
 
 Avoid: premature closure, rushing, shortcutting.
 
@@ -168,3 +168,9 @@ Avoid: length, size, verbosity.
 An instruction that changes nothing relative to default model behavior. Delete it or replace it with a stronger leading word that changes behavior.
 
 Avoid: redundant instruction, restating the obvious.
+
+### Negation
+
+Steering by prohibition, which primes the behavior it names. State the positive target so attention lands on the intended behavior. Keep a prohibition only for a hard guardrail that cannot be expressed safely as a positive instruction, and pair it with what to do instead.
+
+Avoid: don't-prompting, forbidden-behavior framing.

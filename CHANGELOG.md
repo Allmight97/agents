@@ -21,6 +21,17 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.6.1] - 2026-07-31
+
+### Changed
+
+- Made `writing-great-skills` prefer positive steering over negation, distinguish
+  real context boundaries from in-file headings, and favor pretrained leading
+  words that already appear in prompts, docs, or code.
+- Made `grill-me` resolve discoverable facts from source artifacts, reserve
+  action-changing decisions for the user, and separate confirmation of shared
+  understanding from authorization to act.
+
 ## [0.6.0] - 2026-07-30
 
 ### Changed
