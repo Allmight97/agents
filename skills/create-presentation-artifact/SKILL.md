@@ -1,6 +1,6 @@
 ---
 name: create-presentation-artifact
-description: Create durable user-facing presentation artifacts, usually self-contained HTML, for research synthesis, decision support, planning, code understanding, reviews, dashboards, and briefing surfaces. Use when the user asks for an artifact, dashboard, visual synthesis, decision aid, interactive checklist, or a revisitable surface where Markdown would lose important relationships. Do not use for ordinary summaries, repo source-of-truth docs, production UI implementation, stateful teaching workspaces, skill edits, or agent guidance.
+description: Create durable user-facing presentation artifacts, usually self-contained HTML, for research synthesis, decisions, plans, code understanding, reviews, dashboards, and briefing surfaces. Use for requested artifacts, visual syntheses, decision aids, interactive checklists, or revisitable material where prose would make the reader reconstruct comparisons, dependencies, branches, state, ownership, or completion. Do not use for ordinary summaries, repo source-of-truth docs, production UI implementation, stateful teaching workspaces, skill edits, or agent guidance.
 ---
 
 # Create Presentation Artifact
@@ -12,7 +12,14 @@ learning, and handoff surfaces. The usual output is a single-file HTML artifact.
 
 Build artifacts that reduce decision friction.
 
-Lead with the useful answer, then make the supporting detail easy to scan. A strong artifact should feel like a compact briefing surface: recommendation first, tradeoffs visible, uncertainty labeled, sources/currency included, and the next action obvious.
+Never make the reader simulate structure that the artifact can keep visible.
+Prefer recognition over recall: expose active state, scope, relationships, and
+completion. Let visuals replace redundant prose rather than decorate it.
+
+Lead with the useful answer, then make the supporting detail easy to scan. A
+strong artifact should feel like a compact briefing surface: recommendation
+first, tradeoffs visible, uncertainty labeled, sources/currency included, and
+the next action obvious.
 
 Choose the visual posture from audience, domain, and reuse context. Default to restrained presentation design unless the material calls for a stronger register:
 
@@ -30,6 +37,8 @@ Use a different owner when the task is not a presentation artifact:
 - `impeccable` owns production frontend/UI implementation and design critique.
 - `writing-great-skills` owns skill architecture, invocation, no-ops, and skill text quality.
 - `agents-md-steward` owns AGENTS.md, CLAUDE.md, CODEX.md, and repo instruction networks.
+- An available inline-visualization surface owns one compact relationship that
+  does not need durable reuse.
 - Plain Markdown is better for source-of-truth repo docs, issue bodies, specs, policies, and small answers.
 
 ## Format Decision
@@ -43,6 +52,10 @@ Create a presentation artifact when at least one is true:
 - the work synthesizes research, options, tradeoffs, evidence, or next actions;
 - the user needs a durable surface to revisit later.
 
+Use an available inline visual instead when one compact relationship is enough
+and the result does not need to be revisited. Do not create a durable file merely
+because a diagram could exist.
+
 Keep Markdown when:
 
 - the artifact is a source-of-truth repo doc, issue body, policy, spec, or agent-facing context file;
@@ -52,6 +65,46 @@ Keep Markdown when:
 - HTML generation and verification would add more friction than value.
 
 If both are useful, keep Markdown as the editable source and create HTML as the presentation/action surface.
+
+## Externalize the Operational Model
+
+Before choosing components or styling, extract only the structure the reader
+would otherwise have to hold mentally:
+
+- **sources:** inputs, actors, prerequisites, files, facts, or resources;
+- **operations:** actions and the exact sources or states they affect;
+- **states:** meaningful intermediate and final conditions;
+- **edges:** order, dependency, flow, ownership, or containment;
+- **control:** choices, conditions, loops, joins, and stopping rules;
+- **proof:** the observable result or verification.
+
+Choose one primary visual form based on the hardest relationship:
+
+| Relationship | Primary form |
+|---|---|
+| Exact mappings or repeated-field comparison | Table |
+| Inputs transformed separately and later combined | Merge lanes or converging flow |
+| Conditions leading to different outcomes | Decision tree |
+| State changing across events | State diagram or timeline |
+| Parallel work divided by owner | Swimlanes with an explicit join |
+| Ownership, nesting, or containment | Tree or nested map |
+| Components with several dependencies | Dependency graph |
+| Physical or interface placement | Wireframe |
+
+Place sources where they enter. Make each operation's scope visible. Name
+intermediate states when later work depends on them. Show branches, convergence,
+parallel work, loops, and exit conditions directly. Replace or define unfamiliar
+action labels at their point of use. End with a concrete result and observable
+completion checks.
+
+Delete prose that merely narrates the geometry, decorative nodes, obvious
+legends, and duplicate visuals. Combine forms only when each answers a distinct
+question.
+
+When topology is the hard part, read
+[`references/spatial-grammar.md`](references/spatial-grammar.md). Inspect its
+companion SVG when the current harness can read local images; the text
+descriptions are the portable fallback.
 
 ## Artifact Shapes
 
@@ -80,6 +133,8 @@ Choose the smallest shape that fits the job:
 - Inline CSS and small JavaScript. Avoid build steps and external dependencies unless clearly useful.
 - Put the conclusion, recommendation, or key action at the top.
 - Design for scanning first, detail second.
+- Keep enough state visible that the reader can look away and resume by
+  recognition rather than reconstructing prior steps.
 - Use progressive disclosure for dense material: tabs, details/summary, side nav, filters, or compact matrices.
 - Use semantic HTML and accessible controls: real buttons, labels, headings, focus states, keyboard-friendly interactions.
 - Use stable responsive layout: grids, tables with horizontal overflow, sticky nav where useful, mobile-friendly breakpoints.

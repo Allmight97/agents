@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Presentation Artifact"
-  short_description: "Build polished user-facing HTML briefs"
-  default_prompt: "Use $create-presentation-artifact to turn this material into a polished, navigable presentation artifact."
+  short_description: "Build visual, navigable decision artifacts"
+  default_prompt: "Use $create-presentation-artifact to turn this material into a visual artifact that keeps relationships and completion visible."

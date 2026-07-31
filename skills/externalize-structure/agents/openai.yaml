@@ -1,4 +1,0 @@
-interface:
-  display_name: "Externalize Structure"
-  short_description: "Show hidden operational structure spatially"
-  default_prompt: "Use $externalize-structure to reorganize this material into the smallest useful operational map."

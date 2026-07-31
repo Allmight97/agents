@@ -21,7 +21,21 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
-## [Unreleased]
+## [0.6.0] - 2026-07-30
+
+### Changed
+
+- Folded the useful operational-model and spatial-grammar behavior from
+  `externalize-structure` into `create-presentation-artifact`, including
+  original references for convergence, parallel ownership, guarded state
+  changes, and zoomed hierarchy.
+- Made presentation artifacts favor recognition over recall, expose visible
+  completion, and replace prose that merely narrates their geometry.
+
+### Removed
+
+- Removed the overlapping `externalize-structure` skill and its model-visible
+  trigger surface.
 
 ## [0.5.1] - 2026-07-29
 
