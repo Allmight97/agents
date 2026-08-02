@@ -21,6 +21,14 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.7.4] - 2026-08-01
+
+### Changed
+
+- Made Wayfinder treat the repository-local setup needed for an explicitly
+  requested roadmap as operational work, while keeping pre-publication review
+  focused on unresolved content choices instead of permission gating.
+
 ## [0.7.3] - 2026-07-31
 
 ### Changed

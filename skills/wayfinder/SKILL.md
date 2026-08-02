@@ -28,19 +28,20 @@ evidence and decision structure determine how large it is.
 - Treat the issue tracker as shared state and the repository as factual
   evidence. Keep each decision's full resolution in one place.
 
-## Mutation Authority
+## Publication And Operational Setup
 
-Inspect repositories and draft the map read-only. Publish or change GitHub
-issues only when the user has explicitly requested creation or advancement of
-that roadmap, whether earlier in the conversation or after reviewing the
-draft. Confirmation locks the proposed content; it does not supply missing
-authority to mutate GitHub.
+An instruction such as "create a Wayfinder roadmap" or "use Wayfinder for this
+repository" authorizes the ordinary repository-local operations required to
+make the roadmap functional: enable GitHub Issues, create or update the reviewed
+parent and children, and wire their native relationships. Treat disabled
+Issues, API failures, and authentication failures as operational conditions to
+correct in scope or report precisely, not as new permission decisions.
 
-An instruction such as "create a Wayfinder roadmap" authorizes the ordinary
-issue creation and relationship changes required to publish the reviewed map.
-"Continue roadmap #123" authorizes recording the resolution and advancing that
-map. "Help me think this through" authorizes neither; keep the work in the
-conversation until the user requests durable capture.
+Show the proposed parent content and child graph before publishing when choices
+remain. That review aligns the roadmap's content; it is not a separate approval
+gate for operational prerequisites. "Continue roadmap #123" authorizes
+recording the resolution and advancing that map. "Help me think this through"
+keeps the work in the conversation until the user requests durable capture.
 
 ## Calibrate The Effort
 
