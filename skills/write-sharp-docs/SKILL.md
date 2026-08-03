@@ -17,10 +17,6 @@ Identify five facts before drafting or editing:
 
 If the user points at Google Drive, Docs, Sheets, or Slides, use the relevant Google connector skill when available for live file state, edits, comments, export, import, or file organization. Do not rely on web search or model memory for live enterprise document state.
 
-If the job is packaging the current session for a fresh task, `handoff` owns the
-artifact and its structure. Use this skill only to improve handoff prose when
-the user explicitly asks for that editorial pass.
-
 ## State Before Story
 
 Establish what is true now before explaining how it happened. A reader should

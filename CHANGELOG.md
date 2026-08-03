@@ -175,8 +175,7 @@ unchanged surfaces, or commit-by-commit narration.
   one-agent-context slices plus expand-migrate-contract migrations.
 - Made `write-sharp-docs` lead mixed-status documents with current-state
   orientation, finding-to-disposition chains, progressive disclosure, and a
-  clear implementation-record boundary; `handoff` remains the owner of
-  session-transfer structure.
+  clear implementation-record boundary.
 - Consolidated Whittle into one implementation skill and one read-only review
   skill inside `personal-skills`.
 
@@ -191,5 +190,5 @@ unchanged surfaces, or commit-by-commit narration.
 ### Added
 
 - Established the personal agent workspace and initial shared skill set for
-  diagnosis, consultation, design, security, teaching, planning, handoff,
-  architecture, and document work.
+  diagnosis, consultation, design, security, teaching, planning, architecture,
+  and document work.
