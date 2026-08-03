@@ -75,6 +75,14 @@ Future plugins should be added as their own entries in the Codex marketplace
 catalog only when they are genuinely separate products. Personal workflow skills,
 including Whittle, belong in `personal-skills`.
 
+`edge-browser` is a separately toggleable routing plugin for controlling
+Microsoft Edge through the first-party ChatGPT browser extension. It requires
+the official `chrome@openai-bundled` plugin to remain installed and enabled:
+
+```bash
+codex plugin add edge-browser@personal
+```
+
 After publishing a repository release, refresh the existing marketplace and
 install or update `personal-skills@personal`:
 

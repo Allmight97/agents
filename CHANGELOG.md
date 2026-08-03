@@ -21,6 +21,14 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.8.0] - 2026-08-03
+
+### Added
+
+- Added the `edge-browser` 0.1.0 plugin, a thin routing layer that selects
+  Microsoft Edge through the first-party ChatGPT extension and the official
+  Chrome plugin runtime without using desktop Accessibility.
+
 ## [0.7.4] - 2026-08-01
 
 ### Changed

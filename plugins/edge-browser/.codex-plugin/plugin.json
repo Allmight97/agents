@@ -1,0 +1,34 @@
+{
+  "name": "edge-browser",
+  "version": "0.1.0",
+  "description": "Control Microsoft Edge through its first-party ChatGPT browser extension.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "edge",
+    "browser",
+    "browser-automation",
+    "chatgpt-extension"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Edge Browser",
+    "shortDescription": "Control Edge through the ChatGPT browser extension",
+    "longDescription": "Routes Codex browser work to Microsoft Edge through the first-party ChatGPT extension and the official Chrome plugin runtime, without macOS Accessibility. Requires chrome@openai-bundled to remain installed and enabled.",
+    "developerName": "JStar",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/Allmight97/agents",
+    "defaultPrompt": [
+      "Use Edge Browser to work in Microsoft Edge without desktop Accessibility."
+    ]
+  }
+}
