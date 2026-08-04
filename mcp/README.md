@@ -16,7 +16,6 @@ not raw credential values.
 
 - `context7`: `/Users/jstar/.agents/bin/context7-mcp`
 - `pencil`: `/Users/jstar/.agents/bin/pencil-mcp`
-- `codebase-memory-mcp`: `/Users/jstar/.agents/bin/codebase-memory-mcp`
 
 ## Client Adapters
 
@@ -28,9 +27,8 @@ not raw credential values.
 - Pi staged config: `/Users/jstar/.pi/agent/mcp.json`
 
 Cursor, OpenCode, Codex, Claude Code, Gemini, and the staged Pi config use the
-local Context7 wrapper. `codebase-memory-mcp` is wired as a local stdio server
-across the shared manifest and client adapters; Cursor may still require
-explicit approval before loading local stdio MCP servers.
+local Context7 wrapper. Cursor may still require explicit approval before
+loading local stdio MCP servers.
 
 ## Maintenance Rule
 
