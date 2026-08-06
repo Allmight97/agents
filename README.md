@@ -37,14 +37,29 @@ and `bin/`; GitHub installation uses the tracked repo contents only.
 
 ## Cursor Marketplace
 
-Add this repository as a private marketplace in Cursor, then install
-`personal-skills`. Cursor reads the native `.cursor-plugin/marketplace.json`
-and `.cursor-plugin/plugin.json` manifests while sharing the same root
-`skills/` tree used by Claude and Codex.
+For distribution testing, this repository can be added as a private Cursor
+marketplace and `personal-skills` installed from it. Cursor reads the native
+`.cursor-plugin/marketplace.json` and `.cursor-plugin/plugin.json` manifests
+while sharing the same root `skills/` tree used by Claude and Codex.
 
 Keep Cursor metadata in `.cursor-plugin/` rather than relying on Cursor's
 fallback parsing of Claude manifests. The harness manifests are intentionally
 thin wrappers around one shared skill source.
+
+Cursor's personal Git marketplace can remain pinned to its first imported
+commit even after update or reinstall. On this Mac, use the canonical checkout
+as a local development plugin instead:
+
+```bash
+ln -s /Users/jstar/Projects/agents \
+  /Users/jstar/.cursor/plugins/local/personal-skills
+```
+
+Keep the Git marketplace for distribution testing, but do not treat its cache
+as the trusted personal installation. After publishing and synchronizing the
+checkout, run `Developer: Reload Window` in Cursor. The release verifier proves
+the symlink target, clean checkout, `origin/main` commit, and Cursor manifest
+version rather than trusting Cursor's marketplace UI.
 
 ## Codex Marketplace
 
@@ -128,10 +143,9 @@ rules at the top of `CHANGELOG.md`:
    ```
 
    Codex and Claude Code are refreshed automatically when their CLIs are
-   installed. Cursor currently has no supported plugin-refresh CLI; if its
-   installed commit is stale, the command fails with the single required UI
-   action and verifies the result when rerun. It never reports freshness from
-   marketplace display metadata alone.
+   installed. Cursor's local plugin is verified against the exact release and
+   still requires `Developer: Reload Window` after changes. The command never
+   reports freshness from marketplace display metadata alone.
 
 ## Machine-Local Support
 

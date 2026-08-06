@@ -3,6 +3,8 @@ name: Validate release metadata
 on:
   pull_request:
   push:
+    branches:
+      - main
 
 permissions:
   contents: read

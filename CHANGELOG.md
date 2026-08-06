@@ -24,6 +24,17 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.9.2] - 2026-08-06
+
+### Fixed
+
+- Routed this Mac's Cursor installation through the canonical checkout as a
+  local plugin and made harness verification prove its symlink target, clean
+  Git state, published commit, and manifest version instead of trusting
+  Cursor's stale personal-marketplace cache.
+- Limited release-metadata CI pushes to `main`, avoiding a duplicate tag run
+  that GitHub could cancel and misreport as a failed validation.
+
 ## [0.9.1] - 2026-08-06
 
 ### Fixed

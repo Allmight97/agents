@@ -113,8 +113,55 @@ def claude(expected_version: str, refresh: bool) -> str:
     return f"Claude Code: current at {actual}"
 
 
+def remote_main_commit() -> str:
+    output = run("git", "ls-remote", "origin", "refs/heads/main").strip()
+    if not output:
+        raise HarnessError("Cursor: origin/main could not be resolved")
+    return output.split(maxsplit=1)[0]
+
+
+def cursor_local(expected_version: str, expected_commit: str, local: Path) -> str:
+    if not local.is_symlink():
+        raise HarnessError(f"Cursor: expected {local} to be a symlink")
+    resolved = local.resolve(strict=True)
+    if resolved != ROOT.resolve():
+        raise HarnessError(f"Cursor: {local} resolves to {resolved}, expected {ROOT}")
+
+    manifest_path = resolved / ".cursor-plugin" / "plugin.json"
+    actual_version = release_metadata.load_json(manifest_path).get("version")
+    if actual_version != expected_version:
+        raise HarnessError(
+            f"Cursor: local manifest expected {expected_version}, found {actual_version!r}"
+        )
+
+    local_commit = run("git", "rev-parse", "HEAD").strip()
+    remote_commit = remote_main_commit()
+    if local_commit != expected_commit or remote_commit != expected_commit:
+        raise HarnessError(
+            "Cursor: local source is not the exact published release: "
+            f"local={local_commit[:12]} origin/main={remote_commit[:12]} "
+            f"release={expected_commit[:12]}"
+        )
+
+    dirty = run("git", "status", "--porcelain").strip()
+    if dirty:
+        raise HarnessError(
+            "Cursor: local source has uncommitted changes; publish or revert them "
+            "before treating the installed plugin as release-exact"
+        )
+
+    return (
+        f"Cursor: local source current at {actual_version} "
+        f"({expected_commit[:12]}); run Developer: Reload Window after changes"
+    )
+
+
 def cursor(expected_version: str, expected_commit: str) -> str:
     cursor_root = Path.home() / ".cursor" / "plugins"
+    local = cursor_root / "local" / "personal-skills"
+    if local.exists() or local.is_symlink():
+        return cursor_local(expected_version, expected_commit, local)
+
     marketplace = (
         cursor_root
         / "marketplaces"
@@ -134,9 +181,10 @@ def cursor(expected_version: str, expected_commit: str) -> str:
     missing = [path for path in (marketplace, installed, manifest_path) if not path.exists()]
     if missing:
         raise HarnessError(
-            "Cursor: stale or absent. In Cursor's Plugins settings, refresh the "
-            "Personal marketplace and update personal-skills, then rerun this command. "
-            f"Missing expected release artifact {expected_commit[:12]}."
+            "Cursor: no trusted local plugin and the marketplace artifact is stale or "
+            "absent. Install ~/.cursor/plugins/local/personal-skills as a symlink to "
+            f"{ROOT}, then rerun this command. Missing expected marketplace artifact "
+            f"{expected_commit[:12]}."
         )
     actual = release_metadata.load_json(manifest_path).get("version")
     if actual != expected_version:
