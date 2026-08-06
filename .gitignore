@@ -13,6 +13,8 @@
 *.db
 .cache/
 cache/
+__pycache__/
+*.py[cod]
 
 # Private key material.
 *.key

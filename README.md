@@ -103,13 +103,35 @@ rules at the top of `CHANGELOG.md`:
 1. Make the bounded skill, plugin, or repository changes.
 2. Move the net released changes from `[Unreleased]` into a dated version
    section; omit intermediate churn and unchanged surfaces.
-3. Synchronize the root Cursor, Claude, and Codex `personal-skills` base
-   versions. Give changed nested plugins their own component versions and name
-   them in the same changelog section.
-4. Validate changed skills plus all three plugin manifests.
+3. Synchronize every root `personal-skills` manifest from that changelog
+   version. The command also gives Codex a fresh cache-buster and ensures the
+   Claude and Cursor marketplace entries remain version-free locators:
+
+   ```bash
+   python3 scripts/release_metadata.py set X.Y.Z
+   ```
+
+   Give changed nested plugins their own component versions and name them in
+   the same changelog section.
+4. Validate changed skills plus all three plugin manifests. Release metadata
+   alignment is enforced in CI and can be checked locally with:
+
+   ```bash
+   python3 scripts/release_metadata.py check
+   ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
-6. Refresh the existing marketplaces and update installed plugins in each
-   harness.
+6. After the release commit and tag are published, refresh the CLI-supported
+   harnesses and prove every installed artifact against that exact release:
+
+   ```bash
+   python3 scripts/refresh_harnesses.py
+   ```
+
+   Codex and Claude Code are refreshed automatically when their CLIs are
+   installed. Cursor currently has no supported plugin-refresh CLI; if its
+   installed commit is stale, the command fails with the single required UI
+   action and verifies the result when rerun. It never reports freshness from
+   marketplace display metadata alone.
 
 ## Machine-Local Support
 

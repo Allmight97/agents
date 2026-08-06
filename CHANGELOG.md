@@ -16,10 +16,21 @@ unchanged surfaces, or commit-by-commit narration.
   is pre-1.0, use a minor for new capabilities and incompatible changes. Treat
   `1.0.0` as a deliberate stability commitment.
 - `[Unreleased]` exists only while a pass is active. Before publication, move
-  its entries into a dated version section, synchronize the root Cursor,
-  Claude, and Codex manifests, commit, and tag the release.
+  its entries into a dated version section, run
+  `python3 scripts/release_metadata.py set X.Y.Z`, commit, and tag the release.
+- Claude and Cursor marketplace entries are version-free locators. Their
+  plugin manifests and the Codex plugin manifest own the release version;
+  `scripts/release_metadata.py check` enforces alignment with this changelog.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
+
+## [0.9.1] - 2026-08-06
+
+### Fixed
+
+- Made Claude and Cursor marketplace entries version-free locators and added
+  executable release-metadata synchronization plus CI drift detection, keeping
+  each harness manifest aligned with the latest changelog release.
 
 ## [0.9.0] - 2026-08-05
 
