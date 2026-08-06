@@ -47,19 +47,22 @@ fallback parsing of Claude manifests. The harness manifests are intentionally
 thin wrappers around one shared skill source.
 
 Cursor's personal Git marketplace can remain pinned to its first imported
-commit even after update or reinstall. On this Mac, use the canonical checkout
-as a local development plugin instead:
+commit even after update or reinstall. Cursor also rejects a local-plugin
+symlink when its target is outside `~/.cursor/plugins/local`. On this Mac, keep
+a dedicated Git clone inside Cursor's local-plugin boundary instead:
 
 ```bash
-ln -s /Users/jstar/Projects/agents \
+git clone https://github.com/Allmight97/agents.git \
   /Users/jstar/.cursor/plugins/local/personal-skills
 ```
 
 Keep the Git marketplace for distribution testing, but do not treat its cache
-as the trusted personal installation. After publishing and synchronizing the
-checkout, run `Developer: Reload Window` in Cursor. The release verifier proves
-the symlink target, clean checkout, `origin/main` commit, and Cursor manifest
-version rather than trusting Cursor's marketplace UI.
+as the trusted personal installation. After publishing, the release verifier
+fetches and detaches this local clone at the exact release commit, then proves
+its clean Git state, `origin/main` commit, and Cursor manifest version. When the
+clone advances, the verifier stops with an explicit reload instruction. Run
+`Developer: Reload Window` in Cursor, then rerun the verifier; it checks Cursor's
+loader log and loaded skill count before reporting success.
 
 ## Codex Marketplace
 
@@ -143,9 +146,10 @@ rules at the top of `CHANGELOG.md`:
    ```
 
    Codex and Claude Code are refreshed automatically when their CLIs are
-   installed. Cursor's local plugin is verified against the exact release and
-   still requires `Developer: Reload Window` after changes. The command never
-   reports freshness from marketplace display metadata alone.
+   installed. Cursor's local clone is synchronized against the exact release.
+   If it advances, run `Developer: Reload Window` and rerun this command; success
+   requires post-refresh loader proof, not marketplace display metadata or
+   filesystem state alone.
 
 ## Machine-Local Support
 

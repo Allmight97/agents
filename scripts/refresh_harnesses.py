@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -16,6 +18,8 @@ import release_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_ID = "personal-skills@personal"
+CURSOR_LOG_TIMESTAMP = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})")
+CURSOR_SKILL_COUNT = re.compile(r'"skillCount":(\d+)')
 
 
 class HarnessError(RuntimeError):
@@ -23,9 +27,13 @@ class HarnessError(RuntimeError):
 
 
 def run(*command: str) -> str:
+    return run_in(ROOT, *command)
+
+
+def run_in(cwd: Path, *command: str) -> str:
     completed = subprocess.run(
         command,
-        cwd=ROOT,
+        cwd=cwd,
         check=False,
         capture_output=True,
         text=True,
@@ -120,21 +128,84 @@ def remote_main_commit() -> str:
     return output.split(maxsplit=1)[0]
 
 
-def cursor_local(expected_version: str, expected_commit: str, local: Path) -> str:
-    if not local.is_symlink():
-        raise HarnessError(f"Cursor: expected {local} to be a symlink")
-    resolved = local.resolve(strict=True)
-    if resolved != ROOT.resolve():
-        raise HarnessError(f"Cursor: {local} resolves to {resolved}, expected {ROOT}")
+def cursor_loader_proof(local: Path) -> int:
+    """Prove Cursor loaded the local plugin after its source last changed."""
+    logs = Path.home() / "Library" / "Application Support" / "Cursor" / "logs"
+    if not logs.exists():
+        raise HarnessError("Cursor: loader logs are unavailable; open Cursor and reload")
 
-    manifest_path = resolved / ".cursor-plugin" / "plugin.json"
+    anchor = max(
+        (local / ".git" / "HEAD").stat().st_mtime,
+        (local / ".cursor-plugin" / "plugin.json").stat().st_mtime,
+    )
+    loaded_at: datetime | None = None
+    skill_proofs: list[tuple[datetime, int]] = []
+    for path in logs.rglob("*.log"):
+        if path.stat().st_mtime < anchor:
+            continue
+        try:
+            lines = path.read_text(errors="replace").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            match = CURSOR_LOG_TIMESTAMP.match(line)
+            if match is None:
+                continue
+            observed = datetime.strptime(match.group(1), "%Y-%m-%d %H:%M:%S.%f")
+            if observed.timestamp() < anchor:
+                continue
+            if "loadUserLocalPlugin personal-skills loaded" in line:
+                loaded_at = min(loaded_at, observed) if loaded_at else observed
+            if "CursorPluginsAgentSkillsService load completed" in line:
+                count = CURSOR_SKILL_COUNT.search(line)
+                if count:
+                    skill_proofs.append((observed, int(count.group(1))))
+
+    local_skill_count = sum(
+        1
+        for path in (local / "skills").iterdir()
+        if (path / "SKILL.md").is_file()
+    )
+    loaded_skills = max(
+        (count for observed, count in skill_proofs if loaded_at and observed >= loaded_at),
+        default=0,
+    )
+    if loaded_at is None or loaded_skills < local_skill_count:
+        raise HarnessError(
+            "Cursor: source is current but the loader has not proven this revision. "
+            "Run Developer: Reload Window, then rerun this command"
+        )
+    return loaded_skills
+
+
+def cursor_local(
+    expected_version: str, expected_commit: str, local: Path, refresh: bool
+) -> str:
+    if local.is_symlink() or not (local / ".git").exists():
+        raise HarnessError(
+            f"Cursor: {local} must be a real Git clone inside Cursor's local-plugin "
+            "directory; Cursor rejects symlinks whose targets are outside it"
+        )
+
+    dirty = run_in(local, "git", "status", "--porcelain").strip()
+    if dirty:
+        raise HarnessError(
+            "Cursor: local plugin clone has uncommitted changes; preserve or discard "
+            "them explicitly before synchronization"
+        )
+
+    if refresh:
+        run_in(local, "git", "fetch", "origin", "main")
+        run_in(local, "git", "switch", "--detach", expected_commit)
+
+    manifest_path = local / ".cursor-plugin" / "plugin.json"
     actual_version = release_metadata.load_json(manifest_path).get("version")
     if actual_version != expected_version:
         raise HarnessError(
             f"Cursor: local manifest expected {expected_version}, found {actual_version!r}"
         )
 
-    local_commit = run("git", "rev-parse", "HEAD").strip()
+    local_commit = run_in(local, "git", "rev-parse", "HEAD").strip()
     remote_commit = remote_main_commit()
     if local_commit != expected_commit or remote_commit != expected_commit:
         raise HarnessError(
@@ -143,24 +214,19 @@ def cursor_local(expected_version: str, expected_commit: str, local: Path) -> st
             f"release={expected_commit[:12]}"
         )
 
-    dirty = run("git", "status", "--porcelain").strip()
-    if dirty:
-        raise HarnessError(
-            "Cursor: local source has uncommitted changes; publish or revert them "
-            "before treating the installed plugin as release-exact"
-        )
+    loaded_skills = cursor_loader_proof(local)
 
     return (
-        f"Cursor: local source current at {actual_version} "
-        f"({expected_commit[:12]}); run Developer: Reload Window after changes"
+        f"Cursor: local clone current at {actual_version} "
+        f"({expected_commit[:12]}); loader verified {loaded_skills} skills"
     )
 
 
-def cursor(expected_version: str, expected_commit: str) -> str:
+def cursor(expected_version: str, expected_commit: str, refresh: bool) -> str:
     cursor_root = Path.home() / ".cursor" / "plugins"
     local = cursor_root / "local" / "personal-skills"
     if local.exists() or local.is_symlink():
-        return cursor_local(expected_version, expected_commit, local)
+        return cursor_local(expected_version, expected_commit, local, refresh)
 
     marketplace = (
         cursor_root
@@ -182,8 +248,9 @@ def cursor(expected_version: str, expected_commit: str) -> str:
     if missing:
         raise HarnessError(
             "Cursor: no trusted local plugin and the marketplace artifact is stale or "
-            "absent. Install ~/.cursor/plugins/local/personal-skills as a symlink to "
-            f"{ROOT}, then rerun this command. Missing expected marketplace artifact "
+            "absent. Clone the agents repository into "
+            "~/.cursor/plugins/local/personal-skills, then rerun this command. "
+            "Missing expected marketplace artifact "
             f"{expected_commit[:12]}."
         )
     actual = release_metadata.load_json(manifest_path).get("version")
@@ -220,7 +287,7 @@ def main() -> int:
     checks = (
         lambda: codex(codex_version, not args.check_only),
         lambda: claude(version, not args.check_only),
-        lambda: cursor(version, commit),
+        lambda: cursor(version, commit, not args.check_only),
     )
     results: list[str] = []
     errors: list[str] = []

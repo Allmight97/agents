@@ -24,6 +24,14 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [Unreleased]
+
+### Fixed
+
+- Replaced Cursor's rejected out-of-boundary plugin symlink with a real local
+  Git clone and made harness refresh synchronize it at the exact published
+  commit, then require post-refresh Cursor loader and skill-count proof.
+
 ## [0.9.2] - 2026-08-06
 
 ### Fixed
