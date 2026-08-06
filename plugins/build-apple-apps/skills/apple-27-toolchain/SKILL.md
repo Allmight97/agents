@@ -30,6 +30,10 @@ On JStar's Mac, prefer per-command or per-plugin `DEVELOPER_DIR=/Applications/Xc
    - iOS Simulator SDK: `DEVELOPER_DIR=<path> xcrun --sdk iphonesimulator --show-sdk-version`
    - watchOS SDK: `DEVELOPER_DIR=<path> xcrun --sdk watchos --show-sdk-version`
    - watchOS Simulator SDK: `DEVELOPER_DIR=<path> xcrun --sdk watchsimulator --show-sdk-version`
+   - tvOS SDK: `DEVELOPER_DIR=<path> xcrun --sdk appletvos --show-sdk-version`
+   - tvOS Simulator SDK: `DEVELOPER_DIR=<path> xcrun --sdk appletvsimulator --show-sdk-version`
+   - visionOS SDK: `DEVELOPER_DIR=<path> xcrun --sdk xros --show-sdk-version`
+   - visionOS Simulator SDK: `DEVELOPER_DIR=<path> xcrun --sdk xrsimulator --show-sdk-version`
    - Simulator availability: `DEVELOPER_DIR=<path> xcrun simctl list devices available`
    - Xcode-visible devices: `DEVELOPER_DIR=<path> xcrun xctrace list devices`
 
@@ -41,7 +45,7 @@ On JStar's Mac, prefer per-command or per-plugin `DEVELOPER_DIR=/Applications/Xc
 5. Check Apple 27 adjacent tools when relevant.
    - Icon Composer 2: verify `/Applications/Xcode-beta.app/Contents/Applications/Icon Composer.app` before advising layered Liquid Glass icon workflows.
    - XcodeBuildMCP: verify a fresh session can see the configured workflows and `DEVELOPER_DIR`.
-   - Xcode native agent access or Device Hub: treat as a UI/state surface; verify availability before depending on it.
+   - Native Xcode MCP: open the project in Xcode, enable **Xcode Settings > Intelligence > Model Context Protocol > Allow external agents to use Xcode tools**, then configure the agent bridge (for Codex: `codex mcp add xcode -- xcrun mcpbridge`). Verify `codex mcp list` and a fresh agent session against the open project before depending on it.
 
 6. Keep fixes scoped.
    - Prefer per-command `DEVELOPER_DIR` and plugin `.mcp.json` environment settings.

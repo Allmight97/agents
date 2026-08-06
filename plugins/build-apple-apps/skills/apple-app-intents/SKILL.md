@@ -18,22 +18,28 @@ Consult current Apple Developer documentation when API syntax or platform availa
    - Prefer verbs such as open, start, log, find, filter, compose, continue, inspect, or summarize.
    - Do not mirror the app's whole navigation tree.
 
-2. Define a small entity surface.
+2. Choose the current App Intents contract before defining entities.
+   - For a supported schema domain, use its domain model only when it matches the app's real objects and behavior; otherwise keep a narrow app-specific intent and entity surface.
+   - When the feature has more than one possible execution target or supported mode, state which targets and modes are allowed before implementing it.
+   - Confirm that the app owns, or is authorized to act on, each sensitive or shared entity before exposing it to a system surface.
+   - Use a stable cross-device entity identity only when the intent must resolve the same object across devices, restores, or shared state; do not add sync identity by default.
+
+3. Define a small entity surface.
    - Add `AppEntity` only for objects the system needs to understand or route.
    - Keep entity display data narrower than the app's persistence model.
    - Add `EntityQuery`, `EnumerableEntityQuery`, or `AppEnum` only when suggestions, disambiguation, or fixed choices are actually useful.
 
-3. Decide completion mode.
+4. Decide completion mode.
    - Inline intents should complete without opening the app.
    - Open-app intents should route to one clear app destination or workflow.
    - When the app must react inside the main scene, add one predictable handoff path instead of scattering global side effects.
 
-4. Make the surface discoverable.
+5. Make the surface discoverable.
    - Add `AppShortcutsProvider` for high-value actions.
    - Use direct, user-facing titles and phrases.
    - Reuse the same action/entity model for widgets and controls when those surfaces need the same parameters.
 
-5. Prove the integration.
+6. Prove the integration.
    - Build the intents target and app target.
    - Verify entity display, parameter resolution, shortcut exposure, and runtime handoff.
    - Summarize exposed actions, backing entities, phrases, and app routing behavior.
@@ -51,6 +57,8 @@ Consult current Apple Developer documentation when API syntax or platform availa
 - App entities mirror the whole persistence graph.
 - Runtime handoff hides in global state with no clear route.
 - Shortcut phrases are vague, generic, or taxonomy-driven.
+- A sensitive or shared entity is exposed before ownership and authorization are clear.
+- An intent is described as a Siri capability without confirming that its platform and mode support it.
 
 ## References
 

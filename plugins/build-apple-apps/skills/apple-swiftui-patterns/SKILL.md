@@ -24,8 +24,10 @@ Use this skill when the task is UI structure, view refactoring, platform fit, or
    - Prefer platform conditionals at narrow edges instead of mixing incompatible UI assumptions in one view.
 
 3. Adopt Apple 27 UI affordances where they earn their keep.
-   - Use Liquid Glass for system-aligned surfaces, not as a generic decoration layer.
    - Prefer native tab, toolbar, split-view, search, sheet, popover, window, command, settings, and inspector APIs before custom chrome.
+   - Treat Liquid Glass as a cross-platform, availability-gated enhancement for system-aligned surfaces, not a generic decoration layer.
+   - Start with standard components and their system styling; add sparse custom glass only when it improves a specific hierarchy or interaction.
+   - Use `GlassEffectContainer` only when grouped glass effects or interactions need coordination, or when measured rendering efficiency justifies it.
    - Use Icon Composer 2 only for app/icon work that needs layered Liquid Glass assets.
 
 4. Refactor views deliberately.
@@ -46,4 +48,4 @@ Use only the references needed for the current platform and component:
 - `references/macos/`
 - `references/appkit/`
 - `references/window-management/api-snippets.md`
-- `references/liquid-glass-ios.md`
+- `references/liquid-glass.md`

@@ -5,8 +5,9 @@ This plugin adopts the Apple 27 stack where it changes day-to-day agent behavior
 ## Adopted Now
 
 - Xcode 27 toolchain discovery and per-plugin `DEVELOPER_DIR`
-- pinned `xcodebuildmcp@2.6.2`
-- Simulator, macOS, device, SwiftPM, debugging, UI automation, coverage, utilities, doctor, project discovery, project scaffolding, and Xcode IDE MCP workflows
+- pinned `xcodebuildmcp@2.7.0`
+- Simulator, macOS, device, SwiftPM, debugging, UI automation, coverage, utilities, project discovery, project scaffolding, and Xcode IDE MCP workflows, with diagnostics through the `xcodebuildmcp://doctor` resource
+- one shared nine-skill tree with Codex-native, Agent Plugins v1, and Xcode 27 package discovery
 - App Intents, entities, shortcuts, Spotlight/Siri/widget/control exposure
 - Foundation Models availability, guided generation, tool calling, transcript hygiene, and Instruments proof
 - Liquid Glass and Apple 27 SwiftUI guidance

@@ -20,6 +20,7 @@ jobs:
       - name: Install pinned Agent Skills reference validator
         run: >-
           python3 -m pip install
+          "check-jsonschema==0.37.4"
           "git+https://github.com/agentskills/agentskills.git@217be548739f21d6008915c29aefe320ea1a90af#subdirectory=skills-ref"
       - name: Validate every portable Agent Skill
         shell: bash
@@ -27,5 +28,25 @@ jobs:
           while IFS= read -r skill_file; do
             skills-ref validate "$(dirname "$skill_file")"
           done < <(find . -type f -name SKILL.md -not -path './.git/*' -print | sort)
+      - name: Validate native Codex plugins
+        shell: bash
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/openai/codex/57f42a81131ccf5933e7ec5dc659c381eeb5d72b/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py \
+            --output "$RUNNER_TEMP/validate_plugin.py"
+          python3 "$RUNNER_TEMP/validate_plugin.py" .
+          for manifest in plugins/*/.codex-plugin/plugin.json; do
+            python3 "$RUNNER_TEMP/validate_plugin.py" "$(dirname "$(dirname "$manifest")")"
+          done
+      - name: Validate marketplace routing and plugin parity
+        run: python3 scripts/validate_marketplace_plugins.py
+      - name: Validate portable Agent Plugin manifests
+        run: |
+          check-jsonschema \
+            --schemafile https://agent-plugins.org/schemas/1.0.0/plugin.schema.json \
+            plugins/build-apple-apps/plugin.json
+          check-jsonschema \
+            --schemafile https://agent-plugins.org/schemas/1.0.0/mcp.schema.json \
+            plugins/build-apple-apps/mcp.json
       - name: Check manifest and marketplace alignment
         run: python3 scripts/release_metadata.py check

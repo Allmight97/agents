@@ -2,7 +2,7 @@
 
 ## Overview
 
-Liquid Glass is a dynamic material introduced in iOS that combines the optical properties of glass with a sense of fluidity. It blurs content behind it, reflects color and light from surrounding content, and reacts to touch and pointer interactions in real time. This guide covers how to implement and customize Liquid Glass effects in SwiftUI applications. You should always seek guides on Liquid Glass when asked for help adopting new Apple design.
+Liquid Glass is a dynamic material for supported Apple platforms. Treat it as an availability-gated enhancement: use standard SwiftUI components and system styling first, then add a small number of custom effects only where they improve a specific hierarchy or interaction. This guide covers how to implement and customize those effects without making glass a generic decoration layer.
 
 Key features of Liquid Glass:
 - Blurs content behind the material
@@ -84,7 +84,7 @@ Text("Hello, World!")
 
 ### Using GlassEffectContainer
 
-When applying Liquid Glass effects to multiple views, use `GlassEffectContainer` for better rendering performance and to enable blending and morphing effects:
+Use `GlassEffectContainer` when grouped effects need to blend, morph, or coordinate interactions, or when rendering evidence shows it improves efficiency. Do not add one merely because a screen has multiple glass effects:
 
 ```swift
 GlassEffectContainer(spacing: 40.0) {
@@ -227,7 +227,7 @@ ScrollView(.horizontal) {
 
 ## Best Practices
 
-1. **Container Usage**: Always use `GlassEffectContainer` when applying Liquid Glass to multiple views for better performance and morphing effects.
+1. **Container Usage**: Use `GlassEffectContainer` only when grouped effects/interactions need coordination or rendering efficiency earns it.
 
 2. **Effect Order**: Apply the `.glassEffect()` modifier after other modifiers that affect the appearance of the view.
 
@@ -238,6 +238,7 @@ ScrollView(.horizontal) {
 5. **Interactivity**: Add `.interactive()` to glass effects that should respond to user interaction.
 
 6. **Consistent Design**: Maintain consistent shapes and styles across your app for a cohesive look and feel.
+7. **Platform availability**: Gate Liquid Glass APIs by the platforms and OS versions the app supports, with a standard-component fallback.
 
 ## Example: Custom Badge with Liquid Glass
 

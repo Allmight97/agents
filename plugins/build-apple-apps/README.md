@@ -1,6 +1,6 @@
 # Build Apple Apps Plugin
 
-This is JStar's personal `build-apple-apps` plugin, published through the personal Codex marketplace as `build-apple-apps@personal`.
+This is JStar's personal `build-apple-apps` plugin, published through the personal Codex marketplace as `build-apple-apps@personal`. Its shared skills also conform to Agent Skills, and the package carries an Agent Plugins v1 projection for compatible clients.
 
 It replaces the separate `build-macos-apps` and `build-ios-apps` surfaces. The curated plugin caches remain source material only; do not keep overlapping Apple build plugins installed alongside this one.
 
@@ -18,14 +18,27 @@ It replaces the separate `build-macos-apps` and `build-ios-apps` surfaces. The c
 
 ## Apple 27 Defaults
 
-The bundled XcodeBuildMCP server is pinned to `xcodebuildmcp@2.6.2` and runs with:
+The bundled XcodeBuildMCP server is pinned to `xcodebuildmcp@2.7.0` and runs with:
 
 ```bash
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
-XCODEBUILDMCP_ENABLED_WORKFLOWS=simulator,simulator-management,device,macos,project-discovery,project-scaffolding,swift-package,debugging,ui-automation,doctor,coverage,utilities,xcode-ide
+XCODEBUILDMCP_SENTRY_DISABLED=true
+XCODEBUILDMCP_ENABLED_WORKFLOWS=simulator,simulator-management,device,macos,project-discovery,project-scaffolding,swift-package,debugging,ui-automation,coverage,utilities,xcode-ide
 ```
 
 This intentionally avoids mutating global `xcode-select`. On this Mac, the global Command Line Tools path can resolve `xcodebuild` but cannot provide simulator tools such as `simctl`; per-plugin `DEVELOPER_DIR` keeps Apple 27 workflows reproducible inside Codex sessions.
+
+Sentry error telemetry is disabled by default. Remove `XCODEBUILDMCP_SENTRY_DISABLED` only after making a deliberate privacy decision.
+
+`XCODEBUILDMCP_ENABLED_WORKFLOWS` is an allowlist: only the named workflows are registered. Keep its names compatible with the pinned server. Diagnostics remain available through the `xcodebuildmcp://doctor` MCP resource; `doctor` is not a workflow name and does not belong in this variable.
+
+## Package Compatibility
+
+- Codex loads `.codex-plugin/plugin.json`, `.mcp.json`, and the shared `skills/` tree.
+- Agent Plugins v1 clients load `plugin.json`, `mcp.json`, and the same `skills/` tree.
+- Xcode 27's file importer discovers `plugin.json`, `.mcp.json`, and the same `skills/` tree.
+
+Keep `.mcp.json` and `mcp.json` behaviorally identical. Repository validation rejects version, workflow, server-name, or environment drift between the native and portable definitions.
 
 ## What It Covers
 

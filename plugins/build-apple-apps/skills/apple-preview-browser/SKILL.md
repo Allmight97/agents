@@ -19,11 +19,11 @@ Use `apple-build-run-debug` first when the app is not built, launched, or assign
 ```bash
 SIM="<simulator-udid>"
 cleanup_serve_sim() {
-  npx --yes serve-sim@latest --kill "$SIM" >/dev/null 2>&1 || true
+  npx --yes serve-sim@0.1.45 --kill "$SIM" >/dev/null 2>&1 || true
 }
 trap cleanup_serve_sim EXIT INT TERM HUP
 cleanup_serve_sim
-npx --yes serve-sim@latest "$SIM"
+npx --yes serve-sim@0.1.45 "$SIM"
 ```
 
 3. Open the exact local URL printed by `serve-sim` in the Codex in-app browser.

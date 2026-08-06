@@ -99,6 +99,11 @@ boundary, permission or authentication surface, runtime dependency, audience, or
 release lifecycle. Do not split skills into plugins merely because they share a
 topic. Personal workflow skills, including Whittle, belong in `personal-skills`.
 
+`build-apple-apps` keeps one shared nine-skill tree with Codex-native and Agent
+Plugins v1 manifests. Xcode 27's file importer recognizes the same skills and
+native MCP file. Repository validation keeps its native and portable metadata
+and MCP definitions aligned.
+
 `edge-browser` is a separately toggleable routing plugin for controlling
 Microsoft Edge through the first-party ChatGPT browser extension. It requires
 the official `chrome@openai-bundled` plugin to remain installed and enabled:

@@ -42,6 +42,7 @@ Use this skill when text, layout, voice, input, color, motion, or locale behavio
 3. Prove with app-native evidence.
    - Use previews for variant coverage.
    - Use Simulator or device proof for VoiceOver, focus, and layout.
+   - In Xcode 27 beta, Simulator and Device Hub accessibility toggles are setup aids, not VoiceOver proof; verify actual VoiceOver behavior in Simulator or on a device.
    - Use screenshots only after verifying that controls still fit and do not overlap.
 
 ## Strong Defaults

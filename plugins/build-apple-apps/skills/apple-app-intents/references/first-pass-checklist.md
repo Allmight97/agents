@@ -46,6 +46,13 @@ Keep each entity focused on:
 
 Do not mirror the entire persistence model if a much smaller system-facing type will do.
 
+## Confirm the execution and identity contract
+
+- For a supported schema domain, use the domain model only when it matches the app's real object and action; otherwise use a narrow app-specific intent.
+- When execution targets or supported modes differ, record the allowed target and mode for this intent before implementation.
+- Confirm the app owns, or is authorized to act on, every sensitive or shared entity it exposes.
+- Use a stable cross-device identifier only when the same entity must resolve across devices, restores, or shared state.
+
 ## Decide the handoff model
 
 For each intent, ask:

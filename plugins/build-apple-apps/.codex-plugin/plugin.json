@@ -1,6 +1,6 @@
 {
   "name": "build-apple-apps",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Build, run, debug, profile, and ship Apple 27-era apps across macOS, iOS, iPadOS, watchOS, tvOS, and visionOS with Swift, SwiftUI, Xcode 27, and XcodeBuildMCP.",
   "author": {
     "name": "JStar",
@@ -41,7 +41,6 @@
     "defaultPrompt": [
       "Build, debug, or modernize an Apple 27 SwiftUI app with Xcode 27 proof."
     ],
-    "screenshots": [],
     "brandColor": "#1F6FEB",
     "composerIcon": "./assets/build-apple-apps-small.svg",
     "logo": "./assets/app-icon.png"

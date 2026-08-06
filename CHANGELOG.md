@@ -24,7 +24,7 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
-## [Unreleased]
+## [0.10.0] - 2026-08-06
 
 ### Changed
 
@@ -32,6 +32,10 @@ unchanged surfaces, or commit-by-commit narration.
   added standards-aware token budgets and validation guidance, and documented
   the client marketplace inventory plus operational rather than topical plugin
   boundaries.
+- Released `build-apple-apps` 0.2.0 with XcodeBuildMCP 2.7.0, refreshed its Apple 27
+  Foundation Models, App Intents, Liquid Glass, accessibility, performance,
+  preview, and toolchain procedures, and added one shared skill tree packaged
+  for Codex, Agent Plugins v1, and Xcode 27.
 
 ### Fixed
 
@@ -40,11 +44,18 @@ unchanged surfaces, or commit-by-commit narration.
   commit, then require post-refresh Cursor loader and skill-count proof.
 - Added pinned Agent Skills validation for every root and nested skill to the
   repository CI gate.
+- Added native marketplace-plugin validation, official Agent Plugins v1 schema
+  checks, and native/portable MCP drift detection for `build-apple-apps`.
+- Removed the invalid XcodeBuildMCP `doctor` workflow entry while preserving its
+  diagnostics resource, pinned `serve-sim` instead of executing `latest`, and
+  disabled XcodeBuildMCP Sentry error telemetry by default.
 
 ### Removed
 
 - Removed the unused Claude/Fable `codex` delegation plugin and its personal
   marketplace entry.
+- Removed four duplicate Apple command wrappers and stale plugin-level agent
+  metadata that Xcode 27 misclassified as extra skills and a subagent.
 
 ## [0.9.2] - 2026-08-06
 

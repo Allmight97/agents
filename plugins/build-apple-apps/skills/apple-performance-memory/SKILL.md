@@ -30,7 +30,8 @@ Use this skill when the question is runtime cost, not merely build correctness. 
 
 4. Run the narrow command.
    - Keep raw trace files out of git unless the repo explicitly stores performance artifacts.
-   - Store temporary evidence under `/private/tmp` or another ignored location.
+   - Create a private per-run directory before collecting evidence: `RUN_DIR="$(mktemp -d /private/tmp/apple-profile.XXXXXX)" && chmod 700 "$RUN_DIR"`.
+   - Treat Foundation Models traces, prompts, responses, and tool-call payloads as sensitive: minimize capture, do not paste raw content into tickets or commit it, and delete the run directory after the evidence is summarized unless retention is explicitly approved.
    - Preserve the exact command, destination, device, OS, build configuration, and app version.
 
 5. Fix and compare.
