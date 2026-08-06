@@ -1,4 +1,4 @@
-name: Validate release metadata
+name: Validate repository metadata
 
 on:
   pull_request:
@@ -10,12 +10,22 @@ permissions:
   contents: read
 
 jobs:
-  release-metadata:
+  repository-metadata:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install pinned Agent Skills reference validator
+        run: >-
+          python3 -m pip install
+          "git+https://github.com/agentskills/agentskills.git@217be548739f21d6008915c29aefe320ea1a90af#subdirectory=skills-ref"
+      - name: Validate every portable Agent Skill
+        shell: bash
+        run: |
+          while IFS= read -r skill_file; do
+            skills-ref validate "$(dirname "$skill_file")"
+          done < <(find . -type f -name SKILL.md -not -path './.git/*' -print | sort)
       - name: Check manifest and marketplace alignment
         run: python3 scripts/release_metadata.py check

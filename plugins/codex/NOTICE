@@ -1,4 +1,0 @@
-skills/codex-prompting/ is adapted from openai/codex-plugin-cc
-(Copyright 2026 OpenAI), licensed under the Apache License, Version 2.0
-(see LICENSE-APACHE-2.0). Modified for model-dynamic, direct Codex CLI
-prompting.

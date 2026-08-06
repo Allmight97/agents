@@ -11,12 +11,6 @@
       "source": "./",
       "skills": "./skills",
       "category": "productivity"
-    },
-    {
-      "name": "codex",
-      "description": "Lean, model-dynamic Codex delegation via the CLI: intentional rescue, native review, and prompting guidance.",
-      "source": "./plugins/codex",
-      "category": "productivity"
     }
   ]
 }

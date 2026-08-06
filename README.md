@@ -12,6 +12,8 @@ skills checkout.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
 - `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
+- `plugins/`: separately installable Codex plugins, currently
+  `build-apple-apps` and `edge-browser`.
 - `mcp/README.md`: local MCP notes.
 
 ## Claude Marketplace
@@ -72,6 +74,9 @@ Subscribe Codex to this repo as the `personal` marketplace:
 codex plugin marketplace add Allmight97/agents
 ```
 
+The Codex marketplace exposes three plugins: `personal-skills`,
+`build-apple-apps`, and `edge-browser`.
+
 Then install the shared skill tree as the `personal-skills` plugin:
 
 ```bash
@@ -89,9 +94,10 @@ That is the path Codex expects inside a Git marketplace checkout. Do not keep a
 second root-level `plugins/marketplace.json`; it causes this Mac to see duplicate
 `personal` marketplace roots.
 
-Future plugins should be added as their own entries in the Codex marketplace
-catalog only when they are genuinely separate products. Personal workflow skills,
-including Whittle, belong in `personal-skills`.
+Create a separate plugin only when it needs an independent install or enablement
+boundary, permission or authentication surface, runtime dependency, audience, or
+release lifecycle. Do not split skills into plugins merely because they share a
+topic. Personal workflow skills, including Whittle, belong in `personal-skills`.
 
 `edge-browser` is a separately toggleable routing plugin for controlling
 Microsoft Edge through the first-party ChatGPT browser extension. It requires
@@ -131,8 +137,9 @@ rules at the top of `CHANGELOG.md`:
 
    Give changed nested plugins their own component versions and name them in
    the same changelog section.
-4. Validate changed skills plus all three plugin manifests. Release metadata
-   alignment is enforced in CI and can be checked locally with:
+4. Validate changed skills plus all three plugin manifests. CI validates every
+   root and nested `SKILL.md` against a pinned Agent Skills reference validator.
+   Release metadata alignment can be checked locally with:
 
    ```bash
    python3 scripts/release_metadata.py check

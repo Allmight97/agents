@@ -1,8 +1,0 @@
-{
-  "name": "codex",
-  "version": "0.3.0",
-  "description": "Lean Codex delegation for Claude/Fable: rescue, review, setup, transfer, adversarial review.",
-  "author": {
-    "name": "Allmight97"
-  }
-}

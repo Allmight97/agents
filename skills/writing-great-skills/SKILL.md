@@ -1,6 +1,6 @@
 ---
 name: writing-great-skills
-description: Reference for writing, editing, and auditing Codex-compatible skills. Use when creating or refining skill text, pruning descriptions, deciding what belongs in SKILL.md versus references, diagnosing skill failure modes, or when another skill needs quality vocabulary for invocation, hierarchy, no-ops, sediment, sprawl, and predictable behavior.
+description: Reference for writing, editing, and auditing portable Agent Skills and Codex-specific skill metadata. Use when creating or refining skill text, pruning descriptions, deciding what belongs in SKILL.md versus references, diagnosing skill failure modes, or when another skill needs quality vocabulary for invocation, hierarchy, no-ops, sediment, sprawl, and predictable behavior.
 ---
 
 # Writing Great Skills
@@ -10,6 +10,18 @@ A skill exists to wrangle predictability out of a stochastic system: the same pr
 For procedural creation mechanics, use `$skill-creator`. This skill owns quality vocabulary and audit judgement. For AGENTS.md and instruction-file networks, use `$agents-md-steward`.
 
 Bold terms are defined in [GLOSSARY.md](GLOSSARY.md). Read that file when you need exact definitions or when auditing a subtle skill-design trade-off.
+
+## Portable Core And Client Extensions
+
+Author shared `SKILL.md` files against the [Agent Skills specification](https://agentskills.io/specification):
+
+- Require `name` and `description`; make `name` match the parent directory and make `description` state both the job and its triggers.
+- Use optional `license`, `compatibility`, `metadata`, or experimental `allowed-tools` only when a real consumer or constraint needs them.
+- Treat `scripts/`, `references/`, and `assets/` as optional conventions. Create only the resources the skill actually uses.
+
+Keep client policy and presentation outside the portable core. `agents/openai.yaml` is OpenAI-specific UI metadata, not a portable requirement. Put an explicit-only policy or other harness behavior in that harness's supported metadata, then validate it in every target client.
+
+Budget progressive disclosure in tokens: catalog metadata should usually stay near 50-100 tokens, the activated `SKILL.md` body below 5,000 tokens and 500 lines, and supporting resources load only when needed. These are ceilings for context hygiene, not targets to fill.
 
 ## Invocation
 
@@ -89,4 +101,4 @@ for provenance or license handling.
 3. Classify each body section as step, reference, disclosed reference, or external reference.
 4. Find duplication, sediment, sprawl, and no-ops.
 5. Patch the smallest surface that improves predictability.
-6. Validate with `quick_validate.py`; forward-test with realistic prompts when behavior is complex.
+6. Run `skills-ref validate <skill-dir>` for portable structure when available, then run every target client's validator. Treat structural success as shape proof only; forward-test realistic prompts when behavior is complex.

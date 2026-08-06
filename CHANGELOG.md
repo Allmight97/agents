@@ -26,11 +26,25 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+### Changed
+
+- Distinguished the portable Agent Skills core from OpenAI-specific metadata,
+  added standards-aware token budgets and validation guidance, and documented
+  the client marketplace inventory plus operational rather than topical plugin
+  boundaries.
+
 ### Fixed
 
 - Replaced Cursor's rejected out-of-boundary plugin symlink with a real local
   Git clone and made harness refresh synchronize it at the exact published
   commit, then require post-refresh Cursor loader and skill-count proof.
+- Added pinned Agent Skills validation for every root and nested skill to the
+  repository CI gate.
+
+### Removed
+
+- Removed the unused Claude/Fable `codex` delegation plugin and its personal
+  marketplace entry.
 
 ## [0.9.2] - 2026-08-06
 
