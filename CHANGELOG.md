@@ -21,6 +21,30 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.9.0] - 2026-08-05
+
+### Added
+
+- Added `grok-cli` for isolated, explicitly authorized Grok Build reviews and
+  bounded implementation lanes with fail-closed discovery checks.
+
+### Changed
+
+- Scoped architecture scans toward named areas and recent change hotspots,
+  made grilling ask the complete dependency-safe frontier each round, and made
+  Wayfinder map its decision frontier breadth-first before creating child
+  issues.
+- Reduced model-visible skill descriptions and moved presentation-artifact and
+  Wayfinder execution detail behind targeted references.
+- Added the environment-as-source and prose-as-cache test to shared skill
+  guidance, and kept deep-module vocabulary from overriding clearer project
+  language.
+
+### Fixed
+
+- Synchronized Claude, Cursor, and Codex personal-skills versions and corrected
+  stale canonical-source paths in the Apple build plugin documentation.
+
 ## [0.8.0] - 2026-08-03
 
 ### Added

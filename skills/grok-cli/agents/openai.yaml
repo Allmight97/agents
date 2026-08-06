@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grok CLI"
+  short_description: "Run Grok 4.5 with guarded local context"
+  default_prompt: "Use $grok-cli to get a read-only Grok 4.5 review of this repository change."

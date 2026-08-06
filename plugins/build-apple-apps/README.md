@@ -51,11 +51,11 @@ This intentionally avoids mutating global `xcode-select`. On this Mac, the globa
 
 The source lives at:
 
-- `/Users/jstar/.agents/plugins/build-apple-apps`
+- `/Users/jstar/Projects/agents/plugins/build-apple-apps`
 
 The personal marketplace entry lives at:
 
-- `/Users/jstar/.agents/.agents/plugins/marketplace.json`
+- `/Users/jstar/Projects/agents/.agents/plugins/marketplace.json`
 
 Refresh and install:
 

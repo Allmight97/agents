@@ -59,6 +59,11 @@ Split only when the cut earns one of the costs:
 
 Keep each meaning in a single source of truth. Check every line for relevance, then hunt no-ops sentence by sentence.
 
+Treat the environment as a source of truth too. A skill that restates a command,
+version, path, config value, or directory shape that the agent can inspect cheaply
+is a **cache**. Keep the lookup in the environment; cache only expensive
+discovery, non-obvious ownership, rationale, or a recurring trap.
+
 Delete lines that do not change behavior versus the model default. Prefer a stronger leading word over a weak sentence that merely asks the agent to be good.
 
 Do not add license files, copyright notices, or licensing narration to skills

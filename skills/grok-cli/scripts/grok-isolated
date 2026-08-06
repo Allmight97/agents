@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf '%s\n' \
+    'Usage: grok-isolated --cwd <working-directory> [--state-dir <directory>] [--check-only] -- <grok arguments>' \
+    '' \
+    'Create and verify an isolated Grok Build context before running a Grok command.' \
+    'The default state directory is ~/.agents/state/grok-cli.'
+}
+
+project_dir=''
+state_dir="${GROK_CLI_STATE_DIR:-${HOME}/.agents/state/grok-cli}"
+check_only=false
+
+while (($#)); do
+  case "$1" in
+    --cwd)
+      project_dir="${2:-}"
+      shift 2
+      ;;
+    --state-dir)
+      state_dir="${2:-}"
+      shift 2
+      ;;
+    --check-only)
+      check_only=true
+      shift
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      printf 'Unknown wrapper option: %s\n' "$1" >&2
+      usage >&2
+      exit 64
+      ;;
+  esac
+done
+
+if [[ -z "$project_dir" || ! -d "$project_dir" ]]; then
+  printf 'A readable working directory is required with --cwd.\n' >&2
+  exit 64
+fi
+
+if ! command -v grok >/dev/null 2>&1; then
+  printf 'grok is not installed or not on PATH.\n' >&2
+  exit 69
+fi
+
+project_dir=$(cd "$project_dir" && pwd -P)
+mkdir -p "$state_dir"
+state_dir=$(cd "$state_dir" && pwd -P)
+config_path="$state_dir/config.toml"
+
+umask 077
+printf '%s\n' \
+  '[cli]' \
+  'auto_update = false' \
+  '' \
+  '[tools]' \
+  'respect_gitignore = true' \
+  '' \
+  '[sandbox]' \
+  'profile = "strict"' \
+  '' \
+  '[compat.claude]' \
+  'skills = false' \
+  'rules = false' \
+  'agents = false' \
+  'mcps = false' \
+  'hooks = false' \
+  'sessions = false' \
+  '' \
+  '[compat.cursor]' \
+  'skills = false' \
+  'rules = false' \
+  'agents = false' \
+  'mcps = false' \
+  'hooks = false' \
+  'sessions = false' \
+  '' \
+  '[skills]' \
+  "ignore = [\"${HOME}/.agents/skills\", \"${HOME}/.agents/commands\"]" \
+  > "$config_path"
+
+inspect_file=$(mktemp "${TMPDIR:-/tmp}/grok-cli-inspect.XXXXXX")
+trap 'rm -f "$inspect_file"' EXIT
+
+GROK_HOME="$state_dir" grok --no-auto-update --cwd "$project_dir" inspect --json > "$inspect_file"
+
+/usr/bin/python3 - "$inspect_file" "$state_dir" "$project_dir" <<'PY'
+import json
+import os
+import sys
+
+inspect_path, state_dir, project_dir = sys.argv[1:]
+with open(inspect_path, encoding="utf-8") as handle:
+    report = json.load(handle)
+
+state_dir = os.path.realpath(state_dir)
+project_dir = os.path.realpath(project_dir)
+
+def contained(path, root):
+    resolved = os.path.realpath(path)
+    return resolved == root or resolved.startswith(root + os.sep)
+
+problems = []
+
+def active(item):
+    return not (
+        item.get("disabled") is True
+        or item.get("enabled") is False
+        or item.get("compatibilityStatus") == "disabled"
+    )
+
+for item in report.get("projectInstructions", []):
+    path = item.get("path", "")
+    if active(item) and not contained(path, project_dir):
+        problems.append(f"foreign instruction: {path}")
+
+for field, label in (
+    ("skills", "skill"),
+    ("plugins", "plugin"),
+    ("hooks", "hook"),
+    ("mcpServers", "MCP server"),
+):
+    for item in report.get(field, []):
+        if not active(item):
+            continue
+        source = item.get("source", {})
+        problems.append(f"discovered {label}: {item.get('name', item.get('target', 'unnamed'))} ({source.get('path', source.get('type', 'unknown source'))})")
+
+for item in report.get("agents", []):
+    if active(item) and item.get("source", {}).get("type") != "builtin":
+        problems.append(f"discovered non-built-in agent: {item.get('name', 'unnamed')}")
+
+for layer in report.get("configSources", {}).get("layers", []):
+    path = layer.get("path", "")
+    if path and not contained(path, state_dir):
+        problems.append(f"foreign configuration: {path}")
+
+for cell in report.get("externalCompat", {}).get("cells", []):
+    if cell.get("vendor") in {"claude", "cursor"} and cell.get("enabled") is not False:
+        problems.append(f"compatibility cell remains enabled: {cell.get('vendor')}.{cell.get('surface')}")
+
+if problems:
+    print("Grok context preflight failed:", file=sys.stderr)
+    for problem in problems:
+        print(f"- {problem}", file=sys.stderr)
+    sys.exit(78)
+
+print(f"Grok context clean for {project_dir}")
+PY
+
+if "$check_only"; then
+  exit 0
+fi
+
+if (($# == 0)); then
+  printf 'No Grok arguments supplied after --.\n' >&2
+  usage >&2
+  exit 64
+fi
+
+previous_arg=''
+for arg in "$@"; do
+  if [[ "$arg" == '--sandbox' || "$arg" == --sandbox=* ]]; then
+    printf 'The wrapper owns the strict sandbox; do not pass --sandbox.\n' >&2
+    exit 64
+  fi
+  if [[ "$arg" == '--always-approve' || "$arg" == '--yolo' || "$arg" == '--permission-mode=bypassPermissions' || ( "$previous_arg" == '--permission-mode' && "$arg" == 'bypassPermissions' ) ]]; then
+    printf 'Unbounded Grok approval modes are not permitted by this wrapper.\n' >&2
+    exit 64
+  fi
+  previous_arg="$arg"
+done
+
+exec env \
+  GROK_HOME="$state_dir" \
+  GROK_SANDBOX=strict \
+  GROK_RESPECT_GITIGNORE=1 \
+  grok --no-auto-update --cwd "$project_dir" "$@"

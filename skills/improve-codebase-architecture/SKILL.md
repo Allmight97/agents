@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Architecture smell scan when the user explicitly asks for refactor targets, deep-module candidates, or an architecture review. HTML report in OS temp; stop after report unless the user picks a candidate.
+description: Find architecture refactor candidates when the user explicitly asks for deep-module opportunities, structural friction, or an architecture review. Scope the scan to the named area or recent change hotspots, present an HTML report in OS temp, and stop unless the user picks a candidate.
 ---
 
 # Improve Codebase Architecture
@@ -17,7 +17,12 @@ Read the repo glossary and architecture spine named in root or nested `AGENTS.md
 
 ### 1. Explore
 
-Read domain glossary and decision notes for the touched area. Walk the codebase and note friction:
+Scope before scanning. Use the area named by the user. Otherwise inspect enough
+recent history to find modules that change repeatedly and start there; widen the
+scan only when changes are scattered or the evidence points across owners.
+
+Read domain glossary and decision notes for the selected area. Walk it and note
+friction:
 
 - Understanding one concept requires bouncing across many modules?
 - Interface nearly as complex as the implementation?

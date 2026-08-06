@@ -1,6 +1,6 @@
 ---
 name: create-presentation-artifact
-description: Create durable user-facing presentation artifacts, usually self-contained HTML or a comparison workspace, for research synthesis, decisions, plans, code understanding, reviews, dashboards, and briefing surfaces. Use for requested artifacts, visual syntheses, decision aids, interactive checklists, multi-candidate comparisons, or revisitable material where prose would make the reader reconstruct comparisons, dependencies, branches, state, ownership, or completion. Do not use for ordinary summaries, repo source-of-truth docs, production UI implementation, stateful teaching workspaces, skill edits, or agent guidance.
+description: Create durable human-facing presentation artifacts when a decision, review, comparison, plan, research synthesis, or operational model would be hard to reconstruct from prose. Use for self-contained HTML, comparison workspaces, and interactive action aids; route ordinary summaries, repo canon, production UI, teaching workspaces, and agent guidance to their owners.
 ---
 
 # Create Presentation Artifact
@@ -181,113 +181,14 @@ When topology is the hard part, read
 companion SVG when the current harness can read local images; the text
 descriptions are the portable fallback.
 
-## Artifact Shapes
+## Build And Verification
 
-Choose the smallest shape that fits the job:
-
-- **Decision brief:** conclusion block, ranked options, tradeoff matrix, risks, next action.
-- **Research synthesis:** TL;DR, source map, confidence labels, comparison cards, open questions.
-- **Learning surface:** concept map, glossary, examples, gotchas, FAQ, progressive details.
-- **Planning surface:** timeline, milestones, owners, decision log, risk table, handoff checklist.
-- **Code understanding:** module map, call path, boundary labels, annotated findings, reviewer focus.
-- **Review/report:** metric cards, finding list, severity chips, evidence links, action queue.
-- **Interactive aid:** tabs, filters, toggles, checkboxes, sliders, copy/export actions.
-- **Comparison workspace:** stable candidate controls, optional multi-subject
-  controls, equal side-by-side frames, focused single-candidate views, and
-  full-output access.
-- **Deck-like briefing:** full-width sections with navigation and keyboard-friendly flow when presentation is central.
-
-For several complete outputs that must be compared repeatedly, read
-[`references/comparison-workspace.md`](references/comparison-workspace.md).
-Use one local workspace by default. When hosting is requested or already
-authorized, use one shared private host instead of separate sites when it
-reduces authentication, navigation, or comparison friction.
-
-## Build Rules
-
-- Create one self-contained `.html` file unless the user asks otherwise.
-- Put durable project-agnostic artifacts under `/Users/jstar/Library/Mobile Documents/iCloud~md~obsidian/Documents/Main Vault/Projects/Codex/Artifacts` unless the active project or user names a better artifact home.
-- For project-specific artifacts, prefer a project subfolder under that artifact
-  root, such as `/Users/jstar/Library/Mobile Documents/iCloud~md~obsidian/Documents/Main Vault/Projects/Codex/Artifacts/audiobook-boss` for
-  Audiobook Boss.
-- Do not place generated HTML companions in repo canon docs, active specs, or
-  agent guidance unless the user explicitly asks for that repo-local
-  artifact. Keep repository Markdown as the editable source when a repo doc is
-  needed, and keep the presentation layer external by default.
-- Inline CSS and small JavaScript. Avoid build steps and external dependencies unless clearly useful.
-- Put the conclusion, recommendation, or key action at the top.
-- Use progressive disclosure for dense material: tabs, details/summary, side nav, filters, or compact matrices.
-- Use semantic HTML and accessible controls: real buttons, labels, headings, focus states, keyboard-friendly interactions.
-- Use stable responsive layout: grids, tables with horizontal overflow, sticky nav where useful, mobile-friendly breakpoints.
-- Include source links, evidence/currency notes, and explicit uncertainty boundaries when research is involved.
-- Make data states visible: recommended, watchlist, blocked, risky, unknown, verified, stale, or pending review.
-- Avoid repeating the artifact contents in the final response; let the artifact carry the detail.
-
-## Presentation Patterns
-
-Prefer patterns that clarify relationships:
-
-- **Top summary:** one-sentence conclusion plus 2-4 key chips.
-- **Recommendation cards:** ranked options with why/why not/status.
-- **Comparison table:** stable columns for specs, costs, constraints, confidence, and fit.
-- **Preset matrix:** practical modes, defaults, fallback modes, and when to use each.
-- **Source/currency panel:** what is known, inferred, unverified, or awaiting review.
-- **Action block:** next move, stop condition, and what evidence would change the decision.
-
-For technical or research-heavy artifacts, separate:
-
-- **Known:** directly sourced or verified.
-- **Inferred:** reasoned from specs, tests, or system behavior.
-- **Unverified:** needs review, hands-on testing, or current data.
-- **Decision impact:** what changes if the uncertainty resolves one way or the other.
-
-## Interaction and Export
-
-Add interaction only when it reduces user friction.
-
-Use:
-
-- tabs for mutually exclusive sections;
-- collapsibles for optional depth;
-- filters/search for large lists;
-- checkboxes for action tracking;
-- sliders/toggles for tuning or comparison;
-- copy/export buttons when the user may reuse decisions, prompts, notes, or checklists.
-
-If the user can modify, select, triage, tune, or annotate inside the artifact, include an export path such as:
-
-- `copy as markdown`;
-- `copy JSON`;
-- `copy prompt`;
-- `copy checklist`;
-- `download` only when useful.
-
-The export should preserve the user's decisions so they can paste them back into an agent chat, an issue, a doc, or a repo.
-
-## Browser Verification
-
-Use browser verification for substantial or interactive artifacts.
-
-Verify when any of these are true:
-
-- JavaScript interaction is present;
-- the artifact is more than a tiny static one-pager;
-- it has tabs, filters, collapsibles, drag/drop, charts, diagrams, copy/export buttons, or responsive layout that affects usability;
-- it is user-facing for an important decision, interview, presentation, or handoff;
-- the user explicitly asks for verification.
-
-Verification should include:
-
-- open the artifact locally in the available browser tool when possible;
-- if `file://` is blocked, use a temporary local HTTP server rooted at the artifact folder;
-- check that the page is not blank;
-- inspect desktop layout;
-- exercise core interactions;
-- check copy/export behavior if present;
-- check mobile/narrow layout when responsiveness matters;
-- stop any temporary server before final delivery.
-
-For tiny static one-pagers with no interaction or visual sensitivity, browser verification may be skipped. If skipped, say so briefly.
+After choosing the artifact's primary relationship, read
+[`references/artifact-patterns.md`](references/artifact-patterns.md) for the
+smallest matching shape, build rules, interaction/export patterns, and browser
+proof. For repeated full-output comparison, read
+[`references/comparison-workspace.md`](references/comparison-workspace.md)
+directly.
 
 ## Delivery
 

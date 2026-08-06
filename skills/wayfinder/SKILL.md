@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Roadmap large or materially foggy work as one evolving GitHub parent issue, resolve only the uncertainty needed to make the route clear, then hand settled execution structure to to-issues. Use for a loose idea, greenfield project, consequential change, multi-session effort, or existing phase map whose destination, frontier, or execution shape needs calibration; also use when the user explicitly asks for Wayfinder or a roadmap for foggy work. Exit early to grill-me, a single-PR plan, or direct implementation when the effort does not earn a durable roadmap.
+description: Roadmap large or materially foggy work as one evolving GitHub parent issue, resolve its decision frontier, then hand settled execution structure to to-issues. Use for consequential multi-session work whose destination or route is unclear and for explicit Wayfinder requests; exit to a single-PR plan or direct implementation when no durable map is needed.
 ---
 
 # Wayfinder
@@ -63,11 +63,9 @@ keeps the work in the conversation until the user requests durable capture.
    Consider touched ownership surfaces,
    reversibility, independent research or prototypes, unresolved user choices,
    proof burden, and whether the work fits one fresh agent context.
-3. Use `grill-me` when a user decision still changes the classification. Ask no
-   more than two high-leverage questions at a time and recommend an answer.
-   Numbered prompts, requested fact lists, and a closing request for more input
-   all count toward the cap. Skip questioning when the evidence already makes
-   the shape clear.
+3. Use `grill-me` when user decisions still change the classification. Ask the
+   complete dependency-safe decision frontier, with a recommendation for each
+   question. Skip questioning when the evidence already makes the shape clear.
 4. Recommend one route:
    - **Small and clear:** direct implementation; coherent commits only if useful.
    - **One PR and mostly clear:** one issue or PR plan with work slices and
@@ -82,33 +80,10 @@ smaller effort; keep the calibration useful and the resulting map proportional.
 
 Prefer an existing issue when it genuinely owns the destination. Create a new
 parent only when no existing issue owns it or expanding an existing issue would
-make that issue misleading. Draft this body before publishing:
+make that issue misleading.
 
-```markdown
-## Destination
-
-<The concrete state this effort is finding a route toward.>
-
-## Current phase
-
-Discovering
-
-## Decision frontier
-
-<Unresolved questions that materially change the route.>
-
-## Decisions settled
-
-<Link durable resolutions; add a brief outcome when the title does not convey it.>
-
-## Execution slices
-
-<Empty until the route is clear and an execution breakdown is approved.>
-
-## Out of scope
-
-<Explicit exclusions and why they sit beyond this destination.>
-```
+Once the destination is settled, map action-changing unknowns breadth-first;
+create children only for questions that remain precise after that pass.
 
 Create a discovery child issue only when its resolution:
 
@@ -120,36 +95,9 @@ Create a discovery child issue only when its resolution:
 Resolve smaller decisions through `grill-me` in the current conversation and
 record the result in the parent. Do not manufacture an issue per question.
 
-Use this minimal child body:
-
-```markdown
-## Question
-
-<The precise decision or investigation this child resolves.>
-
-## Resolution criterion
-
-<The observable condition that makes this question settled.>
-```
-
-Name Grill, Research, Prototype, or Prerequisite in the title or question only
-when it changes how the child is resolved. Research supplies facts; it does not
-decide user-owned preferences. A prototype is throwaway evidence, not an
-implementation slice. A prerequisite performs only the manual work required to
-unblock a decision.
-
-Show the proposed parent, children, and blocking edges before publishing. Once
-publication is authorized, use native GitHub CLI relationships:
-
-- create children with `gh issue create --parent <parent>`;
-- wire dependencies during creation with `--blocked-by` or afterward with
-  `gh issue edit --add-blocked-by`;
-- inspect `parent`, `subIssues`, `blockedBy`, and `blocking` through
-  `gh issue view --json`.
-
-Operate without assignments by default for a solo user. Use explicit issue
-numbers to coordinate parallel agents. Add a claim mechanism only after a real
-concurrency collision demonstrates the need.
+Before drafting or publishing the parent and any children, read
+[`references/github-roadmap.md`](references/github-roadmap.md) for the owned
+body shapes and native GitHub relationship commands.
 
 ## Advance A Roadmap
 

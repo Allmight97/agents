@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interview the user about a plan, design, implementation, or decision until the action-changing branches are resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, get grilled on a proposal, compare options, or explicitly says "grill me"; ask no more than two sharp questions at a time. Stay project-agnostic unless a repository owns material facts, constraints, terminology, or durable capture; then inspect its guidance and source before asking.
+description: Interview the user about a plan, design, implementation, or decision in dependency-safe frontier rounds until every action-changing branch is resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, compare options, or explicitly says "grill me"; inspect repository truth first when it owns material facts or constraints.
 ---
 
 # Grill Me
@@ -19,13 +19,9 @@ without importing repository-specific nouns or routing into this shared skill.
 ## First Response
 
 When invoked, do not only acknowledge the request. Name the decision space in
-one sentence, then ask one or two sharp questions with your recommended answers.
-
-Use two questions when that materially improves progress. They do not need to be
-inseparable, but both must be high-value and must move the conversation toward
-shared coherence, a locked decision, a proof path, or a concrete next action.
-Lists of requested facts count as questions; do not use them to bypass the
-two-question cap.
+one sentence, map the current decision frontier, then ask every action-changing
+question whose prerequisites are already settled. Number each question and give
+your recommended answer.
 
 ## Loop
 
@@ -34,10 +30,19 @@ two-question cap.
    owner documentation, code, and tests needed to resolve material facts.
 3. Separate facts from decisions: resolve discoverable facts from artifacts or
    tools, and put each action-changing decision to the user.
-4. Identify the highest-leverage unresolved branch.
-5. Ask one or two sharp questions at a time with your recommended answer.
-6. After each answer, lock the decision, narrow the next branch, inspect more
-   source material, or summarize the coherent shape.
+4. Map the decision tree. The **frontier** is every unresolved user decision
+   whose prerequisites are settled.
+5. Ask the whole frontier in one numbered round, with a recommended answer for
+   each question. Each question and recommendation must stand without assuming
+   the answer to another question in the same round; otherwise it waits for a
+   later round.
+6. After each answer, lock the settled decisions, inspect more source material,
+   and recompute the frontier.
+
+When a frontier branch needs a discoverable fact, use tools or a bounded
+subagent to find it. Treat that fact as an unsettled prerequisite for its
+downstream questions, but continue the round with the rest of the unblocked
+frontier.
 
 For repository-grounded work, identify the owning behavior when instructions,
 documentation, code, or tests conflict. Ask which source should change only
@@ -57,16 +62,15 @@ boundary crossed, expected outcome, and what evidence would settle it.
 If the user is overloaded, tired, or time-constrained, reduce the active surface:
 ask for the next executable decision rather than opening a full decision tree.
 
-Do not dump a questionnaire. Do not ask the user to restate facts that available
-artifacts can answer.
+Do not pad the frontier with fact requests, cosmetic preferences, or questions
+whose answers would not change the result. Do not ask the user to restate facts
+that available artifacts can answer.
 
 ## Stop Conditions
 
-Keep pushing until one of these is true:
-- the design has a coherent end-to-end shape,
-- the remaining uncertainty is explicitly bounded,
-- the next proof step is clear,
-- or the user wants to stop.
+Keep pushing until the frontier is empty: every action-changing branch has been
+visited, and remaining uncertainty is either a named proof question or explicit
+non-scope. Stop earlier when the user asks.
 
 Reaching a stop condition ends the questioning. Confirm the shared understanding
 before handing off. Confirmation locks the decisions; it does not authorize a

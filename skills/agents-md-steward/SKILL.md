@@ -1,6 +1,6 @@
 ---
 name: agents-md-steward
-description: Maintain AGENTS.md, CLAUDE.md, CODEX.md, and similar repo instruction networks. Use when asked to create, edit, audit, prune, harmonize, compress, or route agent-facing guidance; when guidance files feel bloated, narrative, stale, duplicated, or too generic; when deciding whether a rule belongs in root instructions, nested owner instructions, a skill, a spec, an issue, ordinary docs, or a memory store; or when the user asks to scrutinize opportunities for new instruction files without defaulting to adding more files.
+description: Maintain and route repository agent instructions. Use for creating, auditing, pruning, or relocating AGENTS.md, CLAUDE.md, or CODEX.md guidance; resolving stale or duplicated instruction ownership; and deciding whether guidance belongs in instructions, a skill, an issue/spec, ordinary docs, or memory.
 ---
 
 # AGENTS.md Steward

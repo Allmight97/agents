@@ -131,6 +131,15 @@ The state where each meaning has exactly one authoritative home. Duplication vio
 
 Avoid: home, canonical location.
 
+### Cache
+
+Instruction prose that copies truth available from the environment, such as a
+script name, version, path, configuration value, or directory layout. Keep a
+cache only when rediscovery is expensive or when it captures ownership,
+rationale, or a recurring trap that the environment cannot express.
+
+Avoid: documentation, reference, convenience copy.
+
 ### Relevance
 
 Whether a line still bears on what the skill does. Relevant lines can still be no-ops.
