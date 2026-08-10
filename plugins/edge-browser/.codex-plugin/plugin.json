@@ -1,6 +1,6 @@
 {
   "name": "edge-browser",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Control Microsoft Edge through its first-party ChatGPT browser extension.",
   "author": {
     "name": "JStar",
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "Edge Browser",
     "shortDescription": "Control Edge through the ChatGPT browser extension",
-    "longDescription": "Routes Codex browser work to Microsoft Edge through the first-party ChatGPT extension and the official Chrome plugin runtime, without macOS Accessibility. Requires chrome@openai-bundled to remain installed and enabled.",
+    "longDescription": "Routes Codex browser work to Microsoft Edge through the first-party ChatGPT extension and the official Chrome plugin runtime, with evidence-led recovery for provider, extension, and native-host failures. Requires chrome@openai-bundled to remain installed and enabled.",
     "developerName": "JStar",
     "category": "Productivity",
     "capabilities": [

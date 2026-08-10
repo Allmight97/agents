@@ -24,6 +24,21 @@ unchanged surfaces, or commit-by-commit narration.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 
+## [0.11.0] - 2026-08-10
+
+### Changed
+
+- Released `edge-browser` 0.2.0 with evidence-led Edge provider, extension,
+  native-host, and derived Chrome-plugin cache diagnosis; corrected native-host
+  ownership to `chrome@openai-bundled`; and required a live Edge tab-enumeration
+  proof after recovery.
+
+### Fixed
+
+- Added a signed-source recovery path for incomplete Chrome-plugin caches
+  without fabricating manifests, downloading helper binaries, modifying Edge
+  profiles, or silently switching browser families.
+
 ## [0.10.0] - 2026-08-06
 
 ### Changed

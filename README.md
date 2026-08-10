@@ -106,7 +106,11 @@ and MCP definitions aligned.
 
 `edge-browser` is a separately toggleable routing plugin for controlling
 Microsoft Edge through the first-party ChatGPT browser extension. It requires
-the official `chrome@openai-bundled` plugin to remain installed and enabled:
+the official `chrome@openai-bundled` plugin to remain installed and enabled.
+Version 0.2.0 adds Edge-specific provider, extension, native-host, and derived
+plugin-cache diagnosis. OpenAI officially supports the extension with Google
+Chrome, so the Edge route proves its live provider handshake after relevant
+updates:
 
 ```bash
 codex plugin add edge-browser@personal
