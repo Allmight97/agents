@@ -21,6 +21,7 @@ jobs:
         run: >-
           python3 -m pip install
           "check-jsonschema==0.37.4"
+          "PyYAML==6.0.3"
           "git+https://github.com/agentskills/agentskills.git@217be548739f21d6008915c29aefe320ea1a90af#subdirectory=skills-ref"
       - name: Validate every portable Agent Skill
         shell: bash
