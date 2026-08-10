@@ -1,0 +1,35 @@
+{
+  "name": "m365-tenant-ops",
+  "version": "0.1.0",
+  "description": "Audit Microsoft Entra and Microsoft 365 tenants through bounded, read-only operational workflows.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "keywords": [
+    "microsoft-365",
+    "entra",
+    "microsoft-graph",
+    "powershell",
+    "tenant-audit"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "M365 Tenant Ops",
+    "shortDescription": "Audit Entra and Microsoft 365 tenants without changing them",
+    "longDescription": "JStar's personal Microsoft 365 tenant operations plugin for evidence-led Entra troubleshooting, explicit tenant and permission verification, read-only Microsoft Graph sessions, and reviewable mutation handoffs.",
+    "developerName": "JStar",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/Allmight97/agents",
+    "defaultPrompt": [
+      "Audit this Microsoft Entra or Microsoft 365 tenant issue without making changes."
+    ],
+    "brandColor": "#0078D4"
+  }
+}

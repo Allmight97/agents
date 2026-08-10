@@ -40,6 +40,18 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity"
+    },
+    {
+      "name": "m365-tenant-ops",
+      "source": {
+        "source": "local",
+        "path": "./plugins/m365-tenant-ops"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }

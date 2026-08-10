@@ -43,9 +43,11 @@ jobs:
         run: python3 scripts/validate_marketplace_plugins.py
       - name: Validate portable Agent Plugin manifests
         run: |
-          check-jsonschema \
-            --schemafile https://agent-plugins.org/schemas/1.0.0/plugin.schema.json \
-            plugins/build-apple-apps/plugin.json
+          for manifest in plugins/*/plugin.json; do
+            check-jsonschema \
+              --schemafile https://agent-plugins.org/schemas/1.0.0/plugin.schema.json \
+              "$manifest"
+          done
           check-jsonschema \
             --schemafile https://agent-plugins.org/schemas/1.0.0/mcp.schema.json \
             plugins/build-apple-apps/mcp.json

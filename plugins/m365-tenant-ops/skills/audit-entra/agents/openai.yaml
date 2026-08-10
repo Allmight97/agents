@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Entra"
+  short_description: "Audit Entra tenants through bounded read-only workflows"
+  default_prompt: "Use $audit-entra to investigate this Entra or Microsoft 365 tenant issue without making changes."

@@ -4,6 +4,19 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.12.0] - 2026-08-10
+
+### Added
+
+- Added `m365-tenant-ops` 0.1.0 as an Agent Plugins v1 package with the
+  `audit-entra` skill for bounded, read-only Microsoft Entra and Microsoft 365
+  tenant troubleshooting through delegated Graph and current admin surfaces.
+
+### Changed
+
+- Extended repository validation to check portable manifests for every nested
+  plugin and enforce native/portable name, version, and description parity.
+
 ## Release convention
 
 - The repository release version is also the `personal-skills` plugin version.

@@ -12,8 +12,8 @@ skills checkout.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
 - `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
-- `plugins/`: separately installable Codex plugins, currently
-  `build-apple-apps` and `edge-browser`.
+- `plugins/`: separately installable Codex plugins: `build-apple-apps`,
+  `edge-browser`, and `m365-tenant-ops`.
 - `mcp/README.md`: local MCP notes.
 
 ## Claude Marketplace
@@ -74,8 +74,8 @@ Subscribe Codex to this repo as the `personal` marketplace:
 codex plugin marketplace add Allmight97/agents
 ```
 
-The Codex marketplace exposes three plugins: `personal-skills`,
-`build-apple-apps`, and `edge-browser`.
+The Codex marketplace exposes four plugins: `personal-skills`,
+`build-apple-apps`, `edge-browser`, and `m365-tenant-ops`.
 
 Then install the shared skill tree as the `personal-skills` plugin:
 
@@ -114,6 +114,15 @@ updates:
 
 ```bash
 codex plugin add edge-browser@personal
+```
+
+`m365-tenant-ops` is a separately installable Agent Plugins v1 package for
+bounded Microsoft Entra and Microsoft 365 tenant operations. Its first skill,
+`audit-entra`, keeps delegated Graph and admin-portal investigations read-only
+until exact mutations are collected for review:
+
+```bash
+codex plugin add m365-tenant-ops@personal
 ```
 
 After publishing a repository release, refresh the existing marketplace and

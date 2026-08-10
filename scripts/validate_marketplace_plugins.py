@@ -126,6 +126,23 @@ def validate_build_apple_apps(
         raise ValidationError("build-apple-apps: workflow allowlist has drifted")
 
 
+def validate_portable_manifest(
+    plugin_dir: Path,
+    native_manifest: dict[str, Any],
+) -> None:
+    portable_path = plugin_dir / "plugin.json"
+    if not portable_path.is_file():
+        return
+    portable_manifest = load_json(portable_path)
+    if portable_manifest.get("$schema") != PLUGIN_SCHEMA:
+        raise ValidationError(f"{plugin_dir.name}: wrong portable plugin schema")
+    for field in ("name", "version", "description"):
+        if portable_manifest.get(field) != native_manifest.get(field):
+            raise ValidationError(
+                f"{plugin_dir.name}: native and portable {field} have drifted"
+            )
+
+
 def validate() -> None:
     entries = load_json(MARKETPLACE).get("plugins")
     if not isinstance(entries, list):
@@ -145,6 +162,7 @@ def validate() -> None:
         native_manifest = load_json(plugin_dir / ".codex-plugin" / "plugin.json")
         if native_manifest.get("name") != name:
             raise ValidationError(f"marketplace {name}: native manifest name differs")
+        validate_portable_manifest(plugin_dir, native_manifest)
         if name == "build-apple-apps":
             validate_build_apple_apps(plugin_dir, native_manifest)
 
