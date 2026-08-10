@@ -17,17 +17,29 @@ Produce an evidence-backed tenant diagnosis without changing tenant state. Keep 
    - Verify `pwsh` and its version.
    - Discover installed Microsoft Graph modules rather than assuming them.
    - Prefer the current portal or Microsoft documentation for drift-prone commands, permissions, licensing, and retention.
+   - On macOS, remember the caller is normally `zsh`: either start an interactive PowerShell session with `pwsh -NoLogo -NoProfile`, or wrap each unattended command with `pwsh -NoLogo -NoProfile -Command '<PowerShell>'`. Never send a bare PowerShell cmdlet to the macOS shell.
+   - If Graph authentication is missing, propose the local mutation before running it. Prefer the smallest current-user install:
+
+     ```zsh
+     pwsh -NoLogo -NoProfile -Command 'Install-PSResource -Name Microsoft.Graph.Authentication -Repository PSGallery -Scope CurrentUser -TrustRepository -Quiet -ErrorAction Stop'
+     ```
+
+   - Verify the installed module and required commands from a fresh `pwsh -NoProfile` process. Do not persistently mark PSGallery trusted merely to suppress the installation prompt.
 
 3. Plan the smallest read-only access set.
    - Name the exact questions and Graph commands before requesting scopes.
    - Resolve their least-privileged delegated permissions from current Microsoft Graph metadata or documentation.
+   - Require an MSP-owned, reviewed application client ID for Graph access to a client tenant. If none exists, remain portal-only and report Graph as blocked by missing approved infrastructure.
+   - Do not omit `-ClientId` or use the shared Microsoft Graph Command Line Tools application for client-tenant operations. Its tenant-local delegated grant can accumulate unrelated authority across prior sessions.
    - Treat first-time consent, admin consent, app registration, credential creation, diagnostic export, and permission escalation as mutations requiring review.
 
 4. Connect interactively to the explicit tenant.
-   - Use delegated authentication and `-ContextScope Process` for human-led audits.
-   - Supply the tenant ID explicitly.
-   - Before querying, inspect `Get-MgContext` and verify the expected account, tenant ID, delegated authentication, and granted scopes.
-   - Stop on an unexpected identity, tenant, application-only context, or write-capable scope.
+   - For an agent-operated macOS terminal, prefer one non-PTY `pwsh -NoLogo -NoProfile -Command '<complete PowerShell batch>'` process containing connect, context verification, planned reads, and disconnect. Interactive PowerShell PTYs can emit terminal-control replies that corrupt injected commands; use one only after proving clean command entry in the live host.
+   - Use delegated device authentication and `-ContextScope Process` for human-led audits. Capture the short-lived device code from the managed PowerShell process. When browser control is available, open `https://login.microsoft.com/device` in the user's designated private browser window and enter the code there; hand off only for account selection, password, MFA, or an unapproved consent decision. When browser control is unavailable, display the code prominently in the conversation instead of directing the user to a hidden terminal.
+   - Supply both the approved application client ID and target tenant ID explicitly.
+   - Pass only the previously reviewed read scopes. Pause at any unexpected consent or admin-consent screen because accepting it can mutate tenant authorization.
+   - Before the first query, inspect `Get-MgContext` and programmatically verify the expected account, tenant ID, delegated authentication, process context, and complete effective scope set. Requested scopes are not an authority boundary: an existing delegated grant can cause Microsoft to issue previously consented scopes as well.
+   - Stop and disconnect on an unexpected identity, tenant, application-only context, persistent context, unexpected substantive scope, or any write-capable scope. Report requested scopes separately from effective scopes.
 
 5. Trace the problem through separate control layers.
    - Identity: object, user type, account state, invitation or redemption state.

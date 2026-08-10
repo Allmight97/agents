@@ -4,6 +4,19 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.12.1] - 2026-08-10
+
+### Fixed
+
+- Made the `audit-entra` macOS path executable end to end: invoke PowerShell
+  through `pwsh`, install only Graph authentication for the current user,
+  preserve PSGallery's trust setting, keep one process-scoped device-auth batch,
+  drive the visible private-browser device-code handoff, stop for unexpected
+  tenant consent, and reject effective scopes that exceed the reviewed request.
+- Required an MSP-owned application client ID for client-tenant Graph access;
+  the shared Microsoft Graph Command Line Tools application is now an explicit
+  stop condition because tenant-local delegated grants can accumulate authority.
+
 ## [0.12.0] - 2026-08-10
 
 ### Added
