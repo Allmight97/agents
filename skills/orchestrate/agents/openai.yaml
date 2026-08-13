@@ -1,0 +1,7 @@
+interface:
+  display_name: "Orchestrate"
+  short_description: "Coordinate bounded parallel agents"
+  default_prompt: "Use $orchestrate to coordinate this work through bounded subagents."
+
+policy:
+  allow_implicit_invocation: false

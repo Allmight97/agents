@@ -4,6 +4,14 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.13.0] - 2026-08-13
+
+### Added
+
+- Added the explicit-only `orchestrate` skill for bounded Codex subagent
+  research, evidence gathering, adversarial review, and collision-safe parallel
+  implementation selected from the live custom-agent catalog.
+
 ## [0.12.1] - 2026-08-10
 
 ### Fixed
