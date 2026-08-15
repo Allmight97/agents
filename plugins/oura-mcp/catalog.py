@@ -1,4 +1,4 @@
-"""Oura collection catalog and query-shape ownership."""
+"""The Oura API collections exposed by the two-tool MCP surface."""
 
 from __future__ import annotations
 
@@ -27,7 +27,6 @@ class CollectionSpec:
     def public_dict(self) -> dict[str, object]:
         value = asdict(self)
         value["range_kind"] = self.range_kind.value
-        value["query_parameters"] = _query_parameters(self)
         return value
 
 
@@ -55,12 +54,13 @@ OuraCollectionName = Literal[
 
 
 _DASHBOARD_SCOPE_NOTE = (
-    "The Oura developer dashboard grants this family, but the published OAuth schema does not "
-    "name its exact scope string."
+    "Granted by the Oura dashboard; exact public OAuth scope name unresolved."
 )
 
 _COLLECTIONS = (
-    CollectionSpec("daily_activity", "daily", "daily_activity", RangeKind.DATE, ("daily",)),
+    CollectionSpec(
+        "daily_activity", "daily", "daily_activity", RangeKind.DATE, ("daily",)
+    ),
     CollectionSpec(
         "daily_cardiovascular_age",
         "heart_health",
@@ -69,7 +69,9 @@ _COLLECTIONS = (
         (),
         notes=_DASHBOARD_SCOPE_NOTE,
     ),
-    CollectionSpec("daily_readiness", "daily", "daily_readiness", RangeKind.DATE, ("daily",)),
+    CollectionSpec(
+        "daily_readiness", "daily", "daily_readiness", RangeKind.DATE, ("daily",)
+    ),
     CollectionSpec(
         "daily_resilience",
         "stress",
@@ -105,7 +107,9 @@ _COLLECTIONS = (
         ("personal", "email"),
         supports_cursor=False,
     ),
-    CollectionSpec("rest_mode_period", "daily", "rest_mode_period", RangeKind.DATE, ("daily",)),
+    CollectionSpec(
+        "rest_mode_period", "daily", "rest_mode_period", RangeKind.DATE, ("daily",)
+    ),
     CollectionSpec(
         "ring_battery_level",
         "ring_configuration",
@@ -124,16 +128,7 @@ _COLLECTIONS = (
         notes=_DASHBOARD_SCOPE_NOTE,
     ),
     CollectionSpec("session", "session", "session", RangeKind.DATE, ("session",)),
-    CollectionSpec(
-        "sleep",
-        "daily",
-        "sleep",
-        RangeKind.DATE,
-        ("daily",),
-        notes=(
-            "Contains Oura-native sleep periods and signals such as HRV and temperature deviation."
-        ),
-    ),
+    CollectionSpec("sleep", "daily", "sleep", RangeKind.DATE, ("daily",)),
     CollectionSpec("sleep_time", "daily", "sleep_time", RangeKind.DATE, ("daily",)),
     CollectionSpec("tag", "tag", "tag", RangeKind.DATE, ("tag",)),
     CollectionSpec(
@@ -154,48 +149,14 @@ def collection_spec(name: str) -> CollectionSpec:
     try:
         return COLLECTIONS[name]
     except KeyError as error:
-        available = ", ".join(COLLECTIONS)
-        raise ValueError(
-            f"Unknown Oura collection {name!r}. Available collections: {available}."
-        ) from error
+        raise ValueError(f"Unknown Oura collection: {name}") from error
 
 
-def catalog_payload(*, backend: str, token_configured: bool) -> dict[str, object]:
-    runtime_status = (
-        "synthetic_fixture"
-        if backend == "fixture"
-        else ("configured_not_observed" if token_configured else "authorization_required")
-    )
+def catalog_payload() -> dict[str, object]:
     return {
         "provider": "oura",
         "api_version": "v2",
-        "published_schema_revision": "openapi-1.37",
-        "backend": backend,
-        "runtime_status": runtime_status,
+        "backend": "synthetic_fixture",
         "collections": [collection.public_dict() for collection in _COLLECTIONS],
-        "unresolved": [
-            {
-                "name": "nighttime_movement_trace",
-                "status": "not_documented_as_an_api_v2_collection",
-                "detail": (
-                    "Oura documents movement-derived data, but its published v2 schema does not "
-                    "identify the exact nighttime movement graph as a retrievable collection."
-                ),
-            }
-        ],
+        "unresolved": ["nighttime_movement_trace"],
     }
-
-
-def _query_parameters(spec: CollectionSpec) -> list[str]:
-    parameters: list[str] = []
-    if spec.range_kind is RangeKind.DATE:
-        parameters.extend(["start (YYYY-MM-DD)", "end (YYYY-MM-DD)"])
-    elif spec.range_kind is RangeKind.DATETIME:
-        parameters.extend(["start (ISO 8601 with timezone)", "end (ISO 8601 with timezone)"])
-    if spec.supports_cursor:
-        parameters.append("cursor")
-    if spec.supports_latest:
-        parameters.append("latest")
-    if spec.name != "personal_info":
-        parameters.append("fields")
-    return parameters
