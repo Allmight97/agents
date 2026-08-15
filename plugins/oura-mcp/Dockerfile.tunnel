@@ -1,0 +1,12 @@
+FROM alpine:3.22 AS download
+RUN apk add --no-cache ca-certificates curl unzip
+WORKDIR /download
+RUN curl -fsSLO https://github.com/openai/tunnel-client/releases/download/v0.0.11/tunnel-client-v0.0.11-linux-amd64.zip \
+    && echo "29adfe5c1399dfb9fda9383f230c324355912f50dc36e2e416b1f1322317b3c4  tunnel-client-v0.0.11-linux-amd64.zip" | sha256sum -c - \
+    && unzip tunnel-client-v0.0.11-linux-amd64.zip
+
+FROM alpine:3.22
+RUN apk add --no-cache ca-certificates
+COPY --from=download /download/tunnel-client /usr/local/bin/tunnel-client
+COPY --from=download /download/cloudflared /usr/local/bin/cloudflared
+ENTRYPOINT ["tunnel-client"]

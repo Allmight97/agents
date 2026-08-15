@@ -1,23 +1,16 @@
-import { DurableObject } from "cloudflare:workers";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { createServer as createHttpServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { dirname } from "node:path";
 import { createMcpHandler, McpServer } from "@modelcontextprotocol/server";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { hostHeaderValidation, originValidation, toNodeHandler } from "@modelcontextprotocol/node";
 import { z } from "zod";
 import {
   catalogPayload,
   collectionNames,
   collectionSpec,
   type CollectionSpec
-} from "./catalog";
-
-type Env = {
-  AUTH0_ISSUER: string;
-  AUTH0_AUDIENCE: string;
-  OURA_CLIENT_ID: string;
-  OURA_CLIENT_SECRET: string;
-  OURA_REDIRECT_URI: string;
-  SETUP_KEY: string;
-  OURA_CREDENTIAL: DurableObjectNamespace<OuraCredential>;
-};
+} from "./catalog.js";
 
 type OuraToken = {
   access_token: string;
@@ -25,6 +18,11 @@ type OuraToken = {
   expires_at: number;
   scope?: string;
   [key: string]: unknown;
+};
+
+type StoredCredential = {
+  oauth_state?: { state: string; issued_at: number };
+  token?: OuraToken;
 };
 
 type Query = {
@@ -35,63 +33,80 @@ type Query = {
   latest?: boolean;
 };
 
-const jwks = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+const config = {
+  clientId: requiredEnv("OURA_CLIENT_ID"),
+  clientSecret: requiredEnv("OURA_CLIENT_SECRET"),
+  redirectUri: requiredEnv("OURA_REDIRECT_URI"),
+  setupKey: requiredEnv("SETUP_KEY"),
+  credentialFile: process.env.OURA_CREDENTIAL_FILE ?? "/data/oura-credential.json",
+  port: Number(process.env.PORT ?? "8787")
+};
 
-export class OuraCredential extends DurableObject<Env> {
+process.umask(0o077);
+
+class OuraCredential {
   private refreshInFlight?: Promise<OuraToken>;
 
   async catalog(): Promise<Record<string, unknown>> {
-    const token = await this.ctx.storage.get<OuraToken>("token");
+    const stored = await this.read();
     return {
       ...catalogPayload(),
-      oura_authorized: Boolean(token),
-      granted_scopes: token?.scope?.split(/\s+/).filter(Boolean) ?? []
+      oura_authorized: Boolean(stored.token),
+      granted_scopes: stored.token?.scope?.split(/\s+/).filter(Boolean) ?? []
     };
   }
 
   async authorizationUrl(): Promise<string> {
-    const state = crypto.randomUUID();
-    await this.ctx.storage.put("oauth_state", { state, issuedAt: Date.now() });
+    const stored = await this.read();
+    const state = randomUUID();
+    stored.oauth_state = { state, issued_at: Date.now() };
+    await this.write(stored);
+
     const url = new URL("https://cloud.ouraring.com/oauth/authorize");
     url.search = new URLSearchParams({
       response_type: "code",
-      client_id: this.env.OURA_CLIENT_ID,
-      redirect_uri: this.env.OURA_REDIRECT_URI,
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
       state
     }).toString();
     return url.toString();
   }
 
   async completeAuthorization(code: string, state: string, grantedScope?: string): Promise<void> {
-    const saved = await this.ctx.storage.get<{ state: string; issuedAt: number }>("oauth_state");
-    await this.ctx.storage.delete("oauth_state");
-    if (!saved || saved.state !== state || Date.now() - saved.issuedAt > 10 * 60 * 1000) {
+    const stored = await this.read();
+    const saved = stored.oauth_state;
+    delete stored.oauth_state;
+    if (!saved || saved.state !== state || Date.now() - saved.issued_at > 10 * 60 * 1000) {
+      await this.write(stored);
       throw new Error("Oura authorization state is invalid or expired.");
     }
+
     const token = await this.exchangeToken({
       grant_type: "authorization_code",
       code,
-      client_id: this.env.OURA_CLIENT_ID,
-      client_secret: this.env.OURA_CLIENT_SECRET,
-      redirect_uri: this.env.OURA_REDIRECT_URI
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      redirect_uri: config.redirectUri
     });
     if (grantedScope) token.scope = grantedScope;
-    await this.ctx.storage.put("token", token);
+    stored.token = token;
+    await this.write(stored);
   }
 
   async query(input: Query): Promise<Record<string, unknown>> {
     const spec = collectionSpec(input.collection);
     validateQuery(spec, input);
-    let token = await this.accessToken();
-    let response = await this.fetchCollection(spec, input, token);
+    let accessToken = await this.accessToken();
+    let response = await this.fetchCollection(spec, input, accessToken);
     if (response.status === 401) {
-      token = await this.accessToken(true);
-      response = await this.fetchCollection(spec, input, token);
+      accessToken = await this.accessToken(true);
+      response = await this.fetchCollection(spec, input, accessToken);
     }
     if (!response.ok) {
       const detail = await response.text();
       throw new Error(`Oura ${response.status} for ${spec.name}: ${detail.slice(0, 300)}`);
     }
+
     const body = (await response.json()) as Record<string, unknown>;
     return {
       collection: spec.name,
@@ -107,24 +122,32 @@ export class OuraCredential extends DurableObject<Env> {
     };
   }
 
-  private async accessToken(force = false): Promise<string> {
-    const token = await this.ctx.storage.get<OuraToken>("token");
-    if (!token) throw new Error("Oura is not authorized yet.");
-    if (!force && token.expires_at > Date.now() / 1000 + 60) return token.access_token;
-    this.refreshInFlight ??= this.refresh(token).finally(() => {
+  private async accessToken(forceRefresh = false): Promise<string> {
+    const stored = await this.read();
+    if (!stored.token) throw new Error("Oura is not authorized yet.");
+    if (!forceRefresh && stored.token.expires_at > Date.now() / 1000 + 60) {
+      return stored.token.access_token;
+    }
+
+    this.refreshInFlight ??= this.refresh(stored.token).finally(() => {
       this.refreshInFlight = undefined;
     });
     return (await this.refreshInFlight).access_token;
   }
 
   private async refresh(previous: OuraToken): Promise<OuraToken> {
-    const token = await this.exchangeToken({
-      grant_type: "refresh_token",
-      refresh_token: previous.refresh_token,
-      client_id: this.env.OURA_CLIENT_ID,
-      client_secret: this.env.OURA_CLIENT_SECRET
-    }, previous.refresh_token);
-    await this.ctx.storage.put("token", token);
+    const token = await this.exchangeToken(
+      {
+        grant_type: "refresh_token",
+        refresh_token: previous.refresh_token,
+        client_id: config.clientId,
+        client_secret: config.clientSecret
+      },
+      previous.refresh_token
+    );
+    const stored = await this.read();
+    stored.token = token;
+    await this.write(stored);
     return token;
   }
 
@@ -138,6 +161,7 @@ export class OuraCredential extends DurableObject<Env> {
       body: new URLSearchParams(values)
     });
     if (!response.ok) throw new Error(`Oura token exchange failed with ${response.status}.`);
+
     const raw = (await response.json()) as Record<string, unknown>;
     const accessToken = raw.access_token;
     const refreshToken = raw.refresh_token ?? priorRefreshToken;
@@ -166,11 +190,28 @@ export class OuraCredential extends DurableObject<Env> {
     if (input.latest) url.searchParams.set("latest", "true");
     return fetch(url, { headers: { authorization: `Bearer ${accessToken}` } });
   }
+
+  private async read(): Promise<StoredCredential> {
+    try {
+      return JSON.parse(await readFile(config.credentialFile, "utf8")) as StoredCredential;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
+      throw error;
+    }
+  }
+
+  private async write(value: StoredCredential): Promise<void> {
+    await mkdir(dirname(config.credentialFile), { recursive: true, mode: 0o700 });
+    const temporary = `${config.credentialFile}.new`;
+    await writeFile(temporary, JSON.stringify(value), { mode: 0o600 });
+    await rename(temporary, config.credentialFile);
+  }
 }
 
-function createServer(env: Env) {
+const credential = new OuraCredential();
+
+function createMcpServer() {
   const server = new McpServer({ name: "oura-private-data", version: "1.0.0" });
-  const credential = env.OURA_CREDENTIAL.getByName("owner");
 
   server.registerTool(
     "oura_catalog",
@@ -201,6 +242,73 @@ function createServer(env: Env) {
   return server;
 }
 
+const mcpHandler = toNodeHandler(
+  createMcpHandler(() => createMcpServer(), {
+    legacy: "reject",
+    responseMode: "json"
+  })
+);
+const validateMcpHost = hostHeaderValidation(["oura-mcp", "localhost", "127.0.0.1"]);
+const validateMcpOrigin = originValidation([
+  "localhost",
+  "127.0.0.1",
+  "chatgpt.com",
+  "chat.openai.com"
+]);
+
+const server = createHttpServer(async (request, response) => {
+  try {
+    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+
+    if (url.pathname === "/healthz" && request.method === "GET") {
+      sendJson(response, 200, { ok: true });
+      return;
+    }
+
+    if (url.pathname === "/admin/oura/authorize" && request.method === "POST") {
+      if (!setupKeyMatches(request)) {
+        sendJson(response, 403, { error: "Forbidden" });
+        return;
+      }
+      sendJson(response, 200, { authorization_url: await credential.authorizationUrl() });
+      return;
+    }
+
+    if (url.pathname === "/oauth/oura/callback" && request.method === "GET") {
+      const code = url.searchParams.get("code");
+      const state = url.searchParams.get("state");
+      if (!code || !state) {
+        sendText(response, 400, "Oura authorization was not completed.");
+        return;
+      }
+      await credential.completeAuthorization(code, state, url.searchParams.get("scope") ?? undefined);
+      sendText(response, 200, "Oura authorization complete. You may close this tab.");
+      return;
+    }
+
+    if (url.pathname === "/mcp") {
+      if (request.method !== "POST") {
+        response.setHeader("allow", "POST");
+        sendText(response, 405, "Method Not Allowed");
+        return;
+      }
+      if (!validateMcpHost(request, response) || !validateMcpOrigin(request, response)) return;
+      await mcpHandler(request, response);
+      return;
+    }
+
+    sendText(response, 404, "Not Found");
+  } catch (error) {
+    console.error(error);
+    if (!response.headersSent) sendJson(response, 500, { error: "Internal Server Error" });
+    else response.end();
+  }
+});
+
+server.listen(config.port, "0.0.0.0", () => {
+  console.log(`Oura MCP listening on port ${config.port}`);
+});
+
 function toolResult(value: Record<string, unknown>) {
   return {
     content: [{ type: "text" as const, text: JSON.stringify(value) }],
@@ -225,96 +333,37 @@ function validateQuery(spec: CollectionSpec, input: Query) {
 }
 
 function parseBoundary(value: string, kind: "date" | "datetime") {
-  if (kind === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error("Date bounds must use YYYY-MM-DD.");
+  if (kind === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error("Date bounds must use YYYY-MM-DD.");
+  }
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) throw new Error("Invalid date or datetime bound.");
-  if (kind === "datetime" && !/(Z|[+-]\d{2}:\d{2})$/.test(value)) throw new Error("Datetime bounds require a timezone.");
+  if (kind === "datetime" && !/(Z|[+-]\d{2}:\d{2})$/.test(value)) {
+    throw new Error("Datetime bounds require a timezone.");
+  }
   return parsed;
 }
 
-async function verifyMcpRequest(request: Request, env: Env) {
-  const header = request.headers.get("authorization");
-  if (!header?.startsWith("Bearer ")) return false;
-  const issuer = env.AUTH0_ISSUER.replace(/\/$/, "");
-  let keySet = jwks.get(issuer);
-  if (!keySet) {
-    keySet = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-    jwks.set(issuer, keySet);
-  }
-  try {
-    const { payload } = await jwtVerify(header.slice(7), keySet, {
-      issuer: `${issuer}/`,
-      audience: env.AUTH0_AUDIENCE
-    });
-    const scopes = typeof payload.scope === "string" ? payload.scope.split(" ") : [];
-    return scopes.includes("oura:read");
-  } catch {
-    return false;
-  }
+function setupKeyMatches(request: IncomingMessage) {
+  const supplied = request.headers["x-setup-key"];
+  const value = Array.isArray(supplied) ? supplied[0] : (supplied ?? "");
+  const left = createHash("sha256").update(value).digest();
+  const right = createHash("sha256").update(config.setupKey).digest();
+  return value.length > 0 && timingSafeEqual(left, right);
 }
 
-function unauthorized(request: Request) {
-  const metadata = new URL("/.well-known/oauth-protected-resource", request.url);
-  return new Response("Unauthorized", {
-    status: 401,
-    headers: { "www-authenticate": `Bearer resource_metadata="${metadata}", scope="oura:read"` }
-  });
+function sendJson(response: ServerResponse, status: number, value: unknown) {
+  response.writeHead(status, { "content-type": "application/json" });
+  response.end(JSON.stringify(value));
 }
 
-async function setupKeyMatches(request: Request, env: Env) {
-  const supplied = request.headers.get("x-setup-key") ?? "";
-  const encode = (value: string) => crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  const [left, right] = await Promise.all([encode(supplied), encode(env.SETUP_KEY)]);
-  const leftBytes = new Uint8Array(left);
-  const rightBytes = new Uint8Array(right);
-  let difference = 0;
-  for (let index = 0; index < leftBytes.length; index += 1) {
-    difference |= leftBytes[index] ^ rightBytes[index];
-  }
-  return difference === 0 && supplied.length > 0;
+function sendText(response: ServerResponse, status: number, value: string) {
+  response.writeHead(status, { "content-type": "text/plain; charset=utf-8" });
+  response.end(value);
 }
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-
-    if (url.pathname === "/.well-known/oauth-protected-resource") {
-      return Response.json({
-        resource: url.origin,
-        authorization_servers: [env.AUTH0_ISSUER.replace(/\/$/, "")],
-        scopes_supported: ["oura:read"],
-        bearer_methods_supported: ["header"]
-      });
-    }
-
-    const credential = env.OURA_CREDENTIAL.getByName("owner");
-    if (url.pathname === "/admin/oura/authorize" && request.method === "POST") {
-      if (!(await setupKeyMatches(request, env))) return new Response("Forbidden", { status: 403 });
-      return Response.json({ authorization_url: await credential.authorizationUrl() });
-    }
-
-    if (url.pathname === "/oauth/oura/callback" && request.method === "GET") {
-      const code = url.searchParams.get("code");
-      const state = url.searchParams.get("state");
-      if (!code || !state) return new Response("Oura authorization was not completed.", { status: 400 });
-      await credential.completeAuthorization(code, state, url.searchParams.get("scope") ?? undefined);
-      return new Response("Oura authorization complete. You may close this tab.");
-    }
-
-    if (url.pathname === "/mcp") {
-      if (request.method !== "POST") return new Response("Method Not Allowed", { status: 405, headers: { allow: "POST" } });
-      if (request.headers.get("host") !== url.host) return new Response("Invalid Host", { status: 400 });
-      const origin = request.headers.get("origin");
-      if (origin && !["https://chatgpt.com", "https://chat.openai.com"].includes(origin)) {
-        return new Response("Invalid Origin", { status: 403 });
-      }
-      if (!(await verifyMcpRequest(request, env))) return unauthorized(request);
-      return createMcpHandler(() => createServer(env), {
-        legacy: "reject",
-        responseMode: "json"
-      }).fetch(request);
-    }
-
-    return new Response("Not Found", { status: 404 });
-  }
-} satisfies ExportedHandler<Env>;
+function requiredEnv(name: string) {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is required.`);
+  return value;
+}
