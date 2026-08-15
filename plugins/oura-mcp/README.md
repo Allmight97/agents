@@ -1,32 +1,40 @@
 # Oura MCP
 
-The current proof has one job: let ChatGPT web reach a hosted Streamable HTTP MCP while the
-development Mac is off.
+A private, read-only Cloudflare Worker that gives ChatGPT live access to the Oura API v2 data
+authorized for one Oura account.
 
-It exposes two read-only tools:
+- `oura_catalog` lists all mapped Oura collections.
+- `oura_query` calls Oura directly and returns its native response with pagination and provenance.
 
-- `oura_catalog` lists the 19 mapped Oura API v2 collections.
-- `oura_query` returns bounded synthetic data in the envelope the live Oura response will use.
+There is no stdio transport, synthetic-data mode, cache, summary layer, warehouse, or Health Command
+integration. Auth0 authorizes ChatGPT. A single Durable Object stores and rotates the Oura OAuth
+credential; health responses are never stored.
 
-It does not yet call Oura. It has no stdio transport, summary layer, cache, database, container,
-deployment-provider configuration, or test framework.
-
-## Run
-
-Use Python 3.13:
+## Deploy
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python app.py --check
-.venv/bin/python app.py
+npm install
+npm run check
+npx wrangler login
+npx wrangler secret put AUTH0_ISSUER
+npx wrangler secret put AUTH0_AUDIENCE
+npx wrangler secret put OURA_CLIENT_ID
+npx wrangler secret put OURA_CLIENT_SECRET
+npx wrangler secret put OURA_REDIRECT_URI
+npx wrangler secret put SETUP_KEY
+npm run deploy
 ```
 
-Set the four values in `.env.example` through the selected host's secret settings. The host only
-needs to run the final command at a public HTTPS URL and route `/mcp` to the process.
+Use the deployed `https://oura-mcp.<account>.workers.dev/oauth/oura/callback` as the Oura redirect
+URI. Oura documents that omitting the `scope` authorization parameter requests every scope available
+to the application.
 
-Auth0 authenticates ChatGPT to this MCP. The official MCP SDK publishes the OAuth resource metadata;
-the service verifies the Auth0 token on every request.
+Start the one-time Oura authorization without putting the setup key in a URL:
 
-After ChatGPT discovers and calls both tools from the hosted proof, add the Oura API call and Oura
-OAuth token handling behind `oura_query`.
+```bash
+curl -X POST -H "X-Setup-Key: $SETUP_KEY" \
+  https://oura-mcp.<account>.workers.dev/admin/oura/authorize
+```
+
+Open the returned authorization URL. Then add
+`https://oura-mcp.<account>.workers.dev/mcp` to ChatGPT with OAuth authentication.

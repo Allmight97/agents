@@ -19,6 +19,9 @@ cache/
 __pycache__/
 *.py[cod]
 .venv/
+node_modules/
+.wrangler/
+.dev.vars
 
 # Private key material.
 *.key
