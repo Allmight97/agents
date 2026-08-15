@@ -12,8 +12,8 @@ skills checkout.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
 - `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
-- `plugins/`: separately installable Codex plugins: `build-apple-apps`,
-  `edge-browser`, and `m365-tenant-ops`.
+- `plugins/`: separately installable plugins and their owned runtimes. In addition to the Codex
+  plugins, `oura-mcp` is a hosted Streamable HTTP service for a private ChatGPT MCP connection.
 - `mcp/README.md`: local MCP notes.
 
 ## Claude Marketplace

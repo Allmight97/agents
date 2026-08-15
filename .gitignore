@@ -3,6 +3,10 @@
 # Local secrets and machine-specific executables.
 /env/
 /bin/
+.env
+.env.*
+!.env.example
+*.enc
 
 # Runtime/cache artifacts.
 *.log
@@ -15,6 +19,9 @@
 cache/
 __pycache__/
 *.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
 
 # Private key material.
 *.key
