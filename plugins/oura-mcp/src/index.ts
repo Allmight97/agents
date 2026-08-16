@@ -244,7 +244,7 @@ function createMcpServer() {
 
 const mcpHandler = toNodeHandler(
   createMcpHandler(() => createMcpServer(), {
-    legacy: "reject",
+    legacy: "stateless",
     responseMode: "json"
   })
 );
