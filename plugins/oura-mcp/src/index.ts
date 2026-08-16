@@ -329,16 +329,17 @@ function validateQuery(spec: CollectionSpec, input: Query) {
   const start = parseBoundary(input.start, spec.rangeKind);
   const end = parseBoundary(input.end, spec.rangeKind);
   if (start > end) throw new Error("start must not be after end.");
-  if (end.getTime() - start.getTime() > 90 * 86400000) throw new Error("The requested range exceeds 90 days.");
 }
 
 function parseBoundary(value: string, kind: "date" | "datetime") {
-  if (kind === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    throw new Error("Date bounds must use YYYY-MM-DD.");
+  const isDate = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const hasTimezone = /(Z|[+-]\d{2}:\d{2})$/.test(value);
+  if (kind === "date" && !isDate && !hasTimezone) {
+    throw new Error("Date bounds must use YYYY-MM-DD or an RFC 3339 timestamp.");
   }
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) throw new Error("Invalid date or datetime bound.");
-  if (kind === "datetime" && !/(Z|[+-]\d{2}:\d{2})$/.test(value)) {
+  if (kind === "datetime" && !hasTimezone) {
     throw new Error("Datetime bounds require a timezone.");
   }
   return parsed;
