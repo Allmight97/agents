@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.13.3] - 2026-08-19
+
+### Removed
+
+- Removed `consult-pro`; use the relevant domain skill and validate external
+  consultation findings against current source truth directly.
+- Removed `create-presentation-artifact`; use the active presentation,
+  visualization, document, or site surface that owns the requested artifact.
+
 ## [0.13.2] - 2026-08-19
 
 ### Changed
