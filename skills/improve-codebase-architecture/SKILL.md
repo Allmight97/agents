@@ -48,4 +48,4 @@ Do not propose interfaces yet. Ask which candidate to explore.
 
 ### 3. After pick
 
-Use `grill-me` or repo alignment skill when capture is next. Propose glossary or decision-note updates only when the user asks. Use `codebase-design` DESIGN-IT-TWICE.md for interface alternatives.
+Use `grill-me` when material capture decisions remain. Propose glossary or decision-note updates only when the user asks. Use `codebase-design` DESIGN-IT-TWICE.md for interface alternatives.

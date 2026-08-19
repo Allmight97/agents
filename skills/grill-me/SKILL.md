@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interview the user about a plan, design, implementation, or decision in dependency-safe frontier rounds until every action-changing branch is resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, compare options, or explicitly says "grill me"; inspect repository truth first when it owns material facts or constraints.
+description: Interview the user about a plan, design, implementation, or decision in dependency-safe frontier rounds until every action-changing branch is resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, or explicitly says "grill me"; inspect repository truth first when it owns material facts or constraints.
 ---
 
 # Grill Me
@@ -16,16 +16,12 @@ design, and repository discussions. Stay project-agnostic when no repository
 owns the decision. When one does, follow its applicable instructions and source
 without importing repository-specific nouns or routing into this shared skill.
 
-## First Response
-
-When invoked, do not only acknowledge the request. Name the decision space in
-one sentence, map the current decision frontier, then ask every action-changing
-question whose prerequisites are already settled. Number each question and give
-your recommended answer.
-
 ## Loop
 
-1. Name the decision or proposal being grilled in one sentence.
+For the first response and every later round:
+
+1. Name the decision or proposal being grilled in one sentence. Do not only
+   acknowledge the request.
 2. For repository-grounded work, inspect the nearest applicable `AGENTS.md`,
    owner documentation, code, and tests needed to resolve material facts.
 3. Separate facts from decisions: resolve discoverable facts from artifacts or

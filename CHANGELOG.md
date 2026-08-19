@@ -4,6 +4,23 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.13.1] - 2026-08-19
+
+### Changed
+
+- Made `writing-great-skills` distinguish read-only audits from authorized
+  edits, tighten invocation around existing skills, test completion demand and
+  client metadata, and repair consequential pointer or no-op uncertainty with
+  focused behavioral evidence.
+- Made `grill-me` reserve interviews for explicit grilling and pressure-testing,
+  co-locate its first-round behavior, and align its OpenAI prompt with complete
+  dependency-safe frontier rounds instead of an obsolete two-question cap.
+
+### Fixed
+
+- Replaced `improve-codebase-architecture`'s dead repo-alignment handoff with
+  the live `grill-me` route for unresolved capture decisions.
+
 ## [0.13.0] - 2026-08-13
 
 ### Added

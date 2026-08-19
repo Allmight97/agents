@@ -1,6 +1,6 @@
 ---
 name: writing-great-skills
-description: Reference for writing, editing, and auditing portable Agent Skills and Codex-specific skill metadata. Use when creating or refining skill text, pruning descriptions, deciding what belongs in SKILL.md versus references, diagnosing skill failure modes, or when another skill needs quality vocabulary for invocation, hierarchy, no-ops, sediment, sprawl, and predictable behavior.
+description: Audit and refine existing portable Agent Skills and Codex-specific skill metadata. Use when reviewing skill text, pruning descriptions, deciding what belongs in SKILL.md versus references, or diagnosing invocation, hierarchy, completion, no-op, sediment, sprawl, and predictability failures.
 ---
 
 # Writing Great Skills
@@ -30,7 +30,7 @@ Two costs govern invocation:
 - **Context load**: model-visible descriptions spend tokens and attention every turn.
 - **Cognitive load**: explicit-only skills make the human remember when to invoke them.
 
-In this shared skill library, keep `SKILL.md` frontmatter Codex-valid. Do not add `disable-model-invocation` to shared `SKILL.md` files; Codex rejects unsupported frontmatter and the skill fails to load. If a target harness supports explicit-only invocation through a harness-specific metadata file, keep that policy outside shared `SKILL.md` and validate every target harness before relying on it.
+In this shared skill library, keep `SKILL.md` frontmatter Codex-valid. Do not add `disable-model-invocation` to shared `SKILL.md` files; the current Codex validator rejects unsupported frontmatter. If a target harness supports explicit-only invocation through a harness-specific metadata file, keep that policy outside shared `SKILL.md` and validate every target harness before relying on it.
 
 Default shared strategy: leave skills model-invocable, make descriptions tight, and keep one trigger per branch. Use explicit-only routing only when the target harness can support it without breaking Codex.
 
@@ -49,12 +49,17 @@ A model-visible description does two jobs: state what the skill does and list th
 
 Put material where the agent needs it:
 
-1. **In-skill steps**: ordered action in `SKILL.md`; each step needs a checkable completion criterion.
+1. **In-skill steps**: ordered action in `SKILL.md`; each step needs a checkable completion criterion demanding enough to force the necessary legwork.
 2. **In-skill reference**: definitions, rules, or facts every branch needs.
 3. **Disclosed reference**: sibling files reached by a clear context pointer.
 4. **External reference**: ordinary project files, docs, specs, or source trees outside the skill.
 
 Push too little down and `SKILL.md` sprawls. Push too much down and the agent misses material it actually needs. The context pointer wording decides whether disclosed material is reached reliably.
+
+When a disclosed reference is missed, sharpen its context pointer first. Inline
+only material every branch needs or material that a focused retest shows the
+repaired pointer still misses consequentially; a buried reference creates
+behavioral variance, not merely untidy organization.
 
 ## Splitting
 
@@ -76,7 +81,10 @@ version, path, config value, or directory shape that the agent can inspect cheap
 is a **cache**. Keep the lookup in the environment; cache only expensive
 discovery, non-obvious ownership, rationale, or a recurring trap.
 
-Delete lines that do not change behavior versus the model default. Prefer a stronger leading word over a weak sentence that merely asks the agent to be good.
+Delete lines that do not change behavior versus the model default. No-ops are
+model-relative. When uncertainty would change a consequential edit, settle it
+with a focused forward test instead of debate. Prefer a stronger leading word
+over a weak sentence that merely asks the agent to be good.
 
 Do not add license files, copyright notices, or licensing narration to skills
 merely because their guidance was adapted from another skill. Skills are
@@ -96,9 +104,23 @@ for provenance or license handling.
 
 ## Audit Loop
 
-1. Name the skill's job and leading word.
-2. Identify its trigger branches from the description.
-3. Classify each body section as step, reference, disclosed reference, or external reference.
-4. Find duplication, sediment, sprawl, and no-ops.
-5. Patch the smallest surface that improves predictability.
-6. Run `skills-ref validate <skill-dir>` for portable structure when available, then run every target client's validator. Treat structural success as shape proof only; forward-test realistic prompts when behavior is complex.
+1. Set the mode, owner, and target clients. An audit reports findings without
+   modifying files; an edit patches only the surface the user authorized.
+2. Name the skill's job and leading word. Map positive and near-miss trigger
+   prompts from its description and client metadata.
+3. Inspect the first move and interaction shape. Check that each procedural step
+   has a clear completion criterion demanding enough to force the required
+   legwork.
+4. Classify material as step, in-skill reference, disclosed reference, or
+   external reference. Check context pointers and co-locate each meaning with
+   its rules and caveats.
+5. Find duplication, sediment, sprawl, caches, no-ops, and negation. Resolve
+   conflicting guidance against the surface that owns the behavior.
+6. In audit mode, report evidence and the smallest recommended patch without
+   editing. In edit mode, apply that patch and keep client metadata aligned.
+7. Run `skills-ref validate <skill-dir>` for portable structure when available,
+   then every target client's validator. Treat structural success as shape proof
+   only.
+8. Forward-test realistic positive, ambiguous, near-miss, and regression prompts
+   when behavior is complex or uncertainty would change a consequential edit.
+   In edit mode, inspect the final diff before declaring the skill done.
