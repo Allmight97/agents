@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.13.2] - 2026-08-19
+
+### Changed
+
+- Made `orchestrate` respond to explicit natural-language requests for subagent
+  delegation, select current roles and batch work from the live surface, and
+  require bounded ownership, complete assignments, and integrated results
+  without inferring delegation from task size alone.
+
 ## [0.13.1] - 2026-08-19
 
 ### Changed

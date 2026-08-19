@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Orchestrate bounded Codex subagents for independent research, evidence gathering, adversarial review, or parallel implementation. Use only when the user explicitly invokes this skill; do not infer it from task size or complexity.
+description: Orchestrate bounded Codex subagents for independent research, evidence gathering, adversarial review, or parallel implementation. Use when the user explicitly requests subagent delegation; do not infer it from task size or complexity.
 ---
 
 # Orchestrate
@@ -14,9 +14,14 @@ breadth, context hygiene, implementation throughput, or scrutiny.
 
 - Inspect the current spawn contract, available roles, active agents, and
   concurrency before assigning work.
-- Select roles from their live descriptions and permissions. The custom agent
-  definitions own each role's job, model, reasoning, tool surface, and behavior;
-  do not restate or cache them here.
+- Select a role from its live description and permissions before considering a
+  model override. Let role and agent configuration own model, reasoning, tool,
+  and behavior defaults.
+- Use the general role with an explicit model only when the live surface exposes
+  a task-specific capability that no available role represents.
+
+Complete this step when every candidate role and available slot comes from the
+live surface rather than remembered configuration.
 
 ## 2. Choose The Delegated Lanes
 
@@ -31,6 +36,8 @@ breadth, context hygiene, implementation throughput, or scrutiny.
 - Choose an available independent-review role when the user or applicable
   workflow requests scrutiny of an existing artifact and proof surface before a
   consequential keep/reject decision.
+- Choose an available batch role for repeated, independent transformations with
+  one fixed contract and cheap validation.
 - Keep a task in the root when delegation would add more coordination than
   evidence or execution value. Say so in one sentence and continue there.
 - Preserve the user's authority boundary. Delegation does not authorize new
@@ -40,6 +47,9 @@ One lane owns each shared contract and integration point. Independent workers
 may consume a settled contract in parallel when their files, generated
 artifacts, decisions, and validation ownership do not overlap. When the contract
 or interface is unresolved, settle it in root before partitioning implementation.
+
+Complete this step only when every delegated lane has an independent deliverable
+and one owner; otherwise keep the coupled work in root.
 
 ## 3. Write Each Assignment
 
@@ -53,9 +63,13 @@ Give every delegate:
 - required validation;
 - a compact output contract.
 
-Pass only the context needed for the lane. For independent review, provide the
-artifact and acceptance surface without leaking the root's preferred answer or
-suspected finding.
+Pass only the context needed for the lane; inherit full history only when the
+deliverable depends on it. For independent review, provide the artifact and
+acceptance surface without leaking the root's preferred answer or suspected
+finding.
+
+Complete this step when every assignment is executable without reconstructing
+missing authority, ownership, validation, or stop conditions.
 
 ## 4. Coordinate And Integrate
 
@@ -67,3 +81,6 @@ suspected finding.
   validate consequential claims against the owning source.
 - Return one integrated answer. Report material evidence, uncertainty,
   validation, and residual risk without replaying delegate activity.
+
+Complete only after every result required by the decision has arrived or its
+absence is reported as a material gap.
