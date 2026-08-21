@@ -30,10 +30,10 @@
       "category": "Developer Tools"
     },
     {
-      "name": "edge-browser",
+      "name": "m365-tenant-ops",
       "source": {
         "source": "local",
-        "path": "./plugins/edge-browser"
+        "path": "./plugins/m365-tenant-ops"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -42,10 +42,10 @@
       "category": "Productivity"
     },
     {
-      "name": "m365-tenant-ops",
+      "name": "native-browser-bridge",
       "source": {
         "source": "local",
-        "path": "./plugins/m365-tenant-ops"
+        "path": "./plugins/native-browser-bridge"
       },
       "policy": {
         "installation": "AVAILABLE",

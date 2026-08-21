@@ -1,0 +1,37 @@
+{
+  "name": "native-browser-bridge",
+  "version": "0.1.0",
+  "description": "Route native browser control to an explicitly requested Microsoft Edge or Brave instance.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "edge",
+    "brave",
+    "browser",
+    "browser-automation",
+    "chatgpt-extension",
+    "native-bridge"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Native Browser Bridge",
+    "shortDescription": "Native browser control for Edge or Brave",
+    "longDescription": "Routes Codex browser work to an explicitly requested Microsoft Edge or Brave instance through the first-party ChatGPT extension and the bundled Chrome plugin runtime. It preserves the named browser instead of silently substituting Chrome, Computer Use, or macOS Accessibility. Requires chrome@openai-bundled to remain installed and enabled.",
+    "developerName": "JStar",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/Allmight97/agents",
+    "defaultPrompt": [
+      "Use Native Browser Bridge to control Brave without Computer Use.",
+      "Use Native Browser Bridge to control Microsoft Edge natively."
+    ]
+  }
+}
