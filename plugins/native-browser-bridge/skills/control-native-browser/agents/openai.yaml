@@ -1,0 +1,4 @@
+interface:
+  display_name: "Control Edge or Brave Natively"
+  short_description: "Select Edge or Brave native browser control"
+  default_prompt: "Use $control-native-browser to control Brave through its native browser bridge."

@@ -75,7 +75,7 @@ codex plugin marketplace add Allmight97/agents
 ```
 
 The Codex marketplace exposes four plugins: `personal-skills`,
-`build-apple-apps`, `edge-browser`, and `m365-tenant-ops`.
+`build-apple-apps`, `native-browser-bridge`, and `m365-tenant-ops`.
 
 Then install the shared skill tree as the `personal-skills` plugin:
 
@@ -104,16 +104,15 @@ Plugins v1 manifests. Xcode 27's file importer recognizes the same skills and
 native MCP file. Repository validation keeps its native and portable metadata
 and MCP definitions aligned.
 
-`edge-browser` is a separately toggleable routing plugin for controlling
-Microsoft Edge through the first-party ChatGPT browser extension. It requires
-the official `chrome@openai-bundled` plugin to remain installed and enabled.
-Version 0.2.0 adds Edge-specific provider, extension, native-host, and derived
-plugin-cache diagnosis. OpenAI officially supports the extension with Google
-Chrome, so the Edge route proves its live provider handshake after relevant
-updates:
+`native-browser-bridge` is a separately toggleable selector for controlling an
+explicitly named Microsoft Edge or Brave instance through the native ChatGPT
+browser-extension bridge. It requires the official `chrome@openai-bundled`
+plugin to remain installed and enabled. Invoke the bridge and name the browser;
+it preserves that browser instead of silently substituting Chrome, Computer
+Use, or macOS Accessibility:
 
 ```bash
-codex plugin add edge-browser@personal
+codex plugin add native-browser-bridge@personal
 ```
 
 `m365-tenant-ops` is a separately installable Agent Plugins v1 package for

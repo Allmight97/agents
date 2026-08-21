@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task Compass"
+  short_description: "Keep mixed requests focused and proportionate"
+  default_prompt: "Use $task-compass to infer the primary outcome, choose a proportionate verification budget, park secondary objectives, and proceed without making me rewrite the prompt."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Control Microsoft Edge"
-  short_description: "Control Edge through its ChatGPT extension"
-  default_prompt: "Use $control-edge to work in Microsoft Edge without desktop Accessibility."

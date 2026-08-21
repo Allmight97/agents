@@ -4,6 +4,21 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.14.0] - 2026-08-21
+
+### Added
+
+- Added `task-compass` to infer the primary outcome and verification budget for
+  mixed-objective requests, preserve secondary ideas without scope drift, and
+  reduce the framing burden of voice-dictated or overloaded prompts.
+
+### Changed
+
+- Replaced the Edge-only `edge-browser` 0.2.0 plugin with
+  `native-browser-bridge` 0.1.0, a thin selector for native extension control
+  of explicitly named Edge or Brave instances while the bundled Chrome plugin
+  remains the runtime and recovery owner.
+
 ## [0.13.3] - 2026-08-19
 
 ### Removed
