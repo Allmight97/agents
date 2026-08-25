@@ -48,30 +48,21 @@ Keep Cursor metadata in `.cursor-plugin/` rather than relying on Cursor's
 fallback parsing of Claude manifests. The harness manifests are intentionally
 thin wrappers around one shared skill source.
 
-Cursor's personal Git marketplace can remain pinned to its first imported
-commit even after update or reinstall. Cursor also rejects a local-plugin
-symlink when its target is outside `~/.cursor/plugins/local`. On this Mac, keep
-a dedicated Git clone inside Cursor's local-plugin boundary instead:
-
-```bash
-git clone https://github.com/Allmight97/agents.git \
-  /Users/jstar/.cursor/plugins/local/personal-skills
-```
-
-Keep the Git marketplace for distribution testing, but do not treat its cache
-as the trusted personal installation. After publishing, the release verifier
-fetches and detaches this local clone at the exact release commit, then proves
-its clean Git state, `origin/main` commit, and Cursor manifest version. When the
-clone advances, the verifier stops with an explicit reload instruction. Run
-`Developer: Reload Window` in Cursor, then rerun the verifier; it checks Cursor's
-loader log and loaded skill count before reporting success.
+Cursor's personal Git marketplace can remain pinned to an earlier imported
+commit. On this Mac, the GitHub user marketplace is the installed owner; do not
+add a competing local-plugin clone. After publishing, remove and reimport the
+marketplace when an ordinary reload does not advance it, reinstall Personal
+Skills, run `Developer: Reload Window`, and rerun the release verifier. The
+verifier requires the exact release commit and manifest version from Cursor's
+marketplace cache rather than trusting the marketplace card.
 
 ### Cursor Cloud and Grok Bot
 
-Do not infer cloud availability from Cursor's local plugin checkout. Cursor
+Do not infer cloud availability from Cursor's local plugin cache. Cursor
 Cloud runs in an isolated VM and cannot read this Mac's `~/.cursor` state.
-Grok Bot shares Cursor account plugin policy, but its enabled private skills
-are still a separate cloud consumer.
+Grok Bot's current official documentation describes account-saved cloud skills
+and per-Bot enablement; it does not establish Cursor marketplace ingestion or
+plugin-version parity.
 
 The preferred distribution owner is a private Cursor Team Marketplace with
 GitHub auto-refresh: publish this repository, make `personal-skills` Default On
@@ -197,15 +188,15 @@ rules at the top of `CHANGELOG.md`:
    ```
 
    Codex and Claude Code are refreshed automatically when their CLIs are
-   installed. Cursor's local clone is synchronized against the exact release.
-   If it advances, run `Developer: Reload Window` and rerun this command; success
-   requires post-refresh loader proof, not marketplace display metadata or
-   filesystem state alone.
+   installed. Cursor's Git marketplace may require removal and reimport before
+   it exposes the new commit. Run `Developer: Reload Window` after reinstalling,
+   then rerun this command; success requires exact cached release proof, not
+   marketplace display metadata alone.
 7. Verify the remote consumers independently. A local success does not prove
    either cloud surface:
    - Cursor Cloud: invoke a skill changed in this release and retain the run URL.
-   - Grok Bot: confirm the same plugin version under Settings -> Plugins -> Yours,
-     enable the skill for the Bot, and retain the successful task URL.
+   - Grok Bot: enable the account-saved skill for the Bot and retain a successful
+     `/` invocation task URL. Do not infer personal-plugin version parity.
 
 ## Machine-Local Support
 

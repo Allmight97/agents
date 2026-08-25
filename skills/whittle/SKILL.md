@@ -1,68 +1,66 @@
 ---
 name: whittle
-description: >
-  Force the simplest solution that actually works: question whether the task
-  needs to exist, reuse existing code, prefer stdlib/native features, and keep
-  the diff small. Use when asked to simplify an implementation, take the lazy
-  path, apply YAGNI, or remove over-engineering while doing the work.
+description: Simplify an implementation or audit code solely for accidental complexity. Use only when the user explicitly invokes Whittle to apply YAGNI, remove unnecessary code, reuse an existing owner, prefer standard or native capabilities, or run a read-only bloat review. Do not infer it from ordinary implementation or review work; correctness, security, performance, merge-readiness, and architecture reviews belong to their specialist owners.
 ---
 
 # Whittle
 
-Build the simplest solution that actually works. The best code is the code never
-written.
+Remove accidental complexity without weakening the required outcome. Judge the
+smallest solution by total system cost, not line count: implementation surface,
+dependencies, conceptual branches, proof burden, maintenance, and change
+amplification all count.
 
-## The ladder
+## Set The Mode
 
-Stop at the first rung that holds, after understanding the problem and tracing
-the real flow end to end:
+Use the mode established by the request:
 
-1. **Does this need to exist?** Speculative need -> skip it, say so in one line. (YAGNI)
-2. **Already in this codebase?** Reuse the helper, util, type, or pattern that lives here. Re-implementing what's a few files over is the most common slop.
-3. **Stdlib does it?** Use it.
-4. **Native platform feature covers it?** `<input type="date">` over a picker lib, CSS over JS, DB constraint over app code.
-5. **Already-installed dependency solves it?** Use it. Never add a new one for what a few lines can do.
-6. **Can it be one line?** One line.
-7. **Only then:** the minimum code that works.
+- **Apply**: the user asked to simplify, change, fix, or build. Read
+  [APPLY-MECHANICS.md](APPLY-MECHANICS.md) completely before editing.
+- **Review**: the user asked for a Whittle audit, deletion candidates, or an
+  over-engineering review. Read [REVIEW-MECHANICS.md](REVIEW-MECHANICS.md)
+  completely and apply nothing.
 
-Two rungs work -> take the higher one and move on.
+If the requested review also asks whether code is correct, secure, performant,
+or ready to merge, route that question to its owning review workflow. Do not
+quietly broaden Whittle into a general review.
 
-**Bug fix = root cause, not symptom.** Before editing, grep every caller of the function to touch. One guard in the shared function is a smaller diff than a guard per caller, and patching only the path the ticket names leaves every sibling caller still broken.
+## Find The Smallest Owner
 
-## Rules
+Understand the real flow, its callers, and its governing boundary before
+choosing a cut. Stop at the first option that fully satisfies the requirement:
 
-- No unrequested abstractions: no interface with one implementation, no factory for one product, no config for a value that never changes.
-- No scaffolding "for later"; later can scaffold for itself.
-- Deletion over addition. Boring over clever.
-- Fewest files possible. Shortest working diff wins.
-- Complex request? Ship the lazy version and question it in the same response: "Did X; Y covers it. Need full X? Say so." Never stall on an answer you can default.
-- Two stdlib options, same size? Take the one correct on edge cases. Lazy means less code, not the flimsier algorithm.
+1. Remove work that does not need to exist.
+2. Reuse the codebase owner that already performs it.
+3. Use the standard library or native platform capability.
+4. Reuse an already-owned dependency when that is cheaper than bespoke code.
+5. Implement the smallest coherent solution at the boundary that owns it.
 
-## Output
+When two options work, prefer the one that leaves fewer concepts and places to
+change. Direct code is valuable when it remains readable and correct on real
+edge cases; compressing behavior into fewer lines is not simplification by
+itself.
 
-Code first. Then at most three short lines: what was skipped, when to add it. No
-essays, no feature tours, no design notes. If the explanation is longer than the
-code, delete the explanation. Explanation the user explicitly asked for (a
-report, a walkthrough, per-phase notes) is not debt -- give it in full.
+For a bug, find the owning cause and affected sibling paths rather than
+patching only the reported caller. Trace as far as needed to support that claim;
+do not turn exhaustive caller enumeration into ceremony.
 
-Pattern: `[code] -> skipped: [X], add when [Y].`
+## Preserve Essential Complexity
 
-## Never simplify away
+Complexity earns keep when it protects an explicit requirement, governed
+boundary, data integrity, security, accessibility, interoperability, cleanup,
+or real platform variance. Preserve those obligations and simplify their
+expression where possible.
 
-Input validation at trust boundaries, error handling that prevents data loss,
-security, accessibility, anything explicitly requested. User insists on the full
-version -> build it, no re-arguing.
+Honor an explicitly requested full implementation without repeatedly arguing
+for a smaller product. Whittle chooses the simplest way to deliver the agreed
+scope; it does not renegotiate settled scope.
 
-Never lazy about understanding the problem. The ladder shortens the solution,
-never the reading. Trace every file the change touches and the actual flow
-before picking a rung. A small diff you don't understand is a second bug, not
-efficiency.
+## Proof And Stop
 
-The platform is never the spec ideal: a real clock drifts, a real sensor reads
-off. Leave the calibration knob, not just less code.
+Use the owning repository's proof requirements. Prefer the smallest check that
+can falsify the changed behavior at its stable boundary; do not add a framework,
+fixture system, or per-function suite merely to make simplification look
+responsible. A small diff without adequate proof is unfinished.
 
-Lazy code without its check is unfinished. Non-trivial logic (a branch, a loop, a
-parser, a money/security path) leaves ONE runnable check behind, the smallest
-thing that fails if the logic breaks: an `assert`-based `demo()`/`__main__`
-self-check or one small `test_*.py`. No frameworks, no fixtures, no per-function
-suites unless asked. Trivial one-liners need no test -- YAGNI applies to tests too.
+Stop when further cuts would trade away clarity, ownership, behavior, or proof.
+If the remaining differences are taste, say the code is already lean and ship.

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Read-only review of a PR, branch, diff, or worktree changes for correctness, requested behavior, regressions, scope creep, proof gaps, and merge readiness. Use when asked to review changed code or decide whether work is safe to merge. Route over-engineering-only reviews to whittle-review and repository-wide structural scans to improve-codebase-architecture.
+description: Read-only review of a PR, branch, diff, or worktree changes for correctness, requested behavior, regressions, scope creep, proof gaps, and merge readiness. Use when asked to review changed code or decide whether work is safe to merge. Route over-engineering-only reviews to Whittle's review mode and repository-wide structural scans to improve-codebase-architecture.
 ---
 
 # Code Review
@@ -13,7 +13,8 @@ findings; do not fix them unless the user separately asks for implementation.
 Choose one route before reviewing:
 
 - **Changed code, PR, branch, diff, or merge readiness** → continue here.
-- **Deletion, bloat, YAGNI, or over-engineering only** → `whittle-review`; stop.
+- **Deletion, bloat, YAGNI, or over-engineering only** → `whittle` review mode;
+  stop.
 - **Repository-wide refactor targets or structural scan** →
   `improve-codebase-architecture`; stop. That scan remains explicit-only.
 - **Independent terminal evidence before merge or release** → Review Auditor;
@@ -71,7 +72,7 @@ Review in this order so style and tidiness cannot mask behavior:
    skipped owner checks, or evidence that cannot falsify the claim.
 5. **Maintainability introduced by the diff** — only concrete complexity likely
    to cause defects or repeated change. Route a dedicated deletion audit to
-   `whittle-review` rather than turning this into a style pass.
+   `whittle` review mode rather than turning this into a style pass.
 
 Trace affected paths beyond the diff when needed. Run targeted read-only checks
 when they can falsify a finding or merge claim. Do not modify code, comments,

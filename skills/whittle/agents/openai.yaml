@@ -1,0 +1,7 @@
+interface:
+  display_name: "Whittle"
+  short_description: "Remove accidental complexity without weakening behavior"
+  default_prompt: "Use $whittle to simplify this implementation or audit it solely for accidental complexity."
+
+policy:
+  allow_implicit_invocation: false

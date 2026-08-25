@@ -4,6 +4,29 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.16.0] - 2026-08-25
+
+### Changed
+
+- Merged `whittle-review` into one manually intended `whittle` skill with
+  disclosed apply and read-only review modes, total-system-cost judgment, and
+  explicit protection for owned boundaries, requirements, and proof.
+- Added repository-wide harness guidance for portable Agent Skills, Codex,
+  Claude, Cursor local and Cloud, and Grok Bot invocation and release proof.
+- Corrected Cursor installation and refresh guidance to use the GitHub user
+  marketplace as this Mac's installed owner.
+
+### Removed
+
+- Removed the standalone `whittle-review` skill after blind trials found the
+  merged review mode retained its material findings and rejected a cosmetic
+  line-count cut.
+
+### Fixed
+
+- Stopped claiming undocumented Cursor marketplace and version parity for Grok
+  Bot; its account-saved cloud skills now remain a separately proven consumer.
+
 ## [0.15.1] - 2026-08-25
 
 ### Changed
