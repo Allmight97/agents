@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing for Agents"
+  short_description: "Shape predictable agent-consumed guidance"
+  default_prompt: "Use $writing-for-agents to make this document current, executable, and easy for agents to follow."

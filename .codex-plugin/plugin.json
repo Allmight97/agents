@@ -1,6 +1,6 @@
 {
   "name": "personal-skills",
-  "version": "0.14.0+codex.20260821165629",
+  "version": "0.15.0+codex.20260825031901",
   "description": "Shared personal skills for Codex, Claude Desktop, Cowork, and Claude Code.",
   "author": {
     "name": "Allmight97",
@@ -26,7 +26,7 @@
     "websiteURL": "https://github.com/Allmight97/agents",
     "defaultPrompt": [
       "Use diagnose to debug this issue.",
-      "Use write-sharp-docs to improve this doc.",
+      "Use writing-for-agents to make this agent-facing doc executable.",
       "Use impeccable to review this UI.",
       "Use use-proton-pass to access the requested account."
     ],

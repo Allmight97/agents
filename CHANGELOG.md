@@ -4,6 +4,16 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.15.0] - 2026-08-24
+
+### Changed
+
+- Consolidated the retained agent-facing behavior from `write-sharp-docs`,
+  `writing-great-skills`, and `agents-md-steward` into `writing-for-agents`:
+  one shared workflow with disclosed branches for skill mechanics and
+  repository instruction-network ownership. General human-only TPM prose and
+  Google artifact selection are intentionally outside the replacement scope.
+
 ## [0.14.0] - 2026-08-21
 
 ### Added
