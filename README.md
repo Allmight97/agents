@@ -1,9 +1,9 @@
 # Personal Agent Marketplace
 
 Canonical source for personal skills, Cursor/Claude/Codex marketplace metadata, and
-small shared agent configuration. GitHub `main` is the publication source;
-agent harnesses consume the published plugins rather than a permanent local
-skills checkout.
+small shared agent configuration. A GitHub Release is the immutable publication
+record; `main` supplies marketplace refreshes. Agent harnesses consume published
+plugins rather than an authoring checkout.
 
 ## Tracked
 
@@ -65,6 +65,25 @@ its clean Git state, `origin/main` commit, and Cursor manifest version. When the
 clone advances, the verifier stops with an explicit reload instruction. Run
 `Developer: Reload Window` in Cursor, then rerun the verifier; it checks Cursor's
 loader log and loaded skill count before reporting success.
+
+### Cursor Cloud and Grok Bot
+
+Do not infer cloud availability from Cursor's local plugin checkout. Cursor
+Cloud runs in an isolated VM and cannot read this Mac's `~/.cursor` state.
+Grok Bot shares Cursor account plugin policy, but its enabled private skills
+are still a separate cloud consumer.
+
+The preferred distribution owner is a private Cursor Team Marketplace with
+GitHub auto-refresh: publish this repository, make `personal-skills` Default On
+or Required, and smoke-test one release-specific skill in Cursor Cloud and Grok
+Bot. Repository-owned ABB skills remain under ABB's `.agents/skills`; they are
+project guidance, not a substitute for the personal plugin.
+
+When the Cursor account has no Team Marketplace entitlement, there is no native
+automatic path shared by Cursor local, Cursor Cloud, and Grok Bot. Do not copy
+the skill tree into each product and call it synchronized. Keep this repository
+canonical, use a version-pinned cloud environment adapter only where necessary,
+and record Cloud and Bot proof separately for every release.
 
 ## Codex Marketplace
 
@@ -162,7 +181,15 @@ rules at the top of `CHANGELOG.md`:
    python3 scripts/release_metadata.py check
    ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
-6. After the release commit and tag are published, refresh the CLI-supported
+   Then create the GitHub Release object; a pushed tag alone is not a formal
+   repository release:
+
+   ```bash
+   gh release create vX.Y.Z --verify-tag --title "Personal Skills X.Y.Z" \
+     --notes-from-tag
+   ```
+
+6. After the GitHub Release is published, refresh the locally verifiable
    harnesses and prove every installed artifact against that exact release:
 
    ```bash
@@ -174,6 +201,11 @@ rules at the top of `CHANGELOG.md`:
    If it advances, run `Developer: Reload Window` and rerun this command; success
    requires post-refresh loader proof, not marketplace display metadata or
    filesystem state alone.
+7. Verify the remote consumers independently. A local success does not prove
+   either cloud surface:
+   - Cursor Cloud: invoke a skill changed in this release and retain the run URL.
+   - Grok Bot: confirm the same plugin version under Settings -> Plugins -> Yours,
+     enable the skill for the Bot, and retain the successful task URL.
 
 ## Machine-Local Support
 

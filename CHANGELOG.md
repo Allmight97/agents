@@ -4,6 +4,18 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.15.1] - 2026-08-25
+
+### Changed
+
+- Made a published GitHub Release part of release proof and documented separate
+  verification for Cursor Cloud and Grok Bot consumers.
+
+### Fixed
+
+- Verified Cursor's GitHub user-marketplace installation from its actual cache
+  layout instead of requiring a machine-local plugin clone.
+
 ## [0.15.0] - 2026-08-24
 
 ### Changed

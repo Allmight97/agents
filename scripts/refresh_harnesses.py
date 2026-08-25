@@ -17,6 +17,7 @@ import release_metadata
 
 
 ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY = "Allmight97/agents"
 PLUGIN_ID = "personal-skills@personal"
 CURSOR_LOG_TIMESTAMP = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})")
 CURSOR_SKILL_COUNT = re.compile(r'"skillCount":(\d+)')
@@ -58,6 +59,33 @@ def published_release() -> tuple[str, str, str]:
         "version"
     ]
     return version, commit, codex_version
+
+
+def github_release(expected_version: str) -> str:
+    """Require the tag to have a published GitHub Release object."""
+    if shutil.which("gh") is None:
+        raise HarnessError(
+            "GitHub Release: gh executable not found; formal release state is unproven"
+        )
+    payload = json.loads(
+        run(
+            "gh",
+            "api",
+            f"repos/{REPOSITORY}/releases/tags/v{expected_version}",
+        )
+    )
+    if (
+        payload.get("tag_name") != f"v{expected_version}"
+        or payload.get("draft")
+        or payload.get("prerelease")
+    ):
+        raise HarnessError(
+            f"GitHub Release: v{expected_version} is missing, draft, or prerelease"
+        )
+    url = payload.get("html_url")
+    if not isinstance(url, str) or not url:
+        raise HarnessError(f"GitHub Release: v{expected_version} has no release URL")
+    return f"GitHub Release: published at {url}"
 
 
 def find_plugin(items: list[dict[str, Any]]) -> dict[str, Any]:
@@ -239,7 +267,7 @@ def cursor(expected_version: str, expected_commit: str, refresh: bool) -> str:
     installed = (
         cursor_root
         / "cache"
-        / "personal"
+        / "allmight97-agents"
         / "personal-skills"
         / expected_commit
     )
@@ -248,8 +276,9 @@ def cursor(expected_version: str, expected_commit: str, refresh: bool) -> str:
     if missing:
         raise HarnessError(
             "Cursor: no trusted local plugin and the marketplace artifact is stale or "
-            "absent. Clone the agents repository into "
-            "~/.cursor/plugins/local/personal-skills, then rerun this command. "
+            "absent. Import https://github.com/Allmight97/agents.git with "
+            "Customize > Add Marketplace > Import from Github, install Personal Skills, "
+            "then rerun this command. "
             "Missing expected marketplace artifact "
             f"{expected_commit[:12]}."
         )
@@ -285,6 +314,7 @@ def main() -> int:
         return 1
 
     checks = (
+        lambda: github_release(version),
         lambda: codex(codex_version, not args.check_only),
         lambda: claude(version, not args.check_only),
         lambda: cursor(version, commit, not args.check_only),
@@ -302,7 +332,10 @@ def main() -> int:
     if errors:
         print("\n".join(f"error: {error}" for error in errors), file=sys.stderr)
         return 1
-    print("all installed harness artifacts verified")
+    print("all locally verifiable release and harness artifacts verified")
+    print(
+        "remote consumers still require account-side proof: Cursor Cloud and Grok Bot"
+    )
     return 0
 
 
