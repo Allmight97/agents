@@ -4,6 +4,14 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.16.1] - 2026-08-27
+
+### Changed
+
+- Made `orchestrate` identify any skill, plugin, tool, or source lane that is
+  load-bearing to a delegated result or its proof while leaving non-critical
+  procedure selection to the delegated role.
+
 ## [0.16.0] - 2026-08-25
 
 ### Changed

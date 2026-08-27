@@ -61,6 +61,9 @@ Give every delegate:
 - read/write authority and explicit exclusions;
 - a stop condition and decisions to escalate;
 - required validation;
+- any skill, plugin, tool, or source lane that is load-bearing to the
+  deliverable or its proof; otherwise specify the evidence requirement and let
+  the delegated role choose its procedure;
 - a compact output contract.
 
 Pass only the context needed for the lane; inherit full history only when the
