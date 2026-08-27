@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.17.0] - 2026-08-27
+
+### Changed
+
+- Added a dense, non-lossy inter-agent register to `orchestrate`, with disclosed
+  assignment, result, uncertainty, steering, handoff, and human-translation
+  examples. Peer messages remain advisory, root-granted authority remains
+  controlling, and every user-visible update stays in ordinary prose.
+
 ## [0.16.1] - 2026-08-27
 
 ### Changed
