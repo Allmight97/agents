@@ -4,6 +4,17 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [Unreleased]
+
+### Changed
+
+- Made `improve-codebase-architecture` read every applicable guidance file
+  along the selected path instead of only the root and nearest owner.
+
+### Removed
+
+- Removed the unused `use-proton-pass`, `grok-cli`, and `teach` skills.
+
 ## [0.17.1] - 2026-08-31
 
 ### Fixed

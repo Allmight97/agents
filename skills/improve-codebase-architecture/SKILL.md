@@ -11,11 +11,13 @@ User must request this scan explicitly. Do not publish issues unless asked.
 
 Use `codebase-design` vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) in every suggestion.
 
-Read root and nearest owner guidance for the selected area. Load an architecture
-overview only when that guidance names a trigger matching the scan; verify
-terminology against the owning interface and code instead of assuming a
-repository-wide glossary. Respect `docs/DECISIONS.md` or `docs/adr/` when
-present—surface conflicts only when the friction warrants reopening them.
+Read every applicable guidance file along the selected path, including root,
+package, and nested module instructions, before loading optional architecture
+material. Load an architecture overview only when that guidance names a trigger
+matching the scan. Verify terminology against the owning interface and code
+instead of assuming a repository-wide glossary. Respect `docs/DECISIONS.md` or
+`docs/adr/` when present. Surface conflicts only when the friction warrants
+reopening them.
 
 ## Process
 
@@ -25,8 +27,8 @@ Scope before scanning. Use the area named by the user. Otherwise inspect enough
 recent history to find modules that change repeatedly and start there; widen the
 scan only when changes are scattered or the evidence points across owners.
 
-Read owner-local vocabulary and relevant decision notes for the selected area.
-Walk it and note friction:
+Read vocabulary and decision notes from every applicable guidance file along
+the path. Walk it and note friction:
 
 - Understanding one concept requires bouncing across many modules?
 - Interface nearly as complex as the implementation?

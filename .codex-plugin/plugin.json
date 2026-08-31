@@ -17,7 +17,7 @@
   "interface": {
     "displayName": "Personal Skills",
     "shortDescription": "Shared personal agent skills",
-    "longDescription": "Reusable personal skills for diagnosis, writing, design, security, credential access, architecture, and workflow support.",
+    "longDescription": "Reusable personal skills for diagnosis, writing, design, security, architecture, and workflow support.",
     "developerName": "Allmight97",
     "category": "Productivity",
     "capabilities": [
@@ -27,8 +27,7 @@
     "defaultPrompt": [
       "Use diagnose to debug this issue.",
       "Use writing-for-agents to make this agent-facing doc executable.",
-      "Use impeccable to review this UI.",
-      "Use use-proton-pass to access the requested account."
+      "Use impeccable to review this UI."
     ],
     "brandColor": "#2563EB"
   }

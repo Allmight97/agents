@@ -86,7 +86,7 @@ Setup (context gathering, register) is already loaded by then; sub-commands don'
 
 If the first word is `craft`, setup still runs first, but [reference/craft.md](reference/craft.md) owns the rest of the flow. If setup invokes `init` as a blocker, finish init, refresh context, then resume the original command and target.
 
-`teach` is a deprecated impeccable sub-command alias for `init`: if the user types `$impeccable teach`, load [reference/init.md](reference/init.md) and proceed as if they ran `$impeccable init`. Do not intercept the separate `$teach` skill.
+`teach` is a deprecated impeccable sub-command alias for `init`: if the user types `$impeccable teach`, load [reference/init.md](reference/init.md) and proceed as if they ran `$impeccable init`.
 
 ## Pin / Unpin
 
