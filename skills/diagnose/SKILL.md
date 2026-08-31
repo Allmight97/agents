@@ -7,7 +7,10 @@ description: Disciplined diagnosis loop for hard bugs and performance regression
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
 
-When exploring the codebase, read the project's canonical language and decision surfaces before trusting vague module names. In ABB, use `docs/ubiquitous-language.md` and `docs/DECISIONS.md` rather than assuming a generic ADR layout.
+When exploring a codebase, read root and nearest owner guidance plus any
+relevant decision record before trusting vague module names. Verify terminology
+against the owning interface and tests; do not assume the repository maintains
+a global glossary or a generic ADR layout.
 
 ## Phase 1 — Build a feedback loop
 

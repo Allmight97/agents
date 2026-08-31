@@ -4,6 +4,14 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.17.1] - 2026-08-31
+
+### Fixed
+
+- Routed diagnosis, architecture review, and issue slicing through root and
+  nearest-owner guidance instead of assuming every repository maintains a
+  global glossary or eagerly loaded architecture document.
+
 ## [0.17.0] - 2026-08-27
 
 ### Changed

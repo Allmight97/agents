@@ -17,7 +17,11 @@ Work from whatever is already in the conversation context. If the user passes an
 
 ### 2. Explore the codebase (optional)
 
-If you have not already explored the codebase, do so to understand the current state of the code. Use the repo glossary and respect recorded decisions in the touched area.
+If you have not already explored the codebase, do so to understand the current
+state of the code. Use terminology from the owning interface and nearest local
+guidance, and respect relevant recorded decisions in the touched area. Do not
+create a repository-wide glossary or architecture document merely to name the
+issues.
 
 Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
 
