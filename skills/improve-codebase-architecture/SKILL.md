@@ -11,7 +11,11 @@ User must request this scan explicitly. Do not publish issues unless asked.
 
 Use `codebase-design` vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) in every suggestion.
 
-Read the repo glossary and architecture spine named in root or nested `AGENTS.md` (for ABB: `docs/ubiquitous-language.md`, `docs/system-map.md`). Respect `docs/DECISIONS.md` or `docs/adr/` — surface ADR conflicts only when friction warrants reopening.
+Read root and nearest owner guidance for the selected area. Load an architecture
+overview only when that guidance names a trigger matching the scan; verify
+terminology against the owning interface and code instead of assuming a
+repository-wide glossary. Respect `docs/DECISIONS.md` or `docs/adr/` when
+present—surface conflicts only when the friction warrants reopening them.
 
 ## Process
 
@@ -21,8 +25,8 @@ Scope before scanning. Use the area named by the user. Otherwise inspect enough
 recent history to find modules that change repeatedly and start there; widen the
 scan only when changes are scattered or the evidence points across owners.
 
-Read domain glossary and decision notes for the selected area. Walk it and note
-friction:
+Read owner-local vocabulary and relevant decision notes for the selected area.
+Walk it and note friction:
 
 - Understanding one concept requires bouncing across many modules?
 - Interface nearly as complex as the implementation?
@@ -40,7 +44,8 @@ Each candidate card: **Files**, **Problem**, **Solution**, **Benefits**, **Befor
 
 End with **Top recommendation**.
 
-Use domain vocabulary from the repo glossary and architecture terms from `codebase-design`.
+Use vocabulary from the owning interface and architecture terms from
+`codebase-design`.
 
 See [HTML-REPORT.md](HTML-REPORT.md) for scaffold and styling.
 
@@ -48,4 +53,7 @@ Do not propose interfaces yet. Ask which candidate to explore.
 
 ### 3. After pick
 
-Use `grill-me` when material capture decisions remain. Propose glossary or decision-note updates only when the user asks. Use `codebase-design` DESIGN-IT-TWICE.md for interface alternatives.
+Use `grill-me` when material capture decisions remain. Propose owner-local
+guidance or decision-note updates only when the user asks; do not create or
+expand a cross-repository glossary by default. Use `codebase-design`
+DESIGN-IT-TWICE.md for interface alternatives.
