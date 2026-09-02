@@ -1,7 +1,7 @@
 # Personal Agent Marketplace
 
-Canonical source for personal skills, Cursor/Claude/Codex marketplace metadata, and
-small shared agent configuration. A GitHub Release is the immutable publication
+Canonical source for personal skills, Cursor/Claude/Codex/Grok Build marketplace
+metadata, and small shared agent configuration. A GitHub Release is the immutable publication
 record; `main` supplies marketplace refreshes. Agent harnesses consume published
 plugins rather than an authoring checkout.
 
@@ -11,6 +11,8 @@ plugins rather than an authoring checkout.
 - `.cursor-plugin/`: Cursor marketplace/plugin manifests for `personal-skills`.
 - `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
 - `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
+- `.grok-plugin/`: Grok Build marketplace/plugin manifests. The catalog lists
+  `personal-skills` plus the nested plugins.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
 - `plugins/`: separately installable plugins and their owned runtimes. In addition to the Codex
   plugins, `oura-mcp` is a hosted Streamable HTTP service for a private ChatGPT MCP connection.
@@ -146,6 +148,53 @@ To publish a new plugin, create the plugin, add one marketplace entry for it, an
 include its version in the repository release. Do not split ordinary personal
 skills out of `personal-skills`.
 
+## Grok Build Marketplace
+
+Subscribe Grok Build to this repo as the `personal` marketplace, then install
+the plugins you want. Grok reads `.grok-plugin/marketplace.json`; the Claude
+catalog is not a substitute on current Grok Build:
+
+```bash
+grok plugin marketplace add Allmight97/agents
+grok plugin marketplace update
+grok plugin install personal-skills --trust
+```
+
+Name the source `personal` so the qualifier matches Codex and Claude
+(`personal-skills@personal`). If this Mac already added the repo under another
+source name, keep that qualifier or rename the `[[marketplace.sources]]` entry
+in `~/.grok/config.toml`.
+
+The Grok catalog exposes four plugins: `personal-skills`, `build-apple-apps`,
+`native-browser-bridge`, and `m365-tenant-ops`. Grok clones `personal-skills`
+from this GitHub repository (it does not treat the marketplace root as a local
+plugin path). Nested plugins are local folders in the catalog checkout. After
+install, enable a plugin if `grok plugin list` shows it disabled:
+
+```bash
+grok plugin enable personal-skills
+```
+
+Plugin skills appear as `/diagnose` or, on a name collision,
+`/personal-skills:diagnose`. Prove the install with `grok plugin details
+personal-skills` and `grok inspect`. Do not copy `skills/` into
+`~/.grok/skills` or `~/.agents/skills`; those user-scope roots duplicate the
+plugin.
+
+`native-browser-bridge` can be installed for catalog parity. Its ChatGPT Chrome
+runtime is Codex-specific; Grok gets the skill text, not a working native
+browser bridge.
+
+After publishing, refresh the git marketplace and reinstall or update:
+
+```bash
+grok plugin marketplace update
+grok plugin install personal-skills --trust
+```
+
+Grok Bot is a separate consumer. Do not infer Bot skill availability or version
+parity from this CLI marketplace.
+
 ## Release Workflow
 
 One completed revision pass becomes one repository release. Follow the version
@@ -156,7 +205,7 @@ rules at the top of `CHANGELOG.md`:
    section; omit intermediate churn and unchanged surfaces.
 3. Synchronize every root `personal-skills` manifest from that changelog
    version. The command also gives Codex a fresh cache-buster and ensures the
-   Claude and Cursor marketplace entries remain version-free locators:
+   Claude, Cursor, and Grok marketplace entries remain version-free locators:
 
    ```bash
    python3 scripts/release_metadata.py set X.Y.Z
@@ -164,7 +213,7 @@ rules at the top of `CHANGELOG.md`:
 
    Give changed nested plugins their own component versions and name them in
    the same changelog section.
-4. Validate changed skills plus all three plugin manifests. CI validates every
+4. Validate changed skills plus all four plugin manifests. CI validates every
    root and nested `SKILL.md` against a pinned Agent Skills reference validator.
    Release metadata alignment can be checked locally with:
 
@@ -187,8 +236,8 @@ rules at the top of `CHANGELOG.md`:
    python3 scripts/refresh_harnesses.py
    ```
 
-   Codex and Claude Code are refreshed automatically when their CLIs are
-   installed. Cursor's Git marketplace may require removal and reimport before
+   Codex, Claude Code, and Grok Build are refreshed automatically when their
+   CLIs are installed. Cursor's Git marketplace may require removal and reimport before
    it exposes the new commit. Run `Developer: Reload Window` after reinstalling,
    then rerun this command; success requires exact cached release proof, not
    marketplace display metadata alone.

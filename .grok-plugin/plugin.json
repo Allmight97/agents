@@ -1,8 +1,7 @@
 {
   "name": "personal-skills",
-  "displayName": "Personal Skills",
   "version": "0.18.0",
-  "description": "Shared personal skills for Cursor, Codex, Claude Desktop, Cowork, and Claude Code.",
+  "description": "Shared personal skills for Grok Build.",
   "author": {
     "name": "Allmight97"
   },

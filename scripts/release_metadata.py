@@ -19,11 +19,17 @@ CLAUDE_MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 CURSOR_MANIFEST = ROOT / ".cursor-plugin" / "plugin.json"
 CURSOR_MARKETPLACE = ROOT / ".cursor-plugin" / "marketplace.json"
 CODEX_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
+GROK_MANIFEST = ROOT / ".grok-plugin" / "plugin.json"
+GROK_MARKETPLACE = ROOT / ".grok-plugin" / "marketplace.json"
 CURSOR_MARKETPLACE_ENTRY_KEYS = {
     "name",
     "source",
     "description",
     "minClientVersions",
+}
+GROK_PERSONAL_SKILLS_SOURCE = {
+    "source": "url",
+    "url": "https://github.com/Allmight97/agents.git",
 }
 
 SEMVER_RE = re.compile(
@@ -91,6 +97,7 @@ def validate() -> str:
     versions = {
         ".claude-plugin/plugin.json": load_json(CLAUDE_MANIFEST).get("version"),
         ".cursor-plugin/plugin.json": load_json(CURSOR_MANIFEST).get("version"),
+        ".grok-plugin/plugin.json": load_json(GROK_MANIFEST).get("version"),
         ".codex-plugin/plugin.json": base_codex_version(
             str(load_json(CODEX_MANIFEST).get("version", ""))
         ),
@@ -101,7 +108,7 @@ def validate() -> str:
         if actual != expected
     ]
 
-    for path in (CLAUDE_MARKETPLACE, CURSOR_MARKETPLACE):
+    for path in (CLAUDE_MARKETPLACE, CURSOR_MARKETPLACE, GROK_MARKETPLACE):
         entry = personal_skills_entry(path)
         if "version" in entry:
             mismatches.append(
@@ -118,6 +125,13 @@ def validate() -> str:
         mismatches.append(
             ".cursor-plugin/marketplace.json: unsupported personal-skills keys "
             + ", ".join(sorted(unsupported_cursor_keys))
+        )
+
+    grok_entry = personal_skills_entry(GROK_MARKETPLACE)
+    if grok_entry.get("source") != GROK_PERSONAL_SKILLS_SOURCE:
+        mismatches.append(
+            ".grok-plugin/marketplace.json: personal-skills source must clone "
+            "https://github.com/Allmight97/agents.git"
         )
 
     if mismatches:
@@ -143,7 +157,7 @@ def synchronize(version: str, cachebuster: str | None) -> str:
             "Codex cachebuster may contain only letters, numbers, dots, and hyphens"
         )
 
-    for path in (CLAUDE_MANIFEST, CURSOR_MANIFEST):
+    for path in (CLAUDE_MANIFEST, CURSOR_MANIFEST, GROK_MANIFEST):
         manifest = load_json(path)
         manifest["version"] = version
         write_json(path, manifest)
@@ -152,7 +166,7 @@ def synchronize(version: str, cachebuster: str | None) -> str:
     codex_manifest["version"] = f"{version}+codex.{token}"
     write_json(CODEX_MANIFEST, codex_manifest)
 
-    for path in (CLAUDE_MARKETPLACE, CURSOR_MARKETPLACE):
+    for path in (CLAUDE_MARKETPLACE, CURSOR_MARKETPLACE, GROK_MARKETPLACE):
         marketplace = load_json(path)
         entry = next(
             item

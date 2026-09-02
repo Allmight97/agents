@@ -1,0 +1,45 @@
+{
+  "name": "personal",
+  "description": "JStar's shared personal Grok Build plugins.",
+  "owner": {
+    "name": "Allmight97"
+  },
+  "plugins": [
+    {
+      "name": "personal-skills",
+      "description": "Shared personal skills for Grok Build.",
+      "category": "productivity",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Allmight97/agents.git"
+      }
+    },
+    {
+      "name": "build-apple-apps",
+      "description": "Build, run, debug, profile, and ship Apple 27-era apps across macOS, iOS, iPadOS, watchOS, tvOS, and visionOS with Swift, SwiftUI, Xcode 27, and XcodeBuildMCP.",
+      "category": "development",
+      "source": {
+        "type": "local",
+        "path": "./plugins/build-apple-apps"
+      }
+    },
+    {
+      "name": "m365-tenant-ops",
+      "description": "Audit Microsoft Entra and Microsoft 365 tenants through bounded, read-only operational workflows.",
+      "category": "productivity",
+      "source": {
+        "type": "local",
+        "path": "./plugins/m365-tenant-ops"
+      }
+    },
+    {
+      "name": "native-browser-bridge",
+      "description": "Route native browser control to an explicitly requested Microsoft Edge or Brave instance.",
+      "category": "productivity",
+      "source": {
+        "type": "local",
+        "path": "./plugins/native-browser-bridge"
+      }
+    }
+  ]
+}

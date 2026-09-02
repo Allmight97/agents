@@ -4,7 +4,14 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
-## [Unreleased]
+## [0.18.0] - 2026-09-02
+
+### Added
+
+- Added Grok Build as a first-class marketplace consumer with
+  `.grok-plugin/marketplace.json` listing `personal-skills` from this GitHub
+  repo plus local `build-apple-apps`, `m365-tenant-ops`, and
+  `native-browser-bridge`.
 
 ### Changed
 
@@ -183,9 +190,10 @@ unchanged surfaces, or commit-by-commit narration.
 - `[Unreleased]` exists only while a pass is active. Before publication, move
   its entries into a dated version section, run
   `python3 scripts/release_metadata.py set X.Y.Z`, commit, and tag the release.
-- Claude and Cursor marketplace entries are version-free locators. Their
-  plugin manifests and the Codex plugin manifest own the release version;
-  `scripts/release_metadata.py check` enforces alignment with this changelog.
+- Claude, Cursor, and Grok marketplace entries are version-free locators.
+  Their plugin manifests and the Codex plugin manifest own the release
+  version; `scripts/release_metadata.py check` enforces alignment with this
+  changelog.
 - Codex `+codex.<timestamp>` build metadata is a cache-buster. Changelog
   sections and git tags use the base version only.
 

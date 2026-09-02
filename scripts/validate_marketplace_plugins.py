@@ -11,6 +11,16 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
+GROK_MARKETPLACE = ROOT / ".grok-plugin" / "marketplace.json"
+GROK_PERSONAL_SKILLS_SOURCE = {
+    "source": "url",
+    "url": "https://github.com/Allmight97/agents.git",
+}
+GROK_LOCAL_PLUGIN_PATHS = {
+    "build-apple-apps": "./plugins/build-apple-apps",
+    "m365-tenant-ops": "./plugins/m365-tenant-ops",
+    "native-browser-bridge": "./plugins/native-browser-bridge",
+}
 PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 MCP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json"
 XCODEBUILDMCP_ARGS = ["-y", "xcodebuildmcp@2.7.0", "mcp"]
@@ -143,6 +153,74 @@ def validate_portable_manifest(
             )
 
 
+def grok_local_path(source: Any, label: str) -> str:
+    if isinstance(source, str):
+        path = source
+    elif isinstance(source, dict) and source.get("type") == "local":
+        path = source.get("path")
+    else:
+        raise ValidationError(f"{label}: expected a local source with a ./ path")
+    if not isinstance(path, str) or not path.startswith("./"):
+        raise ValidationError(f"{label}: expected a path beginning with './'")
+    return path
+
+
+def validate_grok_marketplace() -> None:
+    marketplace = load_json(GROK_MARKETPLACE)
+    if marketplace.get("name") != "personal":
+        raise ValidationError(".grok-plugin/marketplace.json name must be 'personal'")
+    entries = marketplace.get("plugins")
+    if not isinstance(entries, list):
+        raise ValidationError("Grok marketplace plugins must be an array")
+
+    seen: set[str] = set()
+    personal_skills_count = 0
+    expected_names = set(GROK_LOCAL_PLUGIN_PATHS) | {"personal-skills"}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValidationError("Grok marketplace plugin entry must be an object")
+        name = entry.get("name")
+        if not isinstance(name, str) or not name or name in seen:
+            raise ValidationError(f"invalid or duplicate Grok plugin name: {name!r}")
+        seen.add(name)
+        if name not in expected_names:
+            raise ValidationError(f"Grok marketplace has unexpected plugin: {name}")
+        if name == "personal-skills":
+            personal_skills_count += 1
+            if entry.get("source") != GROK_PERSONAL_SKILLS_SOURCE:
+                raise ValidationError(
+                    "Grok marketplace personal-skills must clone "
+                    "https://github.com/Allmight97/agents.git"
+                )
+            manifest = load_json(ROOT / ".grok-plugin" / "plugin.json")
+            if manifest.get("name") != "personal-skills":
+                raise ValidationError(
+                    "Grok personal-skills: .grok-plugin/plugin.json name differs"
+                )
+            if not (ROOT / "skills").is_dir():
+                raise ValidationError("Grok personal-skills: missing skills/")
+            continue
+        path = grok_local_path(entry.get("source"), f"Grok marketplace {name}")
+        expected = GROK_LOCAL_PLUGIN_PATHS[name]
+        if path != expected:
+            raise ValidationError(
+                f"Grok marketplace {name}: expected path {expected}, found {path}"
+            )
+        plugin_dir = package_path(ROOT, path, f"Grok marketplace {name}")
+        if not (plugin_dir / "skills").is_dir():
+            raise ValidationError(f"Grok marketplace {name}: missing skills/")
+
+    if personal_skills_count != 1:
+        raise ValidationError(
+            "Grok marketplace must contain exactly one personal-skills entry"
+        )
+    missing = expected_names - seen
+    if missing:
+        raise ValidationError(
+            "Grok marketplace is missing plugins: " + ", ".join(sorted(missing))
+        )
+
+
 def validate() -> None:
     entries = load_json(MARKETPLACE).get("plugins")
     if not isinstance(entries, list):
@@ -165,6 +243,8 @@ def validate() -> None:
         validate_portable_manifest(plugin_dir, native_manifest)
         if name == "build-apple-apps":
             validate_build_apple_apps(plugin_dir, native_manifest)
+
+    validate_grok_marketplace()
 
 
 def main() -> int:

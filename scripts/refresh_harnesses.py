@@ -250,6 +250,88 @@ def cursor_local(
     )
 
 
+def grok_marketplace_sources(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, list):
+        raise HarnessError("Grok Build: marketplace list JSON is not an array")
+    matches = []
+    for source in payload:
+        if not isinstance(source, dict):
+            continue
+        info = source.get("source")
+        url = info.get("url") if isinstance(info, dict) else ""
+        if isinstance(url, str) and url.rstrip("/") == f"https://github.com/{REPOSITORY}.git":
+            matches.append(source)
+    return matches
+
+
+def grok_installed_items(payload: Any) -> list[dict[str, Any]]:
+    if isinstance(payload, list):
+        items = payload
+    elif isinstance(payload, dict):
+        items = payload.get("installed", [])
+    else:
+        items = []
+    if not isinstance(items, list):
+        raise HarnessError("Grok Build: plugin list JSON is not an array")
+    return [item for item in items if isinstance(item, dict)]
+
+
+def grok(expected_version: str, refresh: bool) -> str:
+    if shutil.which("grok") is None:
+        return "Grok Build: unavailable (grok executable not found)"
+
+    sources = grok_marketplace_sources(
+        json.loads(run("grok", "plugin", "marketplace", "list", "--json"))
+    )
+    if not sources:
+        raise HarnessError(
+            "Grok Build: marketplace Allmight97/agents is not configured. "
+            "Run grok plugin marketplace add Allmight97/agents"
+        )
+
+    if refresh:
+        run("grok", "plugin", "marketplace", "update")
+        run("grok", "plugin", "install", "personal-skills", "--trust")
+        try:
+            run("grok", "plugin", "enable", "personal-skills")
+        except HarnessError as error:
+            if "already" not in str(error).lower():
+                raise
+
+    matches = [
+        item
+        for item in grok_installed_items(
+            json.loads(run("grok", "plugin", "list", "--json"))
+        )
+        if item.get("name") == "personal-skills"
+    ]
+    if len(matches) != 1:
+        raise HarnessError(
+            f"Grok Build: expected one installed personal-skills, found {len(matches)}"
+        )
+    plugin = matches[0]
+    actual = plugin.get("version")
+    if actual != expected_version:
+        raise HarnessError(
+            f"Grok Build: expected {expected_version}, found version={actual!r}"
+        )
+    if plugin.get("enabled") is False:
+        raise HarnessError("Grok Build: personal-skills is installed but disabled")
+
+    inspect_matches = [
+        item
+        for item in grok_installed_items(
+            json.loads(run("grok", "inspect", "--json")).get("plugins")
+        )
+        if item.get("name") == "personal-skills"
+    ]
+    if len(inspect_matches) != 1 or inspect_matches[0].get("enabled") is False:
+        raise HarnessError(
+            "Grok Build: grok inspect does not show enabled personal-skills"
+        )
+    return f"Grok Build: current at {actual}"
+
+
 def cursor(expected_version: str, expected_commit: str, refresh: bool) -> str:
     cursor_root = Path.home() / ".cursor" / "plugins"
     local = cursor_root / "local" / "personal-skills"
@@ -317,6 +399,7 @@ def main() -> int:
         lambda: github_release(version),
         lambda: codex(codex_version, not args.check_only),
         lambda: claude(version, not args.check_only),
+        lambda: grok(version, not args.check_only),
         lambda: cursor(version, commit, not args.check_only),
     )
     results: list[str] = []
