@@ -17,7 +17,7 @@ Resolve the conflict that exists now. Preserve intent, avoid invention, and fini
 
 4. **Protect user work.** Never run `git merge --abort`, `git rebase --abort`, `git reset --hard`, `git checkout --`, or clean untracked files unless the user explicitly asks. Do not discard untracked or unstaged work to make the conflict easier.
 
-5. **Run project checks.** Discover the repository's command map before choosing checks. In ABB, start with `scripts/AGENTS.md`; typical checks are `cargo fmt`, `cargo clippy`, `cargo test` from the workspace root, plus Biome for TypeScript when touched. Fix only failures caused by the conflict resolution.
+5. **Run project checks.** Discover the repository's documented verification commands and run checks appropriate to the resolved paths and their integration risks. Fix only failures caused by the conflict resolution.
 
 6. **Finish deliberately.** Stage the resolved files. If rebasing, continue the rebase until complete. If merging, create the merge commit only when the user asked you to commit or the repo workflow clearly requires it.
 

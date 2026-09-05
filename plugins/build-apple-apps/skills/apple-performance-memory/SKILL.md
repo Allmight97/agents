@@ -1,6 +1,6 @@
 ---
 name: apple-performance-memory
-description: Diagnose Apple app launch/runtime performance, SwiftUI invalidation, hangs, Instruments traces, Top Functions, ETTrace profiles, dSYMs, memgraphs, leaks, retain cycles, and Foundation Models traces. Use when an Apple app is slow, janky, memory-heavy, leaking, hanging, or needs before/after profiling evidence.
+description: "Profile and diagnose Apple app latency, hangs, SwiftUI update cost, or memory growth. Use for Instruments, trace or memgraph analysis, and before/after performance evidence."
 ---
 
 # Apple Performance / Memory

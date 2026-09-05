@@ -7,20 +7,23 @@ Use matched transitions to create smooth continuity between a source view (thumb
 ## Core patterns
 
 - Use a shared `Namespace` and a stable ID for the source.
-- Use `matchedTransitionSource` + `navigationTransition(.zoom(...))` on iOS 26+.
+- Use `matchedTransitionSource` + `navigationTransition(.zoom(...))` on iOS 18+.
 - Use `matchedGeometryEffect` for in-place transitions within a view hierarchy.
 - Keep IDs stable across view updates (avoid random UUIDs).
 
-## Example: media preview to full-screen viewer (iOS 26+)
+## Example: media preview to full-screen viewer (iOS 18+)
 
 ```swift
 struct MediaPreview: View {
+  let attachment: MediaAttachment
   @Namespace private var namespace
   @State private var selected: MediaAttachment?
 
   var body: some View {
-    ThumbnailView()
-      .matchedTransitionSource(id: selected?.id ?? "", in: namespace)
+    Button { selected = attachment } label: {
+      ThumbnailView()
+    }
+      .matchedTransitionSource(id: attachment.id, in: namespace)
       .sheet(item: $selected) { item in
         MediaViewer(item: item)
           .navigationTransition(.zoom(sourceID: item.id, in: namespace))
@@ -57,3 +60,5 @@ struct ToggleBadge: View {
 
 - Don’t use unstable IDs; it breaks the transition.
 - Avoid mismatched shapes (e.g., square to circle) unless the design expects it.
+
+Availability: [Apple navigationTransition documentation](https://developer.apple.com/documentation/swiftui/view/navigationtransition(_:)).

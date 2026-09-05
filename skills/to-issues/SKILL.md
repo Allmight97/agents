@@ -1,6 +1,6 @@
 ---
 name: to-issues
-description: Break an approved plan or parent GitHub issue into vertical-slice child issues, using native parent and blocking relationships when GitHub provides them. Use when the user explicitly asks to slice, split into issues, or create grabbable tickets. Do not use during initial alignment before the user approves a breakdown.
+description: Turn a settled plan or parent GitHub issue into independently verifiable child issues with native dependencies. Use when the user asks to split work into issues or create actionable tickets; resolve material scope choices before publishing.
 ---
 
 # To Issues
@@ -23,17 +23,21 @@ guidance, and respect relevant recorded decisions in the touched area. Do not
 create a repository-wide glossary or architecture document merely to name the
 issues.
 
-Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
+Identify prerequisite refactors only when they demonstrably reduce implementation
+risk or effort. Keep a prerequisite in its consuming slice unless independent
+verification or reuse justifies a separate issue.
 
 ### 3. Draft vertical slices
 
-Break the plan into **tracer bullet** issues. Each issue is a thin vertical slice that cuts through ALL integration layers end-to-end, NOT a horizontal slice of one layer.
+Break the plan into thin, complete outcomes through the layers that actually
+participate. A backend-only outcome need not invent a UI; a user-facing handoff
+must include the integration that makes it work.
 
 <vertical-slice-rules>
 
-- Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
+- Each slice delivers a narrow, complete behavior with its necessary integration and proof
 - A completed slice is demoable or verifiable on its own
-- Any prefactoring should be done first
+- Put genuine prerequisites before the work that depends on them
 - Each slice fits one fresh agent context, including only the discovery needed to complete it safely
 
 </vertical-slice-rules>
@@ -43,7 +47,7 @@ artificial, use **expand → migrate → contract**: add the compatible path, mo
 callers in bounded batches, then remove the old path. Keep each issue independently
 verifiable and state its dependency explicitly.
 
-### 4. Quiz the user
+### 4. Resolve the breakdown
 
 Present the proposed breakdown as a numbered list. For each slice, show:
 
@@ -51,22 +55,19 @@ Present the proposed breakdown as a numbered list. For each slice, show:
 - **Blocked by**: which other slices (if any) must complete first
 - **User stories covered**: which user stories this addresses (if the source material has them)
 
-Ask the user:
-
-- Does the granularity feel right? (too coarse / too fine)
-- Are the dependency relationships correct?
-- Should any slices be merged or split further?
-
-Iterate until the user approves the breakdown.
+Ask only about unresolved choices that change scope, granularity, or dependency
+order. If the user supplied the breakdown or delegated slicing and publication,
+proceed within that authority. A draft-only request ends with the breakdown.
 
 ### 5. Publish the issues to the issue tracker
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+For each authorized slice, reuse a matching existing child or publish a new issue. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
 
 Publish issues in dependency order (blockers first) so you can reference real
 issue identifiers in the native blocked-by relationship or fallback body field.
 
-When publishing to GitHub, use its native relationships as the source of truth:
+When publishing to GitHub, verify live CLI support and use native relationships
+as the source of truth:
 
 - create children with `gh issue create --parent <parent>`;
 - add dependencies with `--blocked-by` during creation or
@@ -86,7 +87,10 @@ A reference to the parent issue on the issue tracker (if the source was an exist
 
 A concise description of this vertical slice. Describe the end-to-end behavior, not layer-by-layer implementation.
 
-Avoid specific file paths or code snippets — they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it here and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
+Include stable owner or entrypoint paths when they help the next agent find the
+work; verify them against current code. Avoid prescribing incidental file
+layouts. Include a small type, state machine, or schema only when it expresses
+an accepted decision more precisely than prose.
 
 ## Acceptance criteria
 

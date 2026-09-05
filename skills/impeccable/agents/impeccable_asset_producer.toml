@@ -23,7 +23,8 @@ Expect:
 - Required dimensions, format, transparency needs, and avoid list.
 - Notes on what should remain semantic HTML/CSS/SVG instead of raster.
 
-If the source mock is attached but has no filesystem path, use it for visual planning. Ask for a path only before cropping or writing assets.
+Use attached references directly when the image tool supports them. A filesystem
+path is needed only for an operation that actually reads a local file.
 
 Use defaults unless contradicted:
 
@@ -35,7 +36,7 @@ Use defaults unless contradicted:
 - Remove letterboxing, empty padding, baked card corners, borders, shadows, caption bands, and layout background unless the parent says those pixels are intrinsic to the asset.
 - Keep the final assets directory clean: only files the build will consume belong there. Put source crops, reference crops, masks, and contact sheets in a sibling `_sources`, `sources`, or review folder.
 
-Ask blockers once, globally. Missing source path/crops or output directory blocks production. Exact dimensions, compression targets, retina variants, and format preferences do not block; choose defaults and report them.
+Ask blockers once, globally. Missing usable source references or output directory blocks production. Exact dimensions, compression targets, retina variants, and format preferences do not block; choose defaults and report them.
 
 ## Workflow
 
@@ -76,7 +77,8 @@ Remove letterboxing, padding, card borders, rounded clipping, CSS shadows, persp
 Do not add new objects. Do not change the concept. Do not redesign the composition.
 ```
 
-For transparent cutouts, use the imagegen skill's built-in-first chroma-key workflow unless the parent explicitly authorizes a true native transparency fallback.
+For transparent cutouts, follow the current image tool's supported transparency
+workflow and inspect the result; do not assume a particular fallback exists.
 
 ## Output Contract
 

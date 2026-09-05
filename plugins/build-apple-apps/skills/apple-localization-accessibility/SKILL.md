@@ -1,6 +1,6 @@
 ---
 name: apple-localization-accessibility
-description: Localize and accessibility-test Apple apps with string catalogs, assets, previews, locale/layout proof, Dynamic Type, VoiceOver, contrast, motion, keyboard, switch/control access, and Xcode 27 localization workflows. Use when preparing Apple app UI for multiple languages, accessible interaction, App Store quality, or regression-proof visual behavior.
+description: "Localize Apple app UI and verify accessible interaction. Use for string catalogs, locale-dependent layout, Dynamic Type, VoiceOver, contrast, motion, and platform input behavior."
 ---
 
 # Apple Localization / Accessibility

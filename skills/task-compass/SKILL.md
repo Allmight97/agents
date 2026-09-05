@@ -1,6 +1,6 @@
 ---
 name: task-compass
-description: Frame a nontrivial request when the user mixes immediate solving, learning, system-building, or competing objectives, or asks for help focusing. Infer the primary outcome and proportionate proof burden, park secondary ideas, and proceed without making the user rewrite a voice-dictated prompt. Do not use for clear single-purpose tasks or casual conversation.
+description: "Clarify the primary outcome when a request mixes solving, learning, reusable systems, or competing goals. Use for ambiguous nontrivial work or help focusing; skip clear single-purpose tasks."
 ---
 
 # Task Compass

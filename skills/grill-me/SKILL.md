@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interview the user about a plan, design, implementation, or decision in dependency-safe frontier rounds until every action-changing branch is resolved. Use when the user wants to stress-test an idea, pressure-test tradeoffs, expose blind spots, or explicitly says "grill me"; inspect repository truth first when it owns material facts or constraints.
+description: "Stress-test a plan, design, or decision through questions that resolve consequential choices. Use when the user asks to be grilled, pressure-test tradeoffs, or expose blind spots; inspect discoverable facts before asking."
 ---
 
 # Grill Me
@@ -28,15 +28,17 @@ For the first response and every later round:
    tools, and put each action-changing decision to the user.
 4. Map the decision tree. The **frontier** is every unresolved user decision
    whose prerequisites are settled.
-5. Ask the whole frontier in one numbered round, with a recommended answer for
-   each question. Each question and recommendation must stand without assuming
+5. Ask the actionable frontier in a manageable round, with a recommendation for
+   each question. Split a wide frontier to respect the user's attention and the
+   question tool's limits; prioritize decisions that unblock the most work. Each
+   question and recommendation must stand without assuming
    the answer to another question in the same round; otherwise it waits for a
    later round.
-6. After each answer, lock the settled decisions, inspect more source material,
-   and recompute the frontier.
+6. After each answer, record settled decisions and recompute the frontier.
+   Inspect more source when the answer exposes a new factual dependency.
 
-When a frontier branch needs a discoverable fact, use tools or a bounded
-subagent to find it. Treat that fact as an unsettled prerequisite for its
+When a frontier branch needs a discoverable fact, use tools or an authorized
+bounded subagent to find it. Treat that fact as an unsettled prerequisite for its
 downstream questions, but continue the round with the rest of the unblocked
 frontier.
 
@@ -68,9 +70,10 @@ Keep pushing until the frontier is empty: every action-changing branch has been
 visited, and remaining uncertainty is either a named proof question or explicit
 non-scope. Stop earlier when the user asks.
 
-Reaching a stop condition ends the questioning. Confirm the shared understanding
-before handing off. Confirmation locks the decisions; it does not authorize a
-new action. Proceed only when the user has explicitly requested that action with
+Reaching a stop condition ends the questioning. Summarize the settled direction
+before handing off; ask for confirmation only when a material interpretation
+remains unresolved. A summary does not authorize a new action. Proceed only when
+the user has explicitly requested that action with
 adequate scope, whether earlier in the conversation or after the decisions are
 resolved.
 

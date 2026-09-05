@@ -1,4 +1,5 @@
-Run systematic **technical** quality checks and generate a comprehensive report. Don't fix issues; document them for other commands to address.
+Run systematic **technical** quality checks and generate a comprehensive report. For an audit-only request, report findings. If remediation is already authorized,
+complete the assessment and fix supported issues within that scope.
 
 This is a code-level audit, not a design critique. Check what's measurable and verifiable in the implementation.
 

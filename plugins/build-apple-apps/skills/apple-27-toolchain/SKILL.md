@@ -1,6 +1,6 @@
 ---
 name: apple-27-toolchain
-description: Verify Xcode 27, Command Line Tools, Apple SDKs, simulators, devices, XcodeBuildMCP, Xcode native agent access, and Icon Composer 2 before Apple platform work. Use when setup, DEVELOPER_DIR, SDK, runtime, simulator, device, MCP, or toolchain drift could affect macOS, iOS, iPadOS, watchOS, tvOS, or visionOS builds.
+description: "Verify the selected Xcode 27 toolchain, SDKs, destinations, and relevant MCP readiness. Use for Apple setup or suspected toolchain drift affecting a build or runtime check."
 ---
 
 # Apple 27 Toolchain
@@ -24,7 +24,7 @@ On JStar's Mac, prefer per-command or per-plugin `DEVELOPER_DIR=/Applications/Xc
    - `DEVELOPER_DIR=<path> xcrun xcodebuild -showsdks`
    - Report Xcode version, build number, Swift version, selected developer directory, and SDK versions.
 
-3. Prove required platform tooling.
+3. Prove only the platform tooling needed by the current project or audit.
    - macOS SDK: `DEVELOPER_DIR=<path> xcrun --sdk macosx --show-sdk-version`
    - iOS device SDK: `DEVELOPER_DIR=<path> xcrun --sdk iphoneos --show-sdk-version`
    - iOS Simulator SDK: `DEVELOPER_DIR=<path> xcrun --sdk iphonesimulator --show-sdk-version`
@@ -45,7 +45,7 @@ On JStar's Mac, prefer per-command or per-plugin `DEVELOPER_DIR=/Applications/Xc
 5. Check Apple 27 adjacent tools when relevant.
    - Icon Composer 2: verify `/Applications/Xcode-beta.app/Contents/Applications/Icon Composer.app` before advising layered Liquid Glass icon workflows.
    - XcodeBuildMCP: verify a fresh session can see the configured workflows and `DEVELOPER_DIR`.
-   - Native Xcode MCP: open the project in Xcode, enable **Xcode Settings > Intelligence > Model Context Protocol > Allow external agents to use Xcode tools**, then configure the agent bridge (for Codex: `codex mcp add xcode -- xcrun mcpbridge`). Verify `codex mcp list` and a fresh agent session against the open project before depending on it.
+   - Native Xcode MCP: when bridge setup is requested, open the project in Xcode, enable **Xcode Settings > Intelligence > Model Context Protocol > Allow external agents to use Xcode tools**, then configure the agent bridge (for Codex: `codex mcp add xcode -- xcrun mcpbridge`). Verify `codex mcp list` and a fresh agent session against the open project before depending on it.
 
 6. Keep fixes scoped.
    - Prefer per-command `DEVELOPER_DIR` and plugin `.mcp.json` environment settings.

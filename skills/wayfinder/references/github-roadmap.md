@@ -52,8 +52,10 @@ unblock a decision.
 
 ## Relationships
 
-Show the proposed parent, children, and blocking edges before publishing. Once
-publication is authorized, use native GitHub relationships:
+Prepare the parent, children, and blocking edges before publishing. Resolve
+material content choices; existing publication authority does not need another
+approval. Verify the live CLI supports the operations below, then use native
+GitHub relationships:
 
 - create children with `gh issue create --parent <parent>`;
 - wire dependencies during creation with `--blocked-by` or afterward with

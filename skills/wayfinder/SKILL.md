@@ -30,16 +30,15 @@ evidence and decision structure determine how large it is.
 
 ## Publication And Operational Setup
 
-An instruction such as "create a Wayfinder roadmap" or "use Wayfinder for this
-repository" authorizes the ordinary repository-local operations required to
-make the roadmap functional: enable GitHub Issues, create or update the reviewed
-parent and children, and wire their native relationships. Treat disabled
-Issues, API failures, and authentication failures as operational conditions to
-correct in scope or report precisely, not as new permission decisions.
+A request to create or update a GitHub roadmap authorizes the parent, scoped
+children, and native relationships needed for that map. Draft the concrete
+content before raising unresolved choices. Use existing authorization when
+publishing; do not ask again merely because a command writes to the tracker.
 
-Show the proposed parent content and child graph before publishing when choices
-remain. That review aligns the roadmap's content; it is not a separate approval
-gate for operational prerequisites. "Continue roadmap #123" authorizes
+Changing repository settings, authentication, or access is a separate operation.
+If Issues are disabled or access is missing, prepare the roadmap and describe
+the exact blocker; use any existing authorization for its repair, otherwise ask
+before changing that configuration. "Continue roadmap #123" authorizes
 recording the resolution and advancing that map. "Help me think this through"
 keeps the work in the conversation until the user requests durable capture.
 
@@ -109,9 +108,10 @@ When the user provides a roadmap URL or number:
 2. Use the named child when the user supplied one. Otherwise recommend the
    highest-leverage open, unblocked child; do not make the user rediscover the
    graph.
-3. Resolve one human-in-the-loop child per session through `grill-me`. Bounded,
-   independent research children may run in parallel through available tools or
-   subagents, but each returns evidence to its own child.
+3. Resolve the active frontier through `grill-me` when user decisions remain.
+   Continue through settled children while the requested scope and user pace
+   support it. Independent research may run in parallel when delegation is
+   authorized; each result returns to its owning child.
 4. Record the full resolution once in the child, close it, and link it from
    `Decisions settled`. Add a brief outcome when its title alone is insufficient
    for low-resolution orientation.
@@ -135,15 +135,16 @@ The route is clear when:
 Update `Current phase` to `Ready to slice`, then recommend one handoff:
 
 - **Multiple PRs:** use `to-issues` on the same parent. Add one implementation
-  child per independently verifiable PR slice after the user approves the
-  breakdown.
+  child per independently verifiable PR slice within the accepted breakdown
+  or the user's delegated slicing authority.
 - **One PR:** keep one issue or PR plan with work slices and coherent commit
   blocks. Add no execution children unless independence or blocking earns them.
 - **Direct implementation:** proceed only when that action has been explicitly
   requested with adequate scope.
 
-Wayfinder stops at the handoff. The roadmap persists; the discovery process
-does not silently become implementation.
+The discovery workflow ends at the handoff. Continue through the selected
+workflow when the user already authorized it; a roadmap-only request ends with
+the map and recommended next action.
 
 ## Output
 

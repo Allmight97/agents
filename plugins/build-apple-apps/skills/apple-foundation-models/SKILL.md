@@ -1,6 +1,6 @@
 ---
 name: apple-foundation-models
-description: Design and implement Apple Foundation Models features with availability checks, guided generation, tool calling, prompt/transcript hygiene, privacy boundaries, and Instruments proof. Use when adding on-device Apple intelligence, local model summarization, extraction, classification, or tool-backed reasoning to an Apple app.
+description: "Implement Apple Foundation Models features with explicit availability, structured output, tool calling, and privacy boundaries. Use when an Apple app needs on-device model behavior or provider evaluation."
 ---
 
 # Apple Foundation Models

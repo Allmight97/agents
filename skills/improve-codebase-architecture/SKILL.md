@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Find architecture refactor candidates when the user explicitly asks for deep-module opportunities, structural friction, or an architecture review. Scope the scan to the named area or recent change hotspots, present an HTML report in OS temp, and stop unless the user picks a candidate.
+description: Find architecture refactor candidates when the user explicitly asks for deep-module opportunities, structural friction, or an architecture review. Scope the scan to the named area or recent change hotspots, recommend evidence-backed candidates, and explore a selected candidate when requested.
 ---
 
 # Improve Codebase Architecture
@@ -9,7 +9,8 @@ Surface architectural friction and deepening opportunities — shallow modules w
 
 User must request this scan explicitly. Do not publish issues unless asked.
 
-Use `codebase-design` vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) in every suggestion.
+Read `codebase-design` for the shared design criteria. Use its terms where they
+clarify the problem, alongside the project's domain vocabulary.
 
 Read every applicable guidance file along the selected path, including root,
 package, and nested module instructions, before loading optional architecture
@@ -38,24 +39,24 @@ the path. Walk it and note friction:
 
 Apply the **deletion test** on suspected shallow modules.
 
-### 2. HTML report
+### 2. Recommend candidates
 
-Write a self-contained HTML file to OS temp: `<tmpdir>/architecture-review-<timestamp>.html`. Open it for the user and give the absolute path.
+For each supported candidate, name the location, current friction, preserved
+obligation, proposed owner, expected benefit, proof path, and migration risk.
+Omit speculative candidates without evidence of recurring cost.
 
-Each candidate card: **Files**, **Problem**, **Solution**, **Benefits**, **Before/After diagram**, **Recommendation strength** (`Strong` | `Worth exploring` | `Speculative`).
+Lead with the strongest recommendation. Use a concise chat report for a small
+scope. For several candidates or diagram-heavy comparisons, use
+[HTML-REPORT.md](HTML-REPORT.md) to create a report in OS temp and open it for the
+user. Include the absolute path.
 
-End with **Top recommendation**.
+For a scan-only request, let the user choose what to explore. When they already
+selected a candidate or authorized a bounded refactor, continue within that
+scope rather than reopening the selection.
 
-Use vocabulary from the owning interface and architecture terms from
-`codebase-design`.
+### 3. Explore a selected candidate
 
-See [HTML-REPORT.md](HTML-REPORT.md) for scaffold and styling.
-
-Do not propose interfaces yet. Ask which candidate to explore.
-
-### 3. After pick
-
-Use `grill-me` when material capture decisions remain. Propose owner-local
-guidance or decision-note updates only when the user asks; do not create or
-expand a cross-repository glossary by default. Use `codebase-design`
-DESIGN-IT-TWICE.md for interface alternatives.
+Use `grill-me` when material user decisions remain and
+`codebase-design`'s [interface comparison guidance](../codebase-design/DESIGN-IT-TWICE.md)
+when alternatives would help. Update governing guidance only when the accepted
+change alters its contract; do not create a glossary as a side effect.

@@ -13,7 +13,7 @@ Best for:
 
 Pattern:
 
-- `openAppWhenRun = true`
+- `supportedModes: IntentModes { .foreground }`
 - collect lightweight input in the intent
 - store one handled-intent payload in a central router or handoff service
 - let the app scene translate that payload into tabs, sheets, routes, or windows
@@ -34,7 +34,7 @@ Best for:
 
 Pattern:
 
-- `openAppWhenRun = false`
+- `supportedModes: IntentModes { .background }`
 - perform the operation directly in `perform()`
 - return dialog or snippet feedback so the result feels complete in Shortcuts or Siri
 

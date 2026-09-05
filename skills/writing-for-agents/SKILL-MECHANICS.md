@@ -6,8 +6,9 @@ client metadata. The shared writing rules remain in [SKILL.md](SKILL.md).
 ## Set The Contract
 
 Name the skill's job, target clients, invocation mode, and authorized surface.
-An audit remains read-only; an edit changes only the skill and client metadata
-the user placed in scope.
+An audit alone remains read-only; requested updates change the skill and client
+metadata the user placed in scope. Audit wording does not cancel edit authority
+provided elsewhere in the same request.
 
 For a shared portable skill:
 
@@ -18,15 +19,17 @@ For a shared portable skill:
   needs them;
 - keep client presentation and policy in the client's supported metadata.
 
-The contract is set when every target client and metadata surface is named and
-no portability assumption remains implicit.
+Inspect metadata for the clients actually targeted. Preserve unrelated client
+settings rather than expanding a narrow edit into a distribution audit.
 
 ## Invocation
 
 A model-invoked skill spends context through its visible description; an
 explicit-only skill spends human attention because the user must remember it.
-Keep automatic discovery unless independent invocation would be harmful or the
-user explicitly chooses an explicit-only contract.
+Keep automatic discovery by default and preserve existing invocation policy.
+Change to explicit-only only when the user requests it. Sensitive operations
+need their own authorization boundary; they do not imply an invocation-policy
+change.
 
 In shared Codex-compatible `SKILL.md` files, do not invent unsupported
 frontmatter to control invocation. Use `agents/openai.yaml` for Codex policy and
@@ -35,12 +38,11 @@ on it.
 
 Descriptions are context pointers:
 
-- front-load a leading word users naturally put in prompts;
-- name one trigger per behavior branch rather than listing synonyms;
+- state the capability and the task that needs it concisely;
 - keep identity and procedure in the body;
 - include exclusions only when they prevent demonstrated misrouting.
 
-Split a skill only when a distinct leading word must trigger independently,
+Split a skill only when a distinct task needs independent discovery,
 another skill must reach it directly, or a real sequence boundary prevents
 premature completion. Otherwise keep branch-only mechanics behind a precise
 pointer in the owning skill.
@@ -82,6 +84,9 @@ adding speculative rules.
 The loop is complete when the trigger boundary, first move, output behavior,
 and validation claims are all supported by inspectable evidence.
 
-Use `$skill-creator` for scaffolding or procedural creation mechanics. Use
-`$skill-bench` when blind comparative trials are warranted; its report owns the
-behavioral verdict.
+Use `$skill-creator` when available for creation mechanics and structural
+validation. For a complex or risky revision, consider an independent behavioral
+trial when delegation is available and authorized. Give the evaluator a
+realistic request and minimum raw artifacts without the intended answer or
+prior conclusions. Bound side effects and use temporary outputs. Report what
+was actually observed; structural validation alone does not prove behavior.
