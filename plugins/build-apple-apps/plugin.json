@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "build-apple-apps",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Build, run, debug, profile, and ship Apple 27-era apps across macOS, iOS, iPadOS, watchOS, tvOS, and visionOS with Swift, SwiftUI, Xcode 27, and XcodeBuildMCP.",
   "author": {
     "name": "JStar",

@@ -4,6 +4,21 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.19.0] - 2026-09-05
+
+### Changed
+
+- Made personal skill workflows proportional to the task and existing user
+  authority, with clearer ownership and conditional supporting references.
+- Allowed task-specific model and reasoning choices in `orchestrate` while
+  preserving configured roles; strengthened evidence handoffs and targeted
+  recovery from delegate or validation failures.
+- Reduced unnecessary Impeccable setup and context reads, and corrected context
+  signal handling and critique guidance.
+- Updated `build-apple-apps` to **0.2.1** with proportional build guidance,
+  corrected App Intents dependency and execution-mode examples, and verified
+  SwiftUI background-extension and transition API references.
+
 ## [0.18.0] - 2026-09-02
 
 ### Added

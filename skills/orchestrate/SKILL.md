@@ -14,11 +14,14 @@ breadth, context hygiene, implementation throughput, or scrutiny.
 
 - Inspect the current spawn contract, available roles, active agents, and
   concurrency before assigning work.
-- Select a role from its live description and permissions before considering a
-  model override. Let role and agent configuration own model, reasoning, tool,
-  and behavior defaults.
-- Use the general role with an explicit model only when the live surface exposes
-  a task-specific capability that no available role represents.
+- Select a role by its deliverable and permissions. Start with configured model
+  and reasoning defaults; use a supported per-spawn override when task-relevant
+  evidence justifies a different quality, latency, or cost tradeoff. Respect
+  locked role settings and the spawn contract's context-inheritance rules.
+- Choose from the live model surface, including across model generations. Match
+  the choice to ambiguity, consequence of error, and how cheaply the result can
+  be checked. Keep model names and default worker/explorer assignments in client
+  configuration; a small benchmark informs a trial, not a permanent ranking.
 
 Complete this step when every candidate role and available slot comes from the
 live surface rather than remembered configuration.
@@ -64,7 +67,8 @@ Give every delegate:
 - any skill, plugin, tool, or source lane that is load-bearing to the
   deliverable or its proof; otherwise specify the evidence requirement and let
   the delegated role choose its procedure;
-- a compact output contract.
+- a compact output contract linking the result to artifacts or source locations,
+  checks actually executed, and material unverified claims.
 
 ### Communicate Densely, Not Lossily
 
@@ -98,7 +102,13 @@ missing authority, ownership, validation, or stop conditions.
 - Wait for every result required by the final decision. Steer or stop a delegate
   when its lane becomes stale, blocked, duplicative, or out of scope.
 - Treat delegate reports as evidence, not authority. Reconcile conflicts and
-  validate consequential claims against the owning source.
+  validate consequential claims against the owning source and execution record.
+  A passing check supports only the behavior it exercises; an independent
+  reviewer can also miss an invariant or apply the wrong acceptance criterion.
+- When a lane fails, identify whether the cause is missing context or authority,
+  a tool limitation, faulty validation, or task reasoning. Repair that cause
+  before retrying; raise effort, change model, or take over in root when the
+  remaining reasoning gap warrants it.
 - Translate compact traffic into ordinary prose before every user-visible
   progress update or final answer. Preserve material evidence, uncertainty,
   validation, and residual risk without requiring the user to decode shorthand.
