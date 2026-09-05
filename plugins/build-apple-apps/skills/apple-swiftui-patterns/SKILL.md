@@ -1,6 +1,6 @@
 ---
 name: apple-swiftui-patterns
-description: Build and refactor Apple SwiftUI, AppKit interop, Liquid Glass, navigation, windowing, settings, tabs, toolbars, Observation, previews, and platform-native UI structure. Use when shaping Apple app presentation surfaces across macOS, iOS, iPadOS, watchOS, tvOS, or visionOS.
+description: "Build or refactor SwiftUI presentation, state ownership, navigation, windowing, and AppKit interop. Use for native Apple UI structure and availability-gated platform features such as Liquid Glass."
 ---
 
 # Apple SwiftUI Patterns
@@ -20,7 +20,7 @@ Use this skill when the task is UI structure, view refactoring, platform fit, or
 2. Preserve local architecture.
    - Keep business logic outside view bodies.
    - Use Observation and explicit state ownership where it reduces invalidation and unclear data flow.
-   - Add a seam only when there are at least two real adapters, usually production plus test.
+   - Add a seam for present variation, proof, lifecycle ownership, or platform isolation; adapter count alone does not justify it.
    - Prefer platform conditionals at narrow edges instead of mixing incompatible UI assumptions in one view.
 
 3. Adopt Apple 27 UI affordances where they earn their keep.

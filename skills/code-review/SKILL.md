@@ -1,24 +1,25 @@
 ---
 name: code-review
-description: Read-only review of a PR, branch, diff, or worktree changes for correctness, requested behavior, regressions, scope creep, proof gaps, and merge readiness. Use when asked to review changed code or decide whether work is safe to merge. Route over-engineering-only reviews to Whittle's review mode and repository-wide structural scans to improve-codebase-architecture.
+description: "Review changed code in a PR, branch, diff, or worktree for correctness, requested behavior, regressions, and proof gaps. Use for code review and merge-readiness decisions."
 ---
 
 # Code Review
 
-Review the changed behavior and lead with the merge decision. Report material
-findings; do not fix them unless the user separately asks for implementation.
+Review the changed behavior and lead with material findings or the requested
+merge decision. A review-only request leaves code unchanged. If the user already
+authorized review and fixes, finish the assessment and carry supported fixes
+through the owning implementation checks.
 
 ## Select the Review Owner
 
 Choose one route before reviewing:
 
 - **Changed code, PR, branch, diff, or merge readiness** → continue here.
-- **Deletion, bloat, YAGNI, or over-engineering only** → `whittle` review mode;
-  stop.
+- **Explicit Whittle invocation** → `whittle` review mode. For an unnamed
+  simplification review, assess concrete complexity against the requested scope;
+  preserve Whittle's explicit-only invocation policy.
 - **Repository-wide refactor targets or structural scan** →
   `improve-codebase-architecture`; stop. That scan remains explicit-only.
-- **Independent terminal evidence before merge or release** → Review Auditor;
-  stop when that independent role is available and explicitly requested.
 - **Explicit security best-practice audit or threat model** → the matching
   security skill; stop.
 
@@ -40,9 +41,10 @@ Resolve the target before judging code:
 4. For an explicit worktree review, include staged and unstaged changes against
    `HEAD` and state that untracked files are or are not included.
 
-Record the base, head, merge-base or worktree scope, and commit list. Stop on an
-invalid ref, an empty target, unresolved merge state, or ambiguous PR/branch
-identity.
+Record the relevant base/head or worktree scope. Resolve invalid or ambiguous
+refs before judging them; report an empty diff as no changes to review. For an
+unresolved merge, review conflict intent only if that is the requested target;
+a merge-ready verdict requires a resolved result.
 
 ## Establish the Expected Behavior
 
@@ -71,16 +73,16 @@ Review in this order so style and tidiness cannot mask behavior:
 4. **Proof** — missing regression tests, tests at the wrong seam, stale mocks,
    skipped owner checks, or evidence that cannot falsify the claim.
 5. **Maintainability introduced by the diff** — only concrete complexity likely
-   to cause defects or repeated change. Route a dedicated deletion audit to
-   `whittle` review mode rather than turning this into a style pass.
+   to cause defects or repeated change. Keep a dedicated simplification review
+   distinct from a merge verdict; use `whittle` when explicitly invoked.
 
 Trace affected paths beyond the diff when needed. Run targeted read-only checks
 when they can falsify a finding or merge claim. Do not modify code, comments,
 tests, issues, or review threads during a review-only request.
 
-Use parallel reviewers only when the diff is large enough to contain genuinely
-independent surfaces. Give each a bounded axis or owned path. The root reviewer
-deduplicates and reranks every finding; subagent reports are evidence, not the
+Use parallel reviewers when delegation is authorized and the diff contains
+independent surfaces that benefit from separate scrutiny. Give each a bounded
+axis or owned path. The root reviewer deduplicates and reranks every finding; subagent reports are evidence, not the
 final verdict.
 
 ## Finding Standard
@@ -106,13 +108,14 @@ tooling already enforces. If no material finding survives verification, say so.
 
 ## Output
 
-Lead with one verdict:
+For merge-readiness requests, lead with one verdict:
 
 - **DO NOT MERGE** — unresolved P0/P1 or missing proof for a consequential claim.
 - **MERGE WITH CHANGES** — no blocker, but material P2 work remains.
 - **MERGE** — no material finding; state residual uncertainty and skipped proof.
 
-Then provide:
+For other reviews, lead with the highest-impact finding or no material findings.
+Include only applicable sections:
 
 1. severity-ordered findings;
 2. proof run and proof still missing;

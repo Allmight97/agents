@@ -1,6 +1,6 @@
 ---
 name: writing-for-agents
-description: Write, rewrite, audit, or route documents agents consume. Use for agent-ready issues, specs, handoffs, Agent Skills, AGENTS.md or CLAUDE.md networks, instruction hierarchy, completion criteria, and deciding where agent guidance belongs.
+description: Write or audit agent-consumed guidance, including skills, repository instructions, issues, and handoffs. Use when instruction clarity, placement, or execution scope is the task.
 ---
 
 # Writing for Agents
@@ -14,15 +14,15 @@ agent's execution contract.
 
 Before drafting or editing:
 
-1. Set the mode: an audit reports findings; an authorized edit changes only the
-   named surface.
+1. Infer the mode from the whole request: an audit alone reports findings;
+   requested updates include edits to the named surface.
 2. Name the audience, document job, current state, durability, and owner.
 3. Inspect the target plus the active pointers and owning sources needed to
    verify action-changing claims.
 
-The first move is complete when the mode and target are explicit and every
-material fact available from the environment has been inspected or identified
-as unavailable.
+Proceed when the target and authority are clear and claims that could change
+the next action are grounded or identified as uncertain. Scale inspection to
+the requested change.
 
 ## Branches
 
@@ -57,8 +57,8 @@ tense, and proposal-shaped narration.
 
 Place each meaning where the agent needs it:
 
-1. **In-file steps** for ordered actions. End each step with a checkable,
-   sufficiently demanding completion criterion.
+1. **In-file steps** when order matters. Make consequential transitions and
+   completion checkable.
 2. **In-file reference** for rules every branch needs.
 3. **Disclosed reference** for material needed only when a named branch fires.
 4. **External reference** for truth owned by code, configuration, issues, specs,
@@ -84,7 +84,8 @@ An executable document makes these explicit in proportion to the task:
 - evidence that can falsify completion;
 - deferred work and stop conditions.
 
-Do not force a template onto a simple document. The first layer must still stand
+Describe outcomes and decision criteria for open-ended work. Prescribe a fixed
+sequence only when deviation has a concrete cost. The first layer must stand
 alone for a competent reader who will not read the supporting detail.
 
 ## Pruning
@@ -111,7 +112,8 @@ that cannot be expressed safely as a positive, and pair it with what to do.
 Match the authorization:
 
 - **Write or rewrite**: return or apply the improved artifact.
-- **Audit**: report evidence and the smallest recommended change without editing.
+- **Audit**: report evidence and the smallest recommended change; apply it when
+  the same request also authorizes updates.
 - **Structure**: provide the hierarchy and explain only decisions that change
   reader or agent action.
 - **Route**: identify the durable owner, temporary surface, and material to
@@ -123,7 +125,7 @@ Before finishing, verify:
 
 - the first screen establishes current state and next action;
 - every material finding has a disposition;
-- every ordered step has a checkable completion criterion;
+- consequential transitions and the requested outcome have checkable completion;
 - each pointer names the condition for loading its target;
 - fact, inference, recommendation, and open question remain distinguishable;
 - every retained meaning has one owner and earns its context or maintenance

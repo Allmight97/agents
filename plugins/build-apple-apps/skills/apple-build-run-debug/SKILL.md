@@ -1,6 +1,6 @@
 ---
 name: apple-build-run-debug
-description: Build, run, test, launch, log, screenshot, and debug Apple apps with Xcode 27, XcodeBuildMCP, xcodebuild, SwiftPM, simulators, devices, and macOS paths. Use when launching an app, proving a build, inspecting runtime behavior, wiring a Codex Run button, or diagnosing Apple build/test/runtime failures.
+description: "Build, run, test, and debug Apple apps using the project toolchain, XcodeBuildMCP, xcodebuild, or SwiftPM. Use for build/runtime proof, launch failures, and requested reusable Run actions."
 ---
 
 # Apple Build / Run / Debug
@@ -48,7 +48,10 @@ Common proofs:
 
 ## Mac Run Button Workflow
 
-For macOS apps where repeated local launch matters, create or update one project-local `script/build_and_run.sh` and wire `.codex/environments/environment.toml` to the Run action.
+When the user requests reusable launch tooling or a Codex Run action, reuse the
+project's existing launcher where possible. Create or update
+`script/build_and_run.sh` and `.codex/environments/environment.toml` only when
+that requested workflow needs them.
 
 Use `references/run-button-bootstrap.md` as the canonical script and environment contract. Keep the run script outside app source.
 

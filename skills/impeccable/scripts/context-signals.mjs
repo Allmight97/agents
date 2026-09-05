@@ -52,14 +52,15 @@ function latestCritique(cwd) {
       return m ? m[1].trim() : null;
     };
     const num = (v) => {
+      if (v === null || v === '') return null;
       const n = Number(v);
       return Number.isFinite(n) ? n : null;
     };
     return {
       slug: get('slug'),
-      score: num(get('score')),
-      p0: num(get('p0')),
-      p1: num(get('p1')),
+      score: num(get('total_score')),
+      p0: num(get('p0_count')),
+      p1: num(get('p1_count')),
       timestamp: get('timestamp'),
       file: path.relative(cwd, path.join(dir, newest)),
     };

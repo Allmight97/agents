@@ -1,44 +1,28 @@
-# Design It Twice
+# Compare Interface Alternatives
 
-When the user wants to explore alternative interfaces for a chosen deepening candidate, use this parallel sub-agent pattern. Based on "Design It Twice" (Ousterhout) — your first idea is unlikely to be the best.
+Use when the choice is consequential enough that comparing alternatives may
+change it. Start from the owned invariant, real callers, dependencies, and proof
+constraints. Use [DEEPENING.md](DEEPENING.md) when existing modules will be merged.
 
-Uses the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**, **seam**, **adapter**, **leverage**.
+Sketch two or more materially different designs. Useful axes include caller
+simplicity, ownership placement, and dependency isolation. Each design must meet
+the same required behavior; do not manufacture a speculative extensibility
+framework merely to make the alternatives look different.
 
-## Process
+For each viable design, show:
 
-### 1. Frame the problem space
+- its interface, including ordering, errors, and resource ownership;
+- one realistic caller example;
+- complexity it hides and knowledge it leaves with callers;
+- dependency and verification strategy;
+- migration cost and principal tradeoff.
 
-Before spawning sub-agents, write a user-facing explanation of the problem space for the chosen candidate:
+Compare caller burden, locality, failure semantics, and total upkeep. Recommend
+one design and identify the evidence that could change the choice. Match the
+output to the decision; a small sketch can be sufficient.
 
-- The constraints any new interface would need to satisfy
-- The dependencies it would rely on, and which category they fall into (see [DEEPENING.md](DEEPENING.md))
-- A rough illustrative code sketch to ground the constraints — not a proposal, just a way to make the constraints concrete
-
-Show this to the user, then immediately proceed to Step 2. The user reads and thinks while the sub-agents work in parallel.
-
-### 2. Spawn sub-agents
-
-Spawn 3+ sub-agents in parallel using the Agent tool. Each must produce a **radically different** interface for the deepened module.
-
-Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
-
-- Agent 1: "Minimize the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
-- Agent 2: "Maximise flexibility — support many use cases and extension."
-- Agent 3: "Optimise for the most common caller — make the default case trivial."
-- Agent 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
-
-Include both [SKILL.md](SKILL.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
-
-Each sub-agent outputs:
-
-1. Interface (types, methods, params — plus invariants, ordering, error modes)
-2. Usage example showing how callers use it
-3. What the implementation hides behind the seam
-4. Dependency strategy and adapters (see [DEEPENING.md](DEEPENING.md))
-5. Trade-offs — where leverage is high, where it's thin
-
-### 3. Present and compare
-
-Present designs sequentially so the user can absorb each one, then compare them in prose. Contrast by **depth** (leverage at the interface), **locality** (where change concentrates), and **seam placement**.
-
-After comparing, give your own recommendation: which design you think is strongest and why. If elements from different designs would combine well, propose a hybrid. Be opinionated — the user wants a strong read, not a menu.
+Work locally by default. When independent design work is authorized and useful,
+use available subagents with bounded briefs and the same constraints. Follow
+`orchestrate` if available; do not assume a particular agent tool, role, count,
+or repository glossary exists. Continue implementation only within the user's
+accepted scope.

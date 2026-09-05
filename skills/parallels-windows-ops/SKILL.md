@@ -1,6 +1,6 @@
 ---
 name: parallels-windows-ops
-description: Audit and operate a local Parallels Desktop Windows VM from Codex. Use when testing Codex access to Windows through Parallels, choosing CLI vs GUI automation, tuning VM performance/resource settings, or scrutinizing Mac/Windows integration features for MSP-style work.
+description: "Audit or operate a local Parallels Windows VM. Use for guest access, CLI versus GUI control, measured resource tuning, and Mac/Windows integration settings."
 ---
 
 # Parallels Windows Ops
@@ -9,23 +9,28 @@ Use this skill to make Parallels Windows work repeatable without blurring Mac an
 
 ## Baseline First
 
-Run the read-only audit before recommending changes:
+For an audit or tuning task, use the bundled read-only baseline with the actual
+VM name from the request or `prlctl list -a`:
 
 ```bash
-scripts/audit_parallels_windows.sh "Windows 11"
+bash "<skill-dir>/scripts/audit_parallels_windows.sh" "<vm-name>"
 ```
 
-Completion criterion: capture host hardware, Parallels version/license state, VM state, CPU/RAM/storage/network/sharing settings, Parallels Tools status, and whether guest command execution works.
+Resolve `<skill-dir>` from this loaded skill's path. For a narrow operational
+task, inspect only the state and access needed by that operation. Record the
+baseline fields relevant to any proposed change.
 
 If the VM is paused or stopped, report that state. Do not start, resume, suspend, shut down, or reconfigure the VM unless the user asked for an access test or approved that action.
 
-For an approved active test window, disable idle auto-pause with:
+If idle auto-pause interrupts the authorized test, record its current setting
+and temporarily disable it with:
 
 ```bash
 prlctl set "<vm>" --pause-idle off
 ```
 
-Decide at the end whether idle auto-pause earns its keep as a resource saver or should stay off for reliable background access.
+Restore the prior setting when the test ends unless a persistent change was
+requested or approved.
 
 ## Access Ladder
 
@@ -38,7 +43,10 @@ Prefer the lowest-friction truthful control surface:
 
 Treat Computer Use as pixel/keyboard control inside the Parallels window. It does not expose a native Windows accessibility tree, so first-run dialogs, focus shifts, and overlays can break unattended GUI work.
 
-Keep Windows guest commands small and observable. On the July 6, 2026 VM, larger `powershell -EncodedCommand ...` batches hung under `prlctl exec`, while direct `cmd /c`, `reg`, `sc`, `schtasks`, and short PowerShell probes were reliable.
+If a guest command hangs, narrow it to a short probe before escalating to GUI
+control. Read [dated local findings](references/2026-07-06-findings.md) only when
+investigating the same command or boot-readiness symptoms; verify them on the
+current VM.
 
 ## Cross-Talk Classification
 
@@ -62,7 +70,3 @@ Use a measurement loop, not folklore:
 5. Re-test the actual workflow and compare host memory pressure, guest Task Manager, responsiveness, battery impact, and disk growth.
 
 Default stance for Apple Silicon Windows 11 ARM: keep Automatic CPU/RAM or the existing measured baseline until a workload proves otherwise. More vCPUs or RAM can make both macOS and Windows worse.
-
-## Known Local Pattern
-
-On the July 6, 2026 test VM, `prlctl exec` initially failed until Windows finished booting and Parallels Tools were ready. Default `prlctl exec` ran as `nt authority\system`; `--current-user` mapped to the logged-in Windows user and launched visible apps. Preserve that distinction in future tests.

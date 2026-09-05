@@ -201,29 +201,28 @@ Button("Important Action") {
 
 ### Background Extension Effect
 
-To stretch content behind a sidebar or inspector with the background extension effect:
+Apply the effect to edge-aligned visual content before adding foreground
+controls, so titles and buttons remain outside the extension:
 
 ```swift
-NavigationSplitView {
-    // Sidebar content
-} detail: {
-    // Detail content
-        .background {
-            // Background content that extends under the sidebar
-        }
-}
+Image("landscape")
+    .resizable()
+    .scaledToFill()
+    .backgroundExtensionEffect()
+    .overlay(alignment: .bottom) {
+        Text("Featured destination")
+    }
 ```
+
+See Apple's [background extension recipe](https://developer.apple.com/documentation/swiftui/landmarks-applying-a-background-extension-effect)
+for container alignment and sidebar behavior.
 
 ### Extending Horizontal Scrolling Under Sidebar
 
-To extend horizontal scroll views under a sidebar or inspector:
-
-```swift
-ScrollView(.horizontal) {
-    // Scrollable content
-}
-.scrollExtensionMode(.underSidebar)
-```
+Keep the horizontal scroll view aligned with the container edges beside the
+sidebar or inspector. SwiftUI handles extension when the edges meet; place any
+content inset inside the scroll view rather than padding the scroll view itself.
+Follow Apple's [horizontal scrolling recipe](https://developer.apple.com/documentation/swiftui/landmarks-extending-horizontal-scrolling-under-a-sidebar-or-inspector).
 
 ## Best Practices
 

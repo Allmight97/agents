@@ -26,7 +26,7 @@ Smallness is a design result:
 
 ## Output
 
-Lead with the implemented result and proof. Briefly name material machinery
-that was deliberately skipped and the condition that would justify it later.
+Lead with the implemented result and proof. Name a rejected alternative only
+when its tradeoff affects the user's decision.
 Give a fuller explanation when the user asked for one or the tradeoff genuinely
 affects their next decision.

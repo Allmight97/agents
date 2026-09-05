@@ -12,7 +12,8 @@ Aligning the feature to the design system is **not optional**. Polish without al
 2. **Note the conventions**: How are shared components imported? What spacing scale is used? Which colors come from tokens vs hard-coded values? What motion and interaction patterns are established? What flow shapes are used for comparable actions (modal vs full-page, inline vs route, save-on-blur vs explicit submit)?
 3. **Identify drift, then name the root cause**: For every deviation, classify it as a **missing token** (the value should exist in the system but doesn't), a **one-off implementation** (a shared component already exists but wasn't used), or a **conceptual misalignment** (the feature's flow, IA, or hierarchy doesn't match neighboring features). The fix differs by category: patch the value, swap to the shared component, or rework the flow. Fixing the symptom without naming the cause is how drift compounds.
 
-If a design system exists, polish **must** align the feature with it. If none exists, polish against the conventions visible in the codebase. **If anything about the system is ambiguous, ask. Never guess at design system principles.**
+If a design system exists, polish **must** align the feature with it. If none exists, polish against the conventions visible in the codebase. Ask when unresolved design intent would materially change the result; use
+existing evidence and delegated judgment for routine choices.
 
 ## Pre-Polish Assessment
 
@@ -211,7 +212,7 @@ Sweat the details. Zoom in until the alignment is right and the spacing reads as
 **NEVER**:
 - Polish before it's functionally complete
 - Polish without aligning to the design system; that's decoration on drift
-- Guess at design system principles instead of asking when something is ambiguous
+- Override consequential design intent without resolving the conflict
 - Spend hours on polish if it ships in 30 minutes (triage)
 - Introduce bugs while polishing (test thoroughly)
 - Ignore systematic issues (if spacing is off everywhere, fix the system, not just one screen)

@@ -1,6 +1,6 @@
 ---
 name: whittle
-description: Simplify an implementation or audit code solely for accidental complexity. Use only when the user explicitly invokes Whittle to apply YAGNI, remove unnecessary code, reuse an existing owner, prefer standard or native capabilities, or run a read-only bloat review. Do not infer it from ordinary implementation or review work; correctness, security, performance, merge-readiness, and architecture reviews belong to their specialist owners.
+description: "Simplify an implementation or review accidental complexity when the user explicitly invokes Whittle. Preserve required behavior while removing unnecessary machinery. General correctness and security reviews have separate owners."
 ---
 
 # Whittle
@@ -18,7 +18,8 @@ Use the mode established by the request:
   [APPLY-MECHANICS.md](APPLY-MECHANICS.md) completely before editing.
 - **Review**: the user asked for a Whittle audit, deletion candidates, or an
   over-engineering review. Read [REVIEW-MECHANICS.md](REVIEW-MECHANICS.md)
-  completely and apply nothing.
+  completely. A review-only request leaves code unchanged; an audit-and-fix
+  request continues through Apply for supported changes in the authorized scope.
 
 If the requested review also asks whether code is correct, secure, performant,
 or ready to merge, route that question to its owning review workflow. Do not

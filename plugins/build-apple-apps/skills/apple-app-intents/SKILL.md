@@ -1,6 +1,6 @@
 ---
 name: apple-app-intents
-description: Design and implement App Intents, App Entities, App Shortcuts, Spotlight, Siri, widgets, controls, and app-routing handoffs for Apple apps. Use when exposing app actions or content to system surfaces across iOS, iPadOS, macOS, watchOS, widgets, Shortcuts, Siri, or Spotlight.
+description: "Expose Apple app actions and entities through App Intents, Shortcuts, Siri, Spotlight, widgets, and controls. Use for system integration, entity resolution, and app-routing handoffs."
 ---
 
 # Apple App Intents
@@ -46,10 +46,12 @@ Consult current Apple Developer documentation when API syntax or platform availa
 
 ## Strong Defaults
 
-- Prefer a dedicated intents target or module for the system-facing layer.
+- Keep the system-facing layer in the existing owning target unless packaging,
+  access, or lifecycle needs justify a separate target or module.
 - Keep intent types thin; business logic belongs in app services or domain modules.
 - Treat App Intents as system integration infrastructure, not only a Shortcuts feature.
-- Prefer one open-app intent, one inline action intent, one or two entities, and one `AppShortcutsProvider` for a first pass.
+- Add only the actions, entities, and discovery mechanisms the requested system
+  surfaces need; no fixed intent or entity count is required.
 
 ## Anti-Patterns
 
@@ -62,7 +64,8 @@ Consult current Apple Developer documentation when API syntax or platform availa
 
 ## References
 
-- `references/first-pass-checklist.md`
-- `references/example-patterns.md`
-- `references/code-templates.md`
-- `references/system-surfaces.md`
+- For a first system integration, use `references/first-pass-checklist.md`.
+- For entity or handoff design, use `references/example-patterns.md`.
+- For implementation sketches, consult `references/code-templates.md` and
+  verify current API availability before applying them.
+- For platform/surface selection, use `references/system-surfaces.md`.

@@ -1,6 +1,8 @@
 # Code templates
 
-These templates are intentionally generic. Rename types and services to fit the app.
+These templates target the plugin's Apple 27 stack. Rename types and services to
+fit the app. [`supportedModes`](https://developer.apple.com/documentation/appintents/appintent/supportedmodes)
+is available from OS 26; check deployment targets before adapting to older apps.
 
 ## Open-app handoff intent
 
@@ -10,7 +12,7 @@ import AppIntents
 struct OpenComposerIntent: AppIntent {
   static let title: LocalizedStringResource = "Open composer"
   static let description = IntentDescription("Open the app to compose content")
-  static let openAppWhenRun = true
+  static var supportedModes: IntentModes { .foreground }
 
   @Parameter(
     title: "Prefilled text",
@@ -69,7 +71,7 @@ import AppIntents
 struct CreateItemIntent: AppIntent {
   static let title: LocalizedStringResource = "Create item"
   static let description = IntentDescription("Create a new item without opening the app")
-  static let openAppWhenRun = false
+  static var supportedModes: IntentModes { .background }
 
   @Parameter(title: "Title")
   var title: String
@@ -120,7 +122,7 @@ enum SectionIntentValue: String, AppEnum {
 
 struct OpenSectionIntent: AppIntent {
   static let title: LocalizedStringResource = "Open section"
-  static let openAppWhenRun = true
+  static var supportedModes: IntentModes { .foreground }
 
   @Parameter(title: "Section")
   var section: SectionIntentValue
@@ -199,7 +201,7 @@ struct ProjectSelectionIntent: WidgetConfigurationIntent {
 
 struct ProjectQuery: EntityQuery {
   @IntentParameterDependency<ProjectSelectionIntent>(\.$workspace)
-  var workspace
+  var selectionIntent
 
   func entities(for identifiers: [ProjectEntity.ID]) async throws -> [ProjectEntity] {
     try await fetchProjects().filter { identifiers.contains($0.id) }.map(ProjectEntity.init)
@@ -214,7 +216,7 @@ struct ProjectQuery: EntityQuery {
   }
 
   private func fetchProjects() async throws -> [Project] {
-    guard let workspaceID = workspace?.id else { return [] }
+    guard let workspaceID = selectionIntent?.workspace?.id else { return [] }
     return try await ProjectStore.shared.projects(in: workspaceID)
   }
 }
@@ -276,7 +278,7 @@ import UniformTypeIdentifiers
 
 struct ImportAttachmentIntent: AppIntent {
   static let title: LocalizedStringResource = "Import attachment"
-  static let openAppWhenRun = false
+  static var supportedModes: IntentModes { .background }
 
   @Parameter(
     title: "Files",

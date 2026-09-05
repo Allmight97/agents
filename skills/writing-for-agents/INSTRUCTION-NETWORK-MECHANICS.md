@@ -8,14 +8,15 @@ repository agent guidance. The shared writing rules remain in
 
 1. Inspect the root and every nested `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, or
    equivalent file that applies to the target path.
-2. Inspect existing skills, scripts, tests, code boundaries, specs, issues, and
-   decision records that may already own the behavior.
+2. Inspect existing skills, scripts, tests, code boundaries, or decision records
+   that own the affected behavior. Load plans/issues only when the question
+   depends on them.
 3. Name the intended behavior change in one sentence.
 4. Choose the smallest durable owner.
 
-Inspection is complete when every applicable instruction surface and plausible
-existing owner has been accounted for; a single-file inspection cannot support
-an instruction-network decision.
+Inspection is sufficient when the applicable instruction chain and affected
+owners support the routing decision. A local correction does not require
+inventorying unrelated subtrees.
 
 ## Route Each Meaning
 
@@ -48,6 +49,9 @@ behavior without depending on mutable issue wording.
 - Move frequently changing state out of always-loaded instructions.
 - Prefer a code boundary, type, test, script, or owner-local documentation fix
   when it removes the need for an instruction.
+- Distinguish invariants from preferences and approval gates. Keep required
+  stops tied to unresolved risk or missing authority, and let already-authorized
+  work continue through its requested validation and completion.
 
 ## New Instruction File Gate
 
