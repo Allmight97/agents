@@ -152,3 +152,8 @@ Lead each turn with the current state: no roadmap needed, draft ready, frontier
 item resolved, or route clear. Show the recommendation, evidence that determines
 the scale, durable links when they exist, and the next action. Keep the user
 oriented without making them reconstruct the graph.
+
+When the roadmap is hard to absorb in prose, use
+[visual-brief](../visual-brief/SKILL.md) for a compact current/target and progress
+view. Keep the issue authoritative and identify the visual as a snapshot; this
+does not add another planning or execution surface.

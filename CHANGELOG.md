@@ -4,6 +4,21 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.20.0] - 2026-09-10
+
+### Added
+
+- Added `visual-brief` for concise HTML explanations, onboarding, comparisons,
+  plans and progress reports, with current/target views, expandable evidence
+  and a responsive light/dark starter. It can activate for substantial
+  technical or nontechnical communication while leaving simple answers in chat.
+
+### Changed
+
+- Routed architecture reports, dense roadmaps and mixed human-agent documents
+  to the shared visual presentation workflow, retaining their existing
+  evidence and planning owners.
+
 ## [0.19.0] - 2026-09-05
 
 ### Changed

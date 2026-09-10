@@ -10,6 +10,10 @@ what to do, in what order, and how to know the work is complete. Mixed
 human-agent documents must serve the human decision first without hiding the
 agent's execution contract.
 
+When a substantial mixed human-agent document needs a visual orientation, use
+[visual-brief](../visual-brief/SKILL.md) for the HTML presentation. Keep the
+execution contract and durable truth with their existing owner.
+
 ## First Move
 
 Before drafting or editing:

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Brief"
+  short_description: "Concise HTML explanations, plans, and progress"
+  default_prompt: "Use $visual-brief to turn this material into a concise visual explanation with expandable evidence."
