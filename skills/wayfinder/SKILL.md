@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Roadmap large or materially foggy work as one evolving GitHub parent issue, resolve its decision frontier, then hand settled execution structure to to-issues. Use for consequential multi-session work whose destination or route is unclear and for explicit Wayfinder requests; exit to a single-PR plan or direct implementation when no durable map is needed.
+description: Develop or advance a GitHub roadmap for work that spans sessions and has unresolved scope or design decisions.
 ---
 
 # Wayfinder

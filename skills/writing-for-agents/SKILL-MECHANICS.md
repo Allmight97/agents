@@ -1,92 +1,52 @@
 # Skill Mechanics
 
-Read this branch when writing, auditing, or restructuring an Agent Skill or its
-client metadata. The shared writing rules remain in [SKILL.md](SKILL.md).
+Use for skill triggers, structure, client metadata, or behavioral validation.
+Shared writing guidance lives in [SKILL.md](SKILL.md).
 
-## Set The Contract
+## Discovery and portability
 
-Name the skill's job, target clients, invocation mode, and authorized surface.
-An audit alone remains read-only; requested updates change the skill and client
-metadata the user placed in scope. Audit wording does not cancel edit authority
-provided elsewhere in the same request.
+Identify the skill's job and actual target clients. Preserve existing
+invocation policy unless the user asks to change it. Keep automatic discovery
+for new skills by default; sensitivity of an action belongs in its permission
+boundary.
 
-For a shared portable skill:
+Descriptions should name the capability and the task that needs it. Put
+procedure in the body and add exclusions only when they prevent plausible
+misrouting. Check neighboring descriptions when their jobs overlap.
 
-- follow the [Agent Skills specification](https://agentskills.io/specification);
-- make the directory and `name` agree;
-- make `description` state the job and distinct trigger branches;
-- add optional frontmatter and resource directories only when a real consumer
-  needs them;
-- keep client presentation and policy in the client's supported metadata.
+Keep shared files valid against the [Agent Skills specification](https://agentskills.io/specification):
+directory and name agree, and metadata is supported by its consumer. Codex
+invocation policy belongs in `agents/openai.yaml`; preserve unrelated settings.
+Verify client-specific behavior for the clients affected by the change.
+A body edit does not require proving every distribution channel again.
 
-Inspect metadata for the clients actually targeted. Preserve unrelated client
-settings rather than expanding a narrow edit into a distribution audit.
+## Structure
 
-## Invocation
+Keep purpose, essential constraints, and shared decisions in `SKILL.md`.
+Disclose substantial branch-specific procedures, examples, or scripts with
+clear loading conditions. A short single-purpose skill can remain one file.
+Split skills only when independent discovery or a real execution boundary
+helps the task.
 
-A model-invoked skill spends context through its visible description; an
-explicit-only skill spends human attention because the user must remember it.
-Keep automatic discovery by default and preserve existing invocation policy.
-Change to explicit-only only when the user requests it. Sensitive operations
-need their own authorization boundary; they do not imply an invocation-policy
-change.
+Retain non-obvious domain knowledge, working preferences, and fragile
+operational sequences. Remove generic coaching and repeated contracts.
+Consider every model and client the shared skill serves before removing a
+guardrail on the assumption that one model no longer needs it.
 
-In shared Codex-compatible `SKILL.md` files, do not invent unsupported
-frontmatter to control invocation. Use `agents/openai.yaml` for Codex policy and
-validate the equivalent mechanism in every other target client before relying
-on it.
+## Validation
 
-Descriptions are context pointers:
+Use `$skill-creator` when available for creation mechanics and its structural
+validator. Check changed references and affected client metadata. Structural
+validity establishes packaging, not useful model behavior.
 
-- state the capability and the task that needs it concisely;
-- keep identity and procedure in the body;
-- include exclusions only when they prevent demonstrated misrouting.
+When a routing or workflow change has consequential uncertainty, compare
+realistic tasks against the current and proposed guidance. Include a relevant
+task, a nearby task that should stay out, and any known regression. Test without
+the skill as well when its added value is the question. Compare task quality,
+unnecessary reads or questions, and whether the requested work finishes;
+word count alone cannot decide the result.
 
-Split a skill only when a distinct task needs independent discovery,
-another skill must reach it directly, or a real sequence boundary prevents
-premature completion. Otherwise keep branch-only mechanics behind a precise
-pointer in the owning skill.
-
-## Structure And Disclosure
-
-Classify each piece as an in-skill step, in-skill reference, disclosed
-reference, or external reference. Inline material every branch needs; disclose
-substantial branch-only material. A missing reference is first a pointer defect,
-not proof that everything belongs in `SKILL.md`.
-
-Inspect every line for:
-
-- **duplication**: the same meaning has more than one owner;
-- **sediment**: stale material survived because adding felt safer than deleting;
-- **sprawl**: live material obscures the active path and should be disclosed;
-- **cache**: prose copies truth the environment can reveal cheaply;
-- **no-op**: the instruction does not change behavior relative to the target
-  model;
-- **negation**: the forbidden behavior is primed instead of the positive target.
-
-Settle consequential uncertainty with a focused behavioral trial rather than
-adding speculative rules.
-
-## Audit Or Edit Loop
-
-1. Map obvious, ambiguous, and near-miss prompts from the description and every
-   client metadata surface.
-2. Inspect the first move, steps, reference, pointers, and completion criteria.
-3. Resolve conflicts against the surface that owns the behavior.
-4. In audit mode, report evidence and the smallest patch. In edit mode, apply
-   only the authorized patch and keep client metadata aligned.
-5. Validate portable structure and every target client's metadata.
-6. Forward-test realistic positive, ambiguous, near-miss, and regression prompts
-   when uncertainty could change the design.
-7. Inspect the final diff and distinguish structural validation from behavioral
-   evidence.
-
-The loop is complete when the trigger boundary, first move, output behavior,
-and validation claims are all supported by inspectable evidence.
-
-Use `$skill-creator` when available for creation mechanics and structural
-validation. For a complex or risky revision, consider an independent behavioral
-trial when delegation is available and authorized. Give the evaluator a
-realistic request and minimum raw artifacts without the intended answer or
-prior conclusions. Bound side effects and use temporary outputs. Report what
-was actually observed; structural validation alone does not prove behavior.
+Use independent trials only when delegation is authorized and the evidence
+earns the cost. Give the evaluator the request and minimum raw artifacts,
+without the preferred answer. Bound side effects and keep trial output outside
+the source tree. Report observed outcomes and remaining uncertainty.

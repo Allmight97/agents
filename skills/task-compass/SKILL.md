@@ -1,6 +1,6 @@
 ---
 name: task-compass
-description: "Clarify the primary outcome when a request mixes solving, learning, reusable systems, or competing goals. Use for ambiguous nontrivial work or help focusing; skip clear single-purpose tasks."
+description: Clarify the primary outcome when solving, learning, or building a reusable system compete within one request.
 ---
 
 # Task Compass

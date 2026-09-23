@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Find architecture refactor candidates when the user explicitly asks for deep-module opportunities, structural friction, or an architecture review. Scope the scan to the named area or recent change hotspots, recommend evidence-backed candidates, and explore a selected candidate when requested.
+description: Find refactor opportunities when the user explicitly requests an architecture review or a scan for structural friction.
 ---
 
 # Improve Codebase Architecture

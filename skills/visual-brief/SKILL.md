@@ -1,6 +1,6 @@
 ---
 name: visual-brief
-description: Create concise HTML entry points for substantial explanations, onboarding, comparisons, plans, and progress updates. Use proactively when relationships, changing state, decisions, or dense findings are hard to follow in prose, or when the user asks for a visual map or HTML report. Keep simple answers in chat and preserve explicitly requested deliverable formats.
+description: Create an HTML explanation when a diagram, comparison, or expandable evidence makes substantial material easier to understand.
 ---
 
 # Visual Brief

@@ -3,6 +3,9 @@
 This skill is informed by and adapts concepts from `writing-for-agents` in
 [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76/skills/productivity/writing-for-agents).
 
+The guidance on repairing existing automated checks is also informed by
+[`retro`](https://github.com/mattpocock/skills/blob/0243b6e/skills/in-progress/retro/SKILL.md).
+
 ## MIT License
 
 Copyright (c) 2026 Matt Pocock
