@@ -4,6 +4,17 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.21.0] - 2026-09-23
+
+### Changed
+
+- Simplified `writing-for-agents` and its conditional references while retaining
+  scope, ownership, completion evidence, and client invocation boundaries.
+- Tightened discovery descriptions for `task-compass`, `wayfinder`,
+  `visual-brief`, and `improve-codebase-architecture`.
+- Added guidance to repair disconnected or silently failing automated checks
+  before introducing more instructions or enforcement.
+
 ## [0.20.0] - 2026-09-10
 
 ### Added
