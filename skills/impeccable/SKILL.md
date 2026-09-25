@@ -38,7 +38,7 @@ For design work:
 
 Make the interface coherent with the product, audience, and existing design system. Prefer working implementation over mockup prose. Verify the result with the browser when layout, interaction, responsiveness, animation, or visual polish is part of the task.
 
-Use the smallest intervention that fixes the user-visible problem: copy, spacing, hierarchy, color, state handling, or interaction before broader redesign. When the change is a critique rather than an edit, lead with ranked findings and concrete next actions.
+For a bounded fix, use the smallest intervention that resolves the user-visible problem: copy, spacing, hierarchy, color, state handling, or interaction before broader redesign. For build, redesign, or exploration commands, the requested scope sets the size of the change. When the change is a critique rather than an edit, lead with ranked findings and concrete next actions.
 
 Detailed visual quality checks live in `reference/quality-gates.md`; load it when
 judging layout, styling, interaction, or motion.

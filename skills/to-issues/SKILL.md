@@ -61,7 +61,7 @@ proceed within that authority. A draft-only request ends with the breakdown.
 
 ### 5. Publish the issues to the issue tracker
 
-For each authorized slice, reuse a matching existing child or publish a new issue. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+For each authorized slice, reuse a matching existing child or publish a new issue. Use the issue body template below. These issues are considered ready for AFK agents; apply the repository's documented triage label when one exists, otherwise add none.
 
 Publish issues in dependency order (blockers first) so you can reference real
 issue identifiers in the native blocked-by relationship or fallback body field.

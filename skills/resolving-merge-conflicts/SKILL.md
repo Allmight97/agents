@@ -1,6 +1,6 @@
 ---
 name: resolving-merge-conflicts
-description: Resolve an in-progress git merge or rebase conflict. Use when Codex sees conflict markers, unmerged paths, rebase/merge state, or the user asks to finish a conflicted merge/rebase while preserving both sides' intent and project checks.
+description: Resolve an in-progress git merge or rebase conflict. Use when the agent sees conflict markers, unmerged paths, rebase/merge state, or the user asks to finish a conflicted merge/rebase while preserving both sides' intent and project checks.
 ---
 
 # Resolving Merge Conflicts

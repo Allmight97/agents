@@ -14,7 +14,7 @@ Consult current Apple Developer documentation when API syntax or platform availa
 ## Workflow
 
 1. Start with actions, not screens.
-   - Identify the 1-3 highest-value actions for Shortcuts, Siri, Spotlight, widgets, controls, or watch surfaces.
+   - Identify the highest-value actions for Shortcuts, Siri, Spotlight, widgets, controls, or watch surfaces.
    - Prefer verbs such as open, start, log, find, filter, compose, continue, inspect, or summarize.
    - Do not mirror the app's whole navigation tree.
 

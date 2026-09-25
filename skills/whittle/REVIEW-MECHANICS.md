@@ -24,7 +24,8 @@ Report only a cut whose replacement and preserved behavior are supportable:
 Use the tag that identifies the mechanism:
 
 - `delete`: behavior or flexibility with no present requirement;
-- `reuse`: codebase functionality with an existing owner;
+- `reuse`: functionality with an existing owner in the codebase or an already-owned
+  dependency;
 - `stdlib`: bespoke code replaced by a named standard-library capability;
 - `native`: code or dependency replaced by a platform capability;
 - `collapse`: an abstraction or configuration surface that has no independent

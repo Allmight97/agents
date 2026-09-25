@@ -17,7 +17,7 @@ Use this skill when the task is UI structure, view refactoring, platform fit, or
    - watchOS glanceable flow, widget/control handoff, or companion-app surface
    - cross-platform SwiftUI view, state owner, model adapter, or preview
 
-2. Preserve local architecture.
+2. Place state and logic with their owners.
    - Keep business logic outside view bodies.
    - Use Observation and explicit state ownership where it reduces invalidation and unclear data flow.
    - Add a seam for present variation, proof, lifecycle ownership, or platform isolation; adapter count alone does not justify it.
@@ -32,7 +32,7 @@ Use this skill when the task is UI structure, view refactoring, platform fit, or
 
 4. Refactor views deliberately.
    - Split large views around state ownership, repeated subcomponents, platform variants, or testable interactions.
-   - Keep file movement small unless the current structure blocks understanding or proof.
+   - Move files when ownership changes, not for tidiness alone.
    - Update previews when they are useful for the edited surface.
 
 5. Prove behavior.

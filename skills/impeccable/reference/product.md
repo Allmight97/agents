@@ -41,7 +41,7 @@ Every interactive component has: default, hover, focus, active, disabled, loadin
 - Motion conveys state, not decoration. State change, feedback, loading, reveal: nothing else.
 - No orchestrated page-load sequences. Product loads into a task; users don't want to watch it load.
 
-## Product bans (on top of the shared absolute bans)
+## Product bans (on top of the Refuse And Rewrite list in [quality-gates.md](quality-gates.md))
 
 - Decorative motion that doesn't convey state.
 - Inconsistent component vocabulary across screens. If the "save" button looks different in two places, one is wrong.

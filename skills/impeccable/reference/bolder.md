@@ -28,11 +28,11 @@ Analyze what makes the design feel too safe or boring:
    - Who's the audience? (What will resonate?)
    - What are the constraints? (Brand guidelines, accessibility, performance)
 
-If any of these are unclear from the codebase, STOP and use Codex's structured user-input/question tool when available; if unavailable, ask directly in chat to clarify what you cannot infer.
+Infer these from the product, code, and brief. Ask only when an unresolved answer would change the direction, using the host's structured question tool when available; otherwise state the assumption and proceed.
 
 **CRITICAL**: "Bolder" doesn't mean chaotic or garish. It means distinctive, memorable, and confident. Think intentional drama, not random chaos.
 
-**WARNING - AI SLOP TRAP**: Review ALL the DON'T guidelines from the parent impeccable skill (already loaded in this context) before proceeding. Bold means distinctive, not "more effects."
+**WARNING - AI SLOP TRAP**: Review the Refuse And Rewrite list in [quality-gates.md](quality-gates.md) before proceeding; load it if it is not already in context. Bold means distinctive, not "more effects."
 
 ## Plan Amplification
 
@@ -50,7 +50,7 @@ Create a strategy to increase impact while maintaining coherence:
 Systematically increase impact across these dimensions:
 
 ### Typography Amplification
-- **Replace generic fonts**: Swap system fonts for distinctive choices (see the parent skill's typography guidelines and the [Reference Material section of typeset.md](typeset.md#reference-material) for inspiration)
+- **Replace generic fonts**: Swap system fonts for distinctive choices (see the Typography section of [quality-gates.md](quality-gates.md) and the [Reference Material section of typeset.md](typeset.md#reference-material) for inspiration)
 - **Extreme scale**: Create dramatic size jumps (3x-5x differences, not 1.5x)
 - **Weight contrast**: Pair 900 weights with 200 weights, not 600 with 400
 - **Unexpected choices**: Variable fonts, display fonts for headlines, condensed/extended widths, monospace as intentional accent (not as lazy "dev tool" default)

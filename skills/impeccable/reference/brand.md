@@ -87,7 +87,7 @@ Brand surfaces lean on imagery. A restaurant, hotel, magazine, or product landin
 
 - One well-orchestrated page-load beats scattered micro-interactions, when the brand invites it. Some brands skip entrance motion entirely; the restraint is the voice.
 
-## Brand bans (on top of the shared absolute bans)
+## Brand bans (on top of the Refuse And Rewrite list in [quality-gates.md](quality-gates.md))
 
 - Monospace as lazy shorthand for "technical / developer." If the brand isn't technical, mono reads as costume.
 - Large rounded-corner icons above every heading. Screams template.

@@ -30,7 +30,7 @@ Analyze the current state and identify opportunities:
    - **Wayfinding**: Helping users navigate and understand structure
    - **Delight**: Moments of visual interest and personality
 
-If any of these are unclear from the codebase, STOP and use Codex's structured user-input/question tool when available; if unavailable, ask directly in chat to clarify what you cannot infer.
+Infer these from the product, code, and brief. Ask only when an unresolved answer would change the direction, using the host's structured question tool when available; otherwise state the assumption and proceed.
 
 **CRITICAL**: More color ≠ better. Strategic color beats rainbow vomit every time. Every color should have a purpose.
 
@@ -81,13 +81,13 @@ Add color systematically across these dimensions:
 - **Comparison**: Color coding for different datasets or timeframes
 
 ### Borders & Accents
-- **Hairline borders**: 1px colored borders on full perimeter (not side-stripes; see the absolute ban on `border-left/right > 1px`)
+- **Hairline borders**: 1px colored borders on full perimeter (not side-stripes; see the side-stripe ban in [quality-gates.md](quality-gates.md))
 - **Underlines**: Color underlines for emphasis or active states
 - **Dividers**: Subtle colored dividers instead of gray lines
 - **Focus rings**: Colored focus indicators matching brand
 - **Surface tints**: A 4-8% background wash of the accent color instead of a stripe
 
-**NEVER**: `border-left` or `border-right` greater than 1px as a colored accent stripe. This is one of the three absolute bans in the parent skill. If you want to mark a card as "active" or "warning", use a full hairline border, a background tint, a leading glyph, or a numbered prefix. Not a side stripe.
+**NEVER**: `border-left` or `border-right` greater than 1px as a colored accent stripe. It is on the Refuse And Rewrite list in [quality-gates.md](quality-gates.md). If you want to mark a card as "active" or "warning", use a full hairline border, a background tint, a leading glyph, or a numbered prefix. Not a side stripe.
 
 ### Typography Color
 - **Colored headings**: Use brand colors for section headings (maintain contrast)
