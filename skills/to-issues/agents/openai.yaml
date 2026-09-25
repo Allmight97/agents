@@ -1,7 +1,7 @@
 interface:
   display_name: "To Issues"
   short_description: "Split approved plans into issues"
-  default_prompt: "Use $to-issues to turn this approved plan into vertical-slice GitHub issues."
+  default_prompt: "Use $to-issues to turn this approved plan into GitHub issues, one per coherent vertical pull request."
 
 policy:
   allow_implicit_invocation: true

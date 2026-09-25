@@ -4,6 +4,30 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.23.0] - 2026-09-25
+
+### Changed
+
+- Wayfinder now separates slices (units of investigation and review) from pull
+  requests (units of delivery). Slices are vertical by capability; the default
+  execution shape is the fewest coherent vertical PRs, merging every slice that
+  changes the same owner in any layer. PRs split only for a contract that must
+  merge first, a separately gated proof lane, or a diff too large to review
+  coherently; different owners, languages, test commands, proof types, or App
+  checks are not reasons. Roadmaps record why each PR's slices ship together
+  and why it is separate from the next, and track each PR with one coordinating
+  issue rather than one issue per slice. Each PR's scope is reviewed against the
+  current default branch when it starts.
+- Each slice records an App check. A PR with any App-check slice opens as a
+  draft until a maintainer has tried it in the running app; otherwise it opens
+  ready for the automated PR reviewer.
+- Wayfinder asks for an independent check from a different reviewer model after
+  a roadmap is drafted or findings are adjudicated, and verifies its claims
+  before adopting them.
+- `to-issues` creates one coordinating issue per delivery PR, records its
+  grouping and split reasons and App check, and fills coordinating-issue links
+  into an approved roadmap PR table without otherwise changing the parent.
+
 ## [0.22.1] - 2026-09-25
 
 ### Fixed

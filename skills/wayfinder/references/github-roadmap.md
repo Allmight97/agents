@@ -23,9 +23,17 @@ Discovering
 
 <Link durable resolutions; add a brief outcome when the title does not convey it.>
 
+## Pull request groups
+
+<Empty until the grouping is approved. One row per delivery PR: its slices,
+coordinating issue and any slice-scope issues, why its slices ship together,
+and the technical reason it is separate from the next PR.>
+
 ## Execution slices
 
-<Empty until the route is clear and an execution breakdown is approved.>
+<Vertical capability slices, each naming the owners it changes in every layer,
+runtime boundary, resulting UI or artifact, proof, and App check (yes/no). For
+a whole-surface destination, add the shared-responsibility assignments.>
 
 ## Out of scope
 

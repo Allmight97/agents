@@ -19,9 +19,12 @@ evidence and decision structure determine how large it is.
   it thin until active; a possible future destination does not require an issue
   yet.
 - Wayfinder owns the discovery phase: destination, decision frontier, settled
-  decisions, and the evidence needed to choose an execution shape.
+  decisions, and the execution shape.
 - `grill-me` owns sharp questioning for user decisions. `to-issues` owns
-  implementation child issues after the route is clear.
+  the coordinating issue for each delivery PR after the route is clear.
+- After drafting a roadmap or adjudicating findings, get an independent
+  holistic check from a different reviewer model when the host can delegate, or
+  name the missing check. Verify its claims in the repository before adopting.
 - Keep GitHub native: parent/sub-issue and blocked-by/blocking relationships.
   Add no setup skill, tracker abstraction, project board, milestone, label set,
   or local mirror unless a demonstrated need earns it.
@@ -48,9 +51,9 @@ keeps the work in the conversation until the user requests durable capture.
    owning instructions, current implementation, relevant issues, accepted
    decisions, and proof surfaces. Resolve discoverable facts without asking the
    user to estimate technical complexity.
-   When the target repository or product is not unambiguously supplied or
-   discoverable from the active workspace, classify from the supplied facts
-   only and ask for the source path before asserting implementation state.
+   If the target repository is neither supplied nor discoverable, classify
+   from the supplied facts and ask for its path before asserting
+   implementation state.
    Treat mixed-abstraction input as normal. Separate user outcomes, product or
    UX choices, technical proposals, and uncertainty into user decisions,
    discoverable facts, research or prototype questions, and possible
@@ -67,8 +70,9 @@ keeps the work in the conversation until the user requests durable capture.
    question. Skip questioning when the evidence already makes the shape clear.
 4. Recommend one route:
    - **Small and clear:** direct implementation; coherent commits only if useful.
-   - **One PR and mostly clear:** one issue or PR plan with work slices and
-     coherent commit blocks; no child issues merely to represent commits.
+   - **One coherent PR and mostly clear:** one issue or PR plan with work
+     slices and commit blocks, however large; no child issues merely to
+     represent slices or commits.
    - **Large or materially foggy:** one parent roadmap issue and the Wayfinder
      process below.
 
@@ -122,23 +126,59 @@ When the user provides a roadmap URL or number:
 Expect live tracker state to change between sessions. Re-read relationships
 before editing and preserve concurrent work.
 
+## Shape Execution
+
+Slices organize investigation and review; pull requests organize delivery, so
+one slice is not one PR.
+
+Draw each slice vertically: one user-facing capability from intent through its
+backend owner and runtime boundary to the resulting UI or artifact. A
+backend-only slice stays vertical when it names the route whose contract stays
+stable. Shared helpers and contracts ride with the capability that uses them.
+For a whole-surface destination such as an audit, reconcile coverage so each
+owned responsibility belongs to exactly one capability, with no residual
+horizontal cleanup bucket. Mark each slice's App check: whether a maintainer
+must try it in the running app. A PR with any such slice opens as a draft until
+that trial passes; otherwise it opens ready for the automated PR reviewer.
+
+Group slices into the fewest coherent vertical PRs. First merge every slice
+that changes the same owner, frontend or backend, so no owner is reopened
+across PRs; each contract change ships with all its consumers. Keep neighboring
+PRs apart, or cut horizontally, only for a named technical reason: a contract
+that must merge before its dependents build on it, a proof lane that must be
+gated separately (such as a migration that completes before dependent code
+deploys), or a combined diff too large to review coherently. Judge size from
+the expected change, not the number of capabilities, and cut a size split where
+the fewest owners are shared. Different owners, languages, test commands, proof
+types, or App checks are not reasons. Record for each PR why its slices ship
+together and why it is separate from the next. Large coherent PRs are expected:
+several capabilities on one owner form one PR, reviewed through its commits,
+even when each could be demoed alone. Per-slice PRs for a solo maintainer are
+ceremony without payoff.
+
+One coordinating issue tracks each delivery PR. Slice-scope issues may hold
+bounded audit records under the parent; they do not each become a PR. Merge
+order follows concrete contract dependencies. Review each PR's slices in detail
+when it starts, against the current default branch, and record the adopted
+scope in its coordinating issue.
+
 ## Hand Off When The Route Is Clear
 
 The route is clear when:
 
 - the destination is concrete and accepted;
 - no action-changing decision remains unresolved;
-- remaining implementation uncertainty has a named proof path inside a work
-  slice; and
-- the execution shape is known.
+- remaining implementation uncertainty has a named proof path inside a slice;
+  and
+- the delivery PRs and their merge dependencies are known.
 
-Update `Current phase` to `Ready to slice`, then recommend one handoff:
+Update `Current phase` to `Route clear`, then recommend one handoff:
 
-- **Multiple PRs:** use `to-issues` on the same parent. Add one implementation
-  child per independently verifiable PR slice within the accepted breakdown
-  or the user's delegated slicing authority.
-- **One PR:** keep one issue or PR plan with work slices and coherent commit
-  blocks. Add no execution children unless independence or blocking earns them.
+- **Multiple PRs:** use `to-issues` on the same parent for one coordinating
+  issue per delivery PR, within the accepted grouping or the user's delegated
+  authority. Link each from the parent's group table.
+- **One PR:** keep one issue or PR plan with its slices and coherent commit
+  blocks. Add no execution children.
 - **Direct implementation:** proceed only when that action has been explicitly
   requested with adequate scope.
 
@@ -155,5 +195,4 @@ oriented without making them reconstruct the graph.
 
 When the roadmap is hard to absorb in prose, use
 [visual-brief](../visual-brief/SKILL.md) for a compact current/target and progress
-view. Keep the issue authoritative and identify the visual as a snapshot; this
-does not add another planning or execution surface.
+view. Keep the issue authoritative and label the visual a snapshot.
