@@ -4,6 +4,30 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.22.0] - 2026-09-25
+
+### Removed
+
+- Removed `orchestrate`. Hosts now own subagent delegation directly; design
+  comparison uses available subagents only when delegation is authorized.
+
+### Changed
+
+- Pointed Impeccable command references at the Refuse And Rewrite list in
+  `quality-gates.md` instead of absent parent-skill bans, and replaced
+  stop-and-ask gates with inference plus a question only when the answer would
+  change the direction. Question prompts no longer name a specific host tool.
+- Limited Impeccable's smallest-intervention preference to bounded fixes; build,
+  redesign, and exploration commands follow the requested scope.
+- Included an existing design as one candidate, judged by the same criteria,
+  when `codebase-design` compares interface alternatives.
+- Made `to-issues` apply a triage label only when the repository documents one.
+- Made Whittle's `reuse` tag cover already-owned dependencies.
+- Made the `resolving-merge-conflicts` description host-neutral.
+- Updated `build-apple-apps` to **0.2.2**: App Intents no longer suggests a fixed
+  action count, and SwiftUI guidance places state and logic with their owners
+  instead of preserving existing file layout.
+
 ## [0.21.0] - 2026-09-23
 
 ### Changed
