@@ -25,8 +25,8 @@ create a repository-wide glossary or architecture document merely to name the
 issues.
 
 Identify prerequisite refactors only when they demonstrably reduce implementation
-risk or effort. Keep a prerequisite in its consuming issue unless it is a
-contract other issues must build on.
+risk or effort. Keep a prerequisite in its consuming issue unless one of the
+split reasons below requires a separate PR.
 
 ### 3. Group vertical slices into pull requests
 
@@ -47,7 +47,8 @@ user-facing handoff must include the integration that makes it work.
 For a genuinely wide mechanical refactor where a vertical slice would be
 artificial, use **expand → migrate → contract**: add the compatible path, move
 callers in bounded batches, then remove the old path. Keep the phases in one
-issue unless the diff would be too large to review coherently.
+issue unless a contract must merge first, a proof lane must be gated
+separately, or the combined diff is too large to review coherently.
 
 ### 4. Resolve the breakdown
 

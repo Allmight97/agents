@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.23.1] - 2026-09-25
+
+### Fixed
+
+- `to-issues` keeps a prerequisite refactor, and expand → migrate → contract
+  phases, in their consuming issue unless one of Wayfinder's three split reasons
+  applies, instead of splitting any contract other issues build on or allowing
+  only a size split.
+
 ## [0.23.0] - 2026-09-25
 
 ### Changed
