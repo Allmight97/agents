@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -21,6 +22,8 @@ REPOSITORY = "Allmight97/agents"
 PLUGIN_ID = "personal-skills@personal"
 CURSOR_LOG_TIMESTAMP = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})")
 CURSOR_SKILL_COUNT = re.compile(r'"skillCount":(\d+)')
+CLAUDE_SUPPORT = Path.home() / "Library" / "Application Support" / "Claude"
+CODEX_FALLBACKS = [Path("/Applications/ChatGPT.app/Contents/Resources/codex")]
 
 
 class HarnessError(RuntimeError):
@@ -88,8 +91,29 @@ def github_release(expected_version: str) -> str:
     return f"GitHub Release: published at {url}"
 
 
-def find_plugin(items: list[dict[str, Any]]) -> dict[str, Any]:
-    matches = [
+def resolve_executable(name: str, fallbacks: list[Path]) -> str | None:
+    found = shutil.which(name)
+    if found:
+        return found
+    for path in fallbacks:
+        if path.is_file() and os.access(path, os.X_OK):
+            return str(path)
+    return None
+
+
+def bundled_claude() -> list[Path]:
+    """Claude Desktop bundles a CLI per version; return newest first."""
+    return sorted(
+        (CLAUDE_SUPPORT / "claude-code").glob("*/claude.app/Contents/MacOS/claude"),
+        key=lambda path: tuple(
+            int(part) if part.isdigit() else 0 for part in path.parts[-5].split(".")
+        ),
+        reverse=True,
+    )
+
+
+def plugin_matches(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
         item
         for item in items
         if PLUGIN_ID
@@ -100,20 +124,25 @@ def find_plugin(items: list[dict[str, Any]]) -> dict[str, Any]:
             f"{item.get('name')}@{item.get('marketplace')}",
         }
     ]
+
+
+def find_plugin(items: list[dict[str, Any]]) -> dict[str, Any]:
+    matches = plugin_matches(items)
     if len(matches) != 1:
         raise HarnessError(f"expected one installed {PLUGIN_ID}, found {len(matches)}")
     return matches[0]
 
 
 def codex(expected_version: str, refresh: bool) -> str:
-    if shutil.which("codex") is None:
+    exe = resolve_executable("codex", CODEX_FALLBACKS)
+    if exe is None:
         return "Codex: unavailable (codex executable not found)"
     if refresh:
-        run("codex", "plugin", "marketplace", "upgrade", "personal", "--json")
-        run("codex", "plugin", "add", PLUGIN_ID, "--json")
+        run(exe, "plugin", "marketplace", "upgrade", "personal", "--json")
+        run(exe, "plugin", "add", PLUGIN_ID, "--json")
     payload = json.loads(
         run(
-            "codex",
+            exe,
             "plugin",
             "list",
             "--marketplace",
@@ -132,21 +161,50 @@ def codex(expected_version: str, refresh: bool) -> str:
     return f"Codex: current at {actual}"
 
 
-def claude(expected_version: str, refresh: bool) -> str:
-    if shutil.which("claude") is None:
-        return "Claude Code: unavailable (claude executable not found)"
+def claude_plugins(exe: str) -> list[dict[str, Any]]:
+    payload = json.loads(run(exe, "plugin", "list", "--json"))
+    return payload if isinstance(payload, list) else payload.get("installed", [])
+
+
+def claude_cli(expected_version: str, refresh: bool) -> str:
+    exe = resolve_executable("claude", bundled_claude())
+    if exe is None:
+        return "Claude Code CLI: unavailable (claude executable not found)"
+    if not plugin_matches(claude_plugins(exe)):
+        return (
+            f"Claude Code CLI: {PLUGIN_ID} not installed from a CLI marketplace; "
+            "Claude Desktop is checked separately"
+        )
     if refresh:
-        run("claude", "plugin", "marketplace", "update", "personal")
-        run("claude", "plugin", "update", PLUGIN_ID)
-    payload = json.loads(run("claude", "plugin", "list", "--json"))
-    items = payload if isinstance(payload, list) else payload.get("installed", [])
-    plugin = find_plugin(items)
-    actual = plugin.get("version")
+        run(exe, "plugin", "marketplace", "update", "personal")
+        run(exe, "plugin", "update", PLUGIN_ID)
+    actual = find_plugin(claude_plugins(exe)).get("version")
     if actual != expected_version:
         raise HarnessError(
-            f"Claude Code: expected {expected_version}, found {actual!r}"
+            f"Claude Code CLI: expected {expected_version}, found {actual!r}"
         )
-    return f"Claude Code: current at {actual}"
+    return f"Claude Code CLI: current at {actual}"
+
+
+def claude_desktop(expected_version: str) -> str:
+    """Claude Desktop syncs account plugins into session caches; no CLI refreshes them."""
+    sessions = CLAUDE_SUPPORT / "local-agent-mode-sessions"
+    manifests = [
+        path
+        for path in sessions.glob("*/*/rpm/*/.claude-plugin/plugin.json")
+        if release_metadata.load_json(path).get("name") == "personal-skills"
+    ]
+    if not manifests:
+        return "Claude Desktop: no account-synced personal-skills found"
+    latest = max(manifests, key=lambda path: path.stat().st_mtime)
+    actual = release_metadata.load_json(latest).get("version")
+    if actual != expected_version:
+        raise HarnessError(
+            f"Claude Desktop: account-synced personal-skills is {actual!r}, expected "
+            f"{expected_version}. Update Personal Skills in Claude Desktop's plugin "
+            "settings, start a new session, then rerun with --check-only"
+        )
+    return f"Claude Desktop: current at {actual}"
 
 
 def remote_main_commit() -> str:
@@ -291,7 +349,17 @@ def grok(expected_version: str, refresh: bool) -> str:
 
     if refresh:
         run("grok", "plugin", "marketplace", "update")
-        run("grok", "plugin", "install", "personal-skills", "--trust")
+        installed = [
+            item
+            for item in grok_installed_items(
+                json.loads(run("grok", "plugin", "list", "--json"))
+            )
+            if item.get("name") == "personal-skills"
+        ]
+        if installed:
+            run("grok", "plugin", "update", "personal-skills")
+        else:
+            run("grok", "plugin", "install", "personal-skills", "--trust")
         try:
             run("grok", "plugin", "enable", "personal-skills")
         except HarnessError as error:
@@ -398,7 +466,8 @@ def main() -> int:
     checks = (
         lambda: github_release(version),
         lambda: codex(codex_version, not args.check_only),
-        lambda: claude(version, not args.check_only),
+        lambda: claude_cli(version, not args.check_only),
+        lambda: claude_desktop(version),
         lambda: grok(version, not args.check_only),
         lambda: cursor(version, commit, not args.check_only),
     )

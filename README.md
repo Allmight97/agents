@@ -236,8 +236,11 @@ rules at the top of `CHANGELOG.md`:
    python3 scripts/refresh_harnesses.py
    ```
 
-   Codex, Claude Code, and Grok Build are refreshed automatically when their
-   CLIs are installed. Cursor's Git marketplace may require removal and reimport before
+   Codex, the Claude Code CLI, and Grok Build are refreshed automatically when
+   their CLIs are installed; the script also finds the CLIs bundled with the
+   ChatGPT and Claude Desktop apps. Claude Desktop syncs Personal Skills from the
+   claude.ai account: the script verifies that copy, but updating it happens in
+   the app's plugin settings. Cursor's Git marketplace may require removal and reimport before
    it exposes the new commit. Run `Developer: Reload Window` after reinstalling,
    then rerun this command; success requires exact cached release proof, not
    marketplace display metadata alone.
