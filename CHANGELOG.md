@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.22.1] - 2026-09-25
+
+### Fixed
+
+- `scripts/refresh_harnesses.py` now updates an already-installed Grok Build
+  plugin, finds the Codex and Claude CLIs bundled with their desktop apps, and
+  verifies Claude Desktop's account-synced Personal Skills copy separately from
+  the Claude Code CLI marketplace.
+
 ## [0.22.0] - 2026-09-25
 
 ### Removed
