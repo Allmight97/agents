@@ -4,6 +4,19 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.24.0] - 2026-09-27
+
+### Added
+
+- `pre-pr-gut-check` runs an end-of-implementation gut check on a branch diff
+  before its PR is opened, updated, or marked ready. It scales to the diff and
+  composes whittle review, codebase-design, the repository's test-value skill,
+  a writing-for-agents check of the docs and guidance network (including any
+  changed skill), and an optional low-effort code review. Each candidate gets
+  one fix, defer, or reject disposition; only fixes are applied, deferred items
+  go in the PR body, and the report states which passes ran. It records the
+  reviewed commit so a pre-PR reminder hook can tell the check is current.
+
 ## [0.23.1] - 2026-09-25
 
 ### Fixed

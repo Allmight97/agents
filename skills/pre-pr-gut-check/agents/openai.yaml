@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pre-PR Gut Check"
+  short_description: "Gut-check a branch diff before its PR is opened or marked ready"
+  default_prompt: "Use $pre-pr-gut-check on this branch before the PR is opened."
