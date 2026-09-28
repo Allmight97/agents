@@ -16,7 +16,7 @@ crosses those boundaries; a local correction needs no unrelated subtree census.
 | Local interface, command, or non-obvious trap | Applicable nested instructions |
 | Reusable task procedure | Skill |
 | Temporary work state | Active issue or requested spec |
-| Durable rationale that changes later decisions | Decision record or existing canon |
+| Durable rationale that changes later decisions | Beside the rule it justifies: owning instructions or the enforcing code |
 | Fact already owned by code or configuration | Reference that source |
 | Generic coaching, duplicate rule, or stale state | Delete |
 

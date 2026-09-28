@@ -16,9 +16,9 @@ Read every applicable guidance file along the selected path, including root,
 package, and nested module instructions, before loading optional architecture
 material. Load an architecture overview only when that guidance names a trigger
 matching the scan. Verify terminology against the owning interface and code
-instead of assuming a repository-wide glossary. Respect `docs/DECISIONS.md` or
-`docs/adr/` when present. Surface conflicts only when the friction warrants
-reopening them.
+instead of assuming a repository-wide glossary. Respect the rationale stated
+beside the rules you touch, in owner guidance or at the enforcing code. Surface
+conflicts only when the friction warrants reopening them.
 
 ## Process
 

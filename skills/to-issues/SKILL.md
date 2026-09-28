@@ -20,7 +20,7 @@ Work from whatever is already in the conversation context. If the user passes an
 
 If you have not already explored the codebase, do so to understand the current
 state of the code. Use terminology from the owning interface and nearest local
-guidance, and respect relevant recorded decisions in the touched area. Do not
+guidance, and respect the rationale that guidance records for the touched area. Do not
 create a repository-wide glossary or architecture document merely to name the
 issues.
 

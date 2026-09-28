@@ -35,7 +35,7 @@ require.
    orphaned.
 4. **Docs and guidance** with **writing-for-agents**: the repository's
    instruction network (`AGENTS.md`/`CLAUDE.md` chain, owner guidance, skills,
-   and documents such as decision logs and changelogs) against what the diff
+   and documents such as changelogs) against what the diff
    changed. Look for stale rules, pointers, or interface lists, and for a new
    invariant with no owner. Any skill the diff adds or changes gets its own
    writing-for-agents check. Doc fixes follow writing-for-agents.
