@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.24.1] - 2026-09-28
+
+### Changed
+
+- `improve-codebase-architecture`, `to-issues`, `pre-pr-gut-check`, and the
+  `writing-for-agents` placement table no longer point agents at a decision
+  ledger (`docs/DECISIONS.md` or ADR folders). Durable rationale belongs beside
+  the rule it justifies: in the owning instructions or at the enforcing code.
+
 ## [0.24.0] - 2026-09-27
 
 ### Added
