@@ -41,6 +41,13 @@ sources for facts they own. Keep shared instructions in the entrypoint and
 substantial conditional material behind a pointer that says when to load it.
 Create another file or skill only when separate discovery or use earns it.
 
+Enforce a mechanical rule instead of describing it. A rule is mechanical when
+a fixed pattern decides it: a banned import or API, a file location, a required
+comment or shape. Name the cheapest check the repository already runs (a
+linter rule, a type, a test, CI, or a repository rule), add it, prove it fails
+on a violation, and cut the prose to one line that names the check. Prose
+keeps judgement calls and the reason a check exists.
+
 Describe outcomes and decision criteria. Prescribe an order only when it
 prevents a concrete failure. Keep approval boundaries tied to the action and
 existing authority, and make completion include the requested implementation
