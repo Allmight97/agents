@@ -96,12 +96,14 @@ def biome_complexities(biome: list[str], root: Path, files: list[str], only: boo
     return found
 
 
-LIZARD = "lizard==1.24.0"
+# The newest lizard at least 10 days old; 1.24.1 is let in early because it
+# counts Rust match arms. Delete the package exception after 2026-10-16.
+UVX_LIZARD = ["uvx", "--exclude-newer", "10 days", "--exclude-newer-package", "lizard=2026-10-06", "lizard"]
 
 
 def find_lizard() -> list[str] | None:
     if shutil.which("uvx"):
-        return ["uvx", LIZARD]
+        return UVX_LIZARD
     return ["lizard"] if shutil.which("lizard") else None
 
 

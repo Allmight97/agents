@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.26.2] - 2026-10-05
+
+### Changed
+
+- `whittle`'s complexity ranker and `complexity-lens` 0.1.2 resolve lizard
+  through uv's 10-day cooldown (`--exclude-newer "10 days"`) instead of a
+  version pin. lizard 1.24.1 is let in early because it counts Rust `match`
+  arms, matching ABB's Rust complexity check.
+
 ## [0.26.1] - 2026-10-05
 
 ### Changed
