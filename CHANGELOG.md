@@ -4,7 +4,7 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
-## [Unreleased]
+## [0.25.0] - 2026-10-05
 
 ### Added
 
