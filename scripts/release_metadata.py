@@ -15,14 +15,17 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CHANGELOG = ROOT / "CHANGELOG.md"
-CLAUDE_MANIFEST = ROOT / ".claude-plugin" / "plugin.json"
+PERSONAL_SKILLS = ROOT / "plugins" / "personal-skills"
+PERSONAL_SKILLS_SOURCE_PATH = "./plugins/personal-skills"
+CLAUDE_MANIFEST = PERSONAL_SKILLS / ".claude-plugin" / "plugin.json"
 CLAUDE_MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
-CURSOR_MANIFEST = ROOT / ".cursor-plugin" / "plugin.json"
+CURSOR_MANIFEST = PERSONAL_SKILLS / ".cursor-plugin" / "plugin.json"
 CURSOR_MARKETPLACE = ROOT / ".cursor-plugin" / "marketplace.json"
-CODEX_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
-GROK_MANIFEST = ROOT / ".grok-plugin" / "plugin.json"
+CODEX_MANIFEST = PERSONAL_SKILLS / ".codex-plugin" / "plugin.json"
+CODEX_MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
+GROK_MANIFEST = PERSONAL_SKILLS / ".grok-plugin" / "plugin.json"
 GROK_MARKETPLACE = ROOT / ".grok-plugin" / "marketplace.json"
-WHITTLE_RANKER = ROOT / "skills" / "whittle" / "scripts" / "complexity_rank.py"
+WHITTLE_RANKER = PERSONAL_SKILLS / "skills" / "whittle" / "scripts" / "complexity_rank.py"
 COMPLEXITY_LENS_RANKER = ROOT / "plugins" / "complexity-lens" / "scripts" / "complexity_rank.py"
 CURSOR_MARKETPLACE_ENTRY_KEYS = {
     "name",
@@ -30,9 +33,11 @@ CURSOR_MARKETPLACE_ENTRY_KEYS = {
     "description",
     "minClientVersions",
 }
-GROK_PERSONAL_SKILLS_SOURCE = {
-    "source": "url",
-    "url": "https://github.com/Allmight97/agents.git",
+PERSONAL_SKILLS_SOURCES = {
+    CLAUDE_MARKETPLACE: PERSONAL_SKILLS_SOURCE_PATH,
+    CURSOR_MARKETPLACE: PERSONAL_SKILLS_SOURCE_PATH[2:],
+    CODEX_MARKETPLACE: {"source": "local", "path": PERSONAL_SKILLS_SOURCE_PATH},
+    GROK_MARKETPLACE: {"type": "local", "path": PERSONAL_SKILLS_SOURCE_PATH},
 }
 
 SEMVER_RE = re.compile(
@@ -82,7 +87,7 @@ def base_codex_version(version: str) -> str:
     marker = "+codex."
     if marker not in version:
         raise ReleaseMetadataError(
-            ".codex-plugin/plugin.json version must include +codex.<cachebuster>"
+            f"{CODEX_MANIFEST.relative_to(ROOT)} version must include +codex.<cachebuster>"
         )
     base, cachebuster = version.split(marker, 1)
     if not cachebuster:
@@ -98,43 +103,38 @@ def validate() -> str:
         )
 
     versions = {
-        ".claude-plugin/plugin.json": load_json(CLAUDE_MANIFEST).get("version"),
-        ".cursor-plugin/plugin.json": load_json(CURSOR_MANIFEST).get("version"),
-        ".grok-plugin/plugin.json": load_json(GROK_MANIFEST).get("version"),
-        ".codex-plugin/plugin.json": base_codex_version(
+        CLAUDE_MANIFEST: load_json(CLAUDE_MANIFEST).get("version"),
+        CURSOR_MANIFEST: load_json(CURSOR_MANIFEST).get("version"),
+        GROK_MANIFEST: load_json(GROK_MANIFEST).get("version"),
+        CODEX_MANIFEST: base_codex_version(
             str(load_json(CODEX_MANIFEST).get("version", ""))
         ),
     }
     mismatches = [
-        f"{path}: expected {expected}, found {actual}"
+        f"{path.relative_to(ROOT)}: expected {expected}, found {actual}"
         for path, actual in versions.items()
         if actual != expected
     ]
 
-    for path in (CLAUDE_MARKETPLACE, CURSOR_MARKETPLACE, GROK_MARKETPLACE):
+    for path, source in PERSONAL_SKILLS_SOURCES.items():
         entry = personal_skills_entry(path)
         if "version" in entry:
             mismatches.append(
                 f"{path.relative_to(ROOT)}: personal-skills must not duplicate manifest version"
             )
+        if entry.get("source") != source:
+            mismatches.append(
+                f"{path.relative_to(ROOT)}: personal-skills source must be "
+                f"{json.dumps(source)}"
+            )
 
-    cursor_entry = personal_skills_entry(CURSOR_MARKETPLACE)
-    if "source" not in cursor_entry:
-        mismatches.append(
-            ".cursor-plugin/marketplace.json: personal-skills source is required"
-        )
-    unsupported_cursor_keys = set(cursor_entry) - CURSOR_MARKETPLACE_ENTRY_KEYS
+    unsupported_cursor_keys = (
+        set(personal_skills_entry(CURSOR_MARKETPLACE)) - CURSOR_MARKETPLACE_ENTRY_KEYS
+    )
     if unsupported_cursor_keys:
         mismatches.append(
             ".cursor-plugin/marketplace.json: unsupported personal-skills keys "
             + ", ".join(sorted(unsupported_cursor_keys))
-        )
-
-    grok_entry = personal_skills_entry(GROK_MARKETPLACE)
-    if grok_entry.get("source") != GROK_PERSONAL_SKILLS_SOURCE:
-        mismatches.append(
-            ".grok-plugin/marketplace.json: personal-skills source must clone "
-            "https://github.com/Allmight97/agents.git"
         )
 
     if COMPLEXITY_LENS_RANKER.read_bytes() != WHITTLE_RANKER.read_bytes():
@@ -175,7 +175,7 @@ def synchronize(version: str, cachebuster: str | None) -> str:
     codex_manifest["version"] = f"{version}+codex.{token}"
     write_json(CODEX_MANIFEST, codex_manifest)
 
-    for path in (CLAUDE_MARKETPLACE, CURSOR_MARKETPLACE, GROK_MARKETPLACE):
+    for path, source in PERSONAL_SKILLS_SOURCES.items():
         marketplace = load_json(path)
         entry = next(
             item
@@ -183,6 +183,7 @@ def synchronize(version: str, cachebuster: str | None) -> str:
             if item.get("name") == "personal-skills"
         )
         entry.pop("version", None)
+        entry["source"] = source
         write_json(path, marketplace)
 
     shutil.copyfile(WHITTLE_RANKER, COMPLEXITY_LENS_RANKER)

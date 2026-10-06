@@ -8,8 +8,7 @@
     {
       "name": "personal-skills",
       "description": "Shared personal skills for Claude Desktop, Cowork, and Claude Code.",
-      "source": "./",
-      "skills": "./skills",
+      "source": "./plugins/personal-skills",
       "category": "productivity"
     },
     {

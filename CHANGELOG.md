@@ -4,6 +4,39 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.27.0] - 2026-10-05
+
+### Changed
+
+- The repository is now a flat marketplace. `personal-skills` moved from the
+  repo root into `plugins/personal-skills/` (its `skills/` tree and its
+  `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.grok-plugin`
+  manifests). The root holds only the four catalogs, docs, scripts, and CI.
+  claude.ai's marketplace sync had skipped `personal-skills` because the
+  root-as-plugin tree contained the mods' nested `.claude-plugin/plugin.json`
+  files. Every catalog now points at `plugins/personal-skills` as a local
+  source (Codex and Grok Build no longer clone the repository a second time);
+  `scripts/validate_marketplace_plugins.py` rejects a plugin manifest at the
+  repo root, a nested plugin manifest inside any plugin root, and one plugin
+  root inside another.
+- Cursor's catalog description moved under `metadata`, where Cursor's
+  marketplace schema allows it.
+- `scripts/release_metadata.py set` and `check` read the manifests from
+  `plugins/personal-skills/` and pin each catalog's `personal-skills` source.
+
+### Fixed
+
+- CI passes again. Since 0.26.0 the pinned Codex plugin validator rejected
+  `disable-model-invocation: true`, a key it predates and the Codex runtime
+  ignores (Codex installs and enables the plugin). New
+  `scripts/validate_codex_plugins.py` runs that validator on a copy of each
+  plugin with the key stripped.
+- `scripts/refresh_harnesses.py` finds the Codex CLI bundled in ChatGPT.app at
+  its real path (`Resources/codex-cli/bin/codex`), so Codex is refreshed
+  instead of reported unavailable. The Cursor local-clone branch is gone: a
+  repository clone is no longer a plugin root, and the GitHub user marketplace
+  is the installed owner.
+
 ## [0.26.2] - 2026-10-05
 
 ### Changed

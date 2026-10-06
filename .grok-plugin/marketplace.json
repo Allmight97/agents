@@ -10,8 +10,8 @@
       "description": "Shared personal skills for Grok Build.",
       "category": "productivity",
       "source": {
-        "source": "url",
-        "url": "https://github.com/Allmight97/agents.git"
+        "type": "local",
+        "path": "./plugins/personal-skills"
       }
     },
     {

@@ -1,23 +1,36 @@
 # Personal Agent Marketplace
 
-Canonical source for personal skills, Cursor/Claude/Codex/Grok Build marketplace
-metadata, and small shared agent configuration. A GitHub Release is the immutable publication
-record; `main` supplies marketplace refreshes. Agent harnesses consume published
-plugins rather than an authoring checkout.
+One marketplace repository for Claude Code, Claude Desktop, claude.ai, Codex,
+Cursor, and Grok Build. The root holds one catalog per harness; every plugin is
+a folder under `plugins/`; each catalog lists only the plugins its harness can
+use. A GitHub Release is the immutable publication record; `main` supplies
+marketplace refreshes. Agent harnesses consume published plugins rather than an
+authoring checkout.
 
 ## Tracked
 
-- `skills/`: personal reusable skills.
-- `.cursor-plugin/`: Cursor marketplace/plugin manifests for `personal-skills`.
-- `.claude-plugin/`: Claude marketplace/plugin manifests for `personal-skills`.
-- `.codex-plugin/`: Codex plugin manifest for `personal-skills`.
-- `.grok-plugin/`: Grok Build marketplace/plugin manifests. The catalog lists
-  `personal-skills` plus the nested plugins.
-- `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
-- `plugins/`: separately installable plugins and their owned runtimes. In addition to the Codex
-  plugins, `oura-mcp` is a hosted Streamable HTTP service for a private ChatGPT MCP connection.
-  `complexity-lens` and `cache-meter` are Claude-only Claude Code mods (see Claude Marketplace).
+- `.claude-plugin/marketplace.json`: Claude catalog (`personal-skills`,
+  `complexity-lens`, `cache-meter`).
+- `.agents/plugins/marketplace.json`: Codex catalog (`personal-skills`,
+  `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`).
+- `.cursor-plugin/marketplace.json`: Cursor catalog (`personal-skills`).
+- `.grok-plugin/marketplace.json`: Grok Build catalog (same four plugins as
+  Codex).
+- `plugins/personal-skills/`: the shared skill tree (`skills/`) with its
+  `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.grok-plugin`
+  manifests.
+- `plugins/complexity-lens/`, `plugins/cache-meter/`: Claude-only Claude Code
+  mods (see Claude Marketplace).
+- `plugins/build-apple-apps/`, `plugins/m365-tenant-ops/`,
+  `plugins/native-browser-bridge/`: Codex-native plugins, also listed for Grok.
+- `plugins/oura-mcp/`: a hosted Streamable HTTP service for a private ChatGPT
+  MCP connection; not in any catalog.
 - `mcp/README.md`: local MCP notes.
+
+No plugin folder contains another plugin's manifest, and the repo root carries
+no `plugin.json`: claude.ai's marketplace sync skips a plugin whose tree holds a
+nested `.claude-plugin/plugin.json`. `scripts/validate_marketplace_plugins.py`
+enforces both.
 
 ## Claude Marketplace
 
@@ -33,8 +46,8 @@ Plugin skills are namespaced, for example `/personal-skills:diagnose` and
 `/personal-skills:whittle`. Whittle lives in this shared skill tree, not as a
 separate plugin.
 
-The Claude catalog also lists two Claude Code mods as nested plugins,
-`complexity-lens` and `cache-meter`. They need function hooks (Claude Code
+The Claude catalog also lists two Claude Code mods, `complexity-lens` and
+`cache-meter`. They need function hooks (Claude Code
 2.1.259 or later with `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`):
 
 ```bash
@@ -45,8 +58,9 @@ claude plugin install cache-meter@personal
 They are Claude-only. Codex, Cursor, and Grok auto-discover a plugin's
 `hooks/hooks.json` and cannot parse a mod's, so keep these plugins out of every
 other catalog and manifest; `scripts/validate_marketplace_plugins.py` enforces
-that. `plugins/complexity-lens/scripts/complexity_rank.py` is a copy of the
-whittle script; `release_metadata.py set` refreshes it. Test a mod with
+that. `plugins/complexity-lens/scripts/complexity_rank.py` is a copy of
+`plugins/personal-skills/skills/whittle/scripts/complexity_rank.py`;
+`release_metadata.py set` refreshes it. Test a mod with
 `claude plugin test plugins/<name>`.
 
 To publish a new skill or revision, follow the repository release workflow
@@ -59,13 +73,16 @@ and `bin/`; GitHub installation uses the tracked repo contents only.
 ## Cursor Marketplace
 
 For distribution testing, this repository can be added as a private Cursor
-marketplace and `personal-skills` installed from it. Cursor reads the native
-`.cursor-plugin/marketplace.json` and `.cursor-plugin/plugin.json` manifests
-while sharing the same root `skills/` tree used by Claude and Codex.
+marketplace and `personal-skills` installed from it. Cursor reads the root
+`.cursor-plugin/marketplace.json` and the plugin's
+`plugins/personal-skills/.cursor-plugin/plugin.json`, sharing the same skill
+tree used by Claude and Codex. A Cursor catalog entry allows only `name`,
+`source`, `description`, and `minClientVersions`; one other key makes the import
+index zero plugins.
 
-Keep Cursor metadata in `.cursor-plugin/`. Cursor reads Claude's skill
-folders but not Claude plugin manifests or settings. The harness manifests are intentionally
-thin wrappers around one shared skill source.
+Cursor reads Claude's skill folders but not Claude plugin manifests or
+settings. The harness manifests are intentionally thin wrappers around one
+shared skill source.
 
 Cursor's personal Git marketplace can remain pinned to an earlier imported
 commit. On this Mac, the GitHub user marketplace is the installed owner; do not
@@ -121,7 +138,12 @@ temporary work directory and can be removed after publication.
 The Codex catalog intentionally lives at `.agents/plugins/marketplace.json`.
 That is the path Codex expects inside a Git marketplace checkout. Do not keep a
 second root-level `plugins/marketplace.json`; it causes this Mac to see duplicate
-`personal` marketplace roots.
+`personal` marketplace roots. Every entry is a local source
+(`./plugins/<name>`); Codex copies the folder out of its marketplace clone.
+
+Codex's CLI ships inside ChatGPT.app
+(`/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex`);
+`scripts/refresh_harnesses.py` finds it there when `codex` is not on `PATH`.
 
 Create a separate plugin only when it needs an independent install or enablement
 boundary, permission or authentication surface, runtime dependency, audience, or
@@ -183,10 +205,10 @@ source name, keep that qualifier or rename the `[[marketplace.sources]]` entry
 in `~/.grok/config.toml`.
 
 The Grok catalog exposes four plugins: `personal-skills`, `build-apple-apps`,
-`native-browser-bridge`, and `m365-tenant-ops`. Grok clones `personal-skills`
-from this GitHub repository (it does not treat the marketplace root as a local
-plugin path). Nested plugins are local folders in the catalog checkout. After
-install, enable a plugin if `grok plugin list` shows it disabled:
+`native-browser-bridge`, and `m365-tenant-ops`, each a local folder
+(`./plugins/<name>`) in the catalog checkout. Grok rejects the marketplace root
+itself as a plugin path, so the shared skills must live in their own folder.
+After install, enable a plugin if `grok plugin list` shows it disabled:
 
 ```bash
 grok plugin enable personal-skills
@@ -194,7 +216,7 @@ grok plugin enable personal-skills
 
 Plugin skills appear as `/diagnose` or, on a name collision,
 `/personal-skills:diagnose`. Prove the install with `grok plugin details
-personal-skills` and `grok inspect`. Do not copy `skills/` into
+personal-skills` and `grok inspect`. Do not copy the skill tree into
 `~/.grok/skills` or `~/.agents/skills`; those user-scope roots duplicate the
 plugin.
 
@@ -220,25 +242,33 @@ rules at the top of `CHANGELOG.md`:
 1. Make the bounded skill, plugin, or repository changes.
 2. Move the net released changes from `[Unreleased]` into a dated version
    section; omit intermediate churn and unchanged surfaces.
-3. Synchronize every root `personal-skills` manifest from that changelog
-   version. The command also gives Codex a fresh cache-buster and ensures the
-   Claude, Cursor, and Grok marketplace entries remain version-free locators:
+3. Synchronize every `plugins/personal-skills` manifest from that changelog
+   version. The command also gives Codex a fresh cache-buster and ensures each
+   catalog's `personal-skills` entry is a version-free local source:
 
    ```bash
    python3 scripts/release_metadata.py set X.Y.Z
    ```
 
    The command also copies whittle's `complexity_rank.py` into
-   `plugins/complexity-lens/`. Give changed nested plugins their own component
+   `plugins/complexity-lens/`. Give changed mods and plugins their own component
    versions and name them in the same changelog section.
-4. Validate changed skills plus all four plugin manifests. CI runs
-   `scripts/validate_skills.py` on every root and nested `SKILL.md`: pinned
-   Agent Skills reference validator (`skills-ref` on `PATH`) plus explicit-only
-   parity. Check locally with:
+4. Validate changed skills, every plugin manifest, and the catalogs. CI runs
+   `scripts/validate_skills.py` on every `SKILL.md` (pinned Agent Skills
+   reference validator, `skills-ref` on `PATH`, plus explicit-only parity),
+   `scripts/validate_codex_plugins.py` with the pinned Codex validator (it
+   strips `disable-model-invocation`, which that validator predates and the
+   Codex runtime ignores), `scripts/validate_marketplace_plugins.py`, and
+   `scripts/release_metadata.py check`. Check locally with:
 
    ```bash
    python3 scripts/validate_skills.py
+   python3 scripts/validate_marketplace_plugins.py
    python3 scripts/release_metadata.py check
+   claude plugin validate .
+   for p in plugins/*/; do claude plugin validate "$p"; done
+   claude plugin test plugins/complexity-lens
+   claude plugin test plugins/cache-meter
    ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
    Then create the GitHub Release object; a pushed tag alone is not a formal

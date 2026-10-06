@@ -14,15 +14,13 @@ MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 GROK_MARKETPLACE = ROOT / ".grok-plugin" / "marketplace.json"
 CLAUDE_MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 CURSOR_MARKETPLACE = ROOT / ".cursor-plugin" / "marketplace.json"
-GROK_PERSONAL_SKILLS_SOURCE = {
-    "source": "url",
-    "url": "https://github.com/Allmight97/agents.git",
-}
 GROK_LOCAL_PLUGIN_PATHS = {
+    "personal-skills": "./plugins/personal-skills",
     "build-apple-apps": "./plugins/build-apple-apps",
     "m365-tenant-ops": "./plugins/m365-tenant-ops",
     "native-browser-bridge": "./plugins/native-browser-bridge",
 }
+MANIFEST_DIRS = (".claude-plugin", ".codex-plugin", ".cursor-plugin", ".grok-plugin")
 PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 MCP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json"
 XCODEBUILDMCP_ARGS = ["-y", "xcodebuildmcp@2.7.0", "mcp"]
@@ -58,9 +56,9 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def package_path(base: Path, value: Any, label: str) -> Path:
-    if not isinstance(value, str) or not value.startswith("./"):
-        raise ValidationError(f"{label}: expected a path beginning with './'")
-    path = (base / value[2:]).resolve()
+    if not isinstance(value, str) or not value:
+        raise ValidationError(f"{label}: expected a relative path")
+    path = (base / value).resolve()
     try:
         path.relative_to(base.resolve())
     except ValueError as error:
@@ -176,8 +174,6 @@ def validate_grok_marketplace() -> None:
         raise ValidationError("Grok marketplace plugins must be an array")
 
     seen: set[str] = set()
-    personal_skills_count = 0
-    expected_names = set(GROK_LOCAL_PLUGIN_PATHS) | {"personal-skills"}
     for entry in entries:
         if not isinstance(entry, dict):
             raise ValidationError("Grok marketplace plugin entry must be an object")
@@ -185,23 +181,8 @@ def validate_grok_marketplace() -> None:
         if not isinstance(name, str) or not name or name in seen:
             raise ValidationError(f"invalid or duplicate Grok plugin name: {name!r}")
         seen.add(name)
-        if name not in expected_names:
+        if name not in GROK_LOCAL_PLUGIN_PATHS:
             raise ValidationError(f"Grok marketplace has unexpected plugin: {name}")
-        if name == "personal-skills":
-            personal_skills_count += 1
-            if entry.get("source") != GROK_PERSONAL_SKILLS_SOURCE:
-                raise ValidationError(
-                    "Grok marketplace personal-skills must clone "
-                    "https://github.com/Allmight97/agents.git"
-                )
-            manifest = load_json(ROOT / ".grok-plugin" / "plugin.json")
-            if manifest.get("name") != "personal-skills":
-                raise ValidationError(
-                    "Grok personal-skills: .grok-plugin/plugin.json name differs"
-                )
-            if not (ROOT / "skills").is_dir():
-                raise ValidationError("Grok personal-skills: missing skills/")
-            continue
         path = grok_local_path(entry.get("source"), f"Grok marketplace {name}")
         expected = GROK_LOCAL_PLUGIN_PATHS[name]
         if path != expected:
@@ -211,12 +192,11 @@ def validate_grok_marketplace() -> None:
         plugin_dir = package_path(ROOT, path, f"Grok marketplace {name}")
         if not (plugin_dir / "skills").is_dir():
             raise ValidationError(f"Grok marketplace {name}: missing skills/")
+        grok_manifest = plugin_dir / ".grok-plugin" / "plugin.json"
+        if grok_manifest.is_file() and load_json(grok_manifest).get("name") != name:
+            raise ValidationError(f"Grok marketplace {name}: .grok-plugin/plugin.json name differs")
 
-    if personal_skills_count != 1:
-        raise ValidationError(
-            "Grok marketplace must contain exactly one personal-skills entry"
-        )
-    missing = expected_names - seen
+    missing = set(GROK_LOCAL_PLUGIN_PATHS) - seen
     if missing:
         raise ValidationError(
             "Grok marketplace is missing plugins: " + ", ".join(sorted(missing))
@@ -262,7 +242,60 @@ def validate_claude_only_plugins() -> None:
                 raise ValidationError(f"{name}: a Claude-only mod cannot carry {foreign}")
 
 
+def catalog_plugin_roots() -> dict[Path, str]:
+    """Every plugin root a catalog names by relative path, with its catalog and name."""
+    roots: dict[Path, str] = {}
+    for label, path in (
+        ("Codex", MARKETPLACE),
+        ("Claude", CLAUDE_MARKETPLACE),
+        ("Cursor", CURSOR_MARKETPLACE),
+        ("Grok", GROK_MARKETPLACE),
+    ):
+        for entry in load_json(path).get("plugins", []):
+            if not isinstance(entry, dict):
+                continue
+            source = entry.get("source")
+            if isinstance(source, dict):
+                is_local = "local" in (source.get("source"), source.get("type"))
+                source = source.get("path") if is_local else None
+            if not isinstance(source, str):
+                continue
+            name = entry.get("name")
+            plugin_dir = package_path(ROOT, source, f"{label} marketplace {name}")
+            if not plugin_dir.is_dir():
+                raise ValidationError(f"{label} marketplace {name}: {source} is not a directory")
+            roots.setdefault(plugin_dir, f"{label} marketplace {name}")
+    return roots
+
+
+def validate_plugin_roots_are_flat() -> None:
+    """The repo root is a marketplace, not a plugin, and no plugin root contains another manifest.
+
+    claude.ai's marketplace sync rejects a plugin whose tree holds a nested
+    .claude-plugin/plugin.json; the other harnesses would read a nested manifest
+    as part of the outer plugin.
+    """
+    for manifest_dir in MANIFEST_DIRS:
+        if (ROOT / manifest_dir / "plugin.json").exists():
+            raise ValidationError(
+                f"{manifest_dir}/plugin.json at the repo root makes the marketplace a plugin"
+            )
+    roots = catalog_plugin_roots()
+    for plugin_dir, label in roots.items():
+        for nested in plugin_dir.rglob("plugin.json"):
+            if nested.parent.name in MANIFEST_DIRS and nested.parent.parent != plugin_dir:
+                raise ValidationError(
+                    f"{label}: nested plugin manifest {nested.relative_to(ROOT)}"
+                )
+        for other in roots:
+            if other != plugin_dir and other.is_relative_to(plugin_dir):
+                raise ValidationError(
+                    f"{label}: contains another plugin root {other.relative_to(ROOT)}"
+                )
+
+
 def validate() -> None:
+    validate_plugin_roots_are_flat()
     entries = load_json(MARKETPLACE).get("plugins")
     if not isinstance(entries, list):
         raise ValidationError("marketplace plugins must be an array")

@@ -2,16 +2,24 @@
 
 ## Start Here
 
-- `skills/` is the canonical shared Agent Skills source. Keep `SKILL.md`
-  frontmatter valid against the [Agent Skills specification](https://agentskills.io/specification).
-- The repository is one personal-skills package for multiple clients. Use the
+- The repository root is a marketplace, never a plugin: it holds one catalog
+  per harness (`.claude-plugin/`, `.agents/plugins/`, `.cursor-plugin/`,
+  `.grok-plugin/`), docs, scripts, and CI. Every plugin is one folder under
+  `plugins/<name>/` with its own per-harness manifests, and no plugin folder
+  contains another plugin's manifest. claude.ai's marketplace sync rejects a
+  plugin whose tree holds a nested `.claude-plugin/plugin.json`;
+  `scripts/validate_marketplace_plugins.py` enforces the flat layout.
+- `plugins/personal-skills/skills/` is the canonical shared Agent Skills
+  source. Keep `SKILL.md` frontmatter valid against the
+  [Agent Skills specification](https://agentskills.io/specification).
+- `personal-skills` is one package for multiple clients. Use the
   [Agent Plugins specification](https://agent-plugins.org/) as the portable
   packaging floor; create a separate plugin only for an independent install,
   permission, runtime, MCP, hook, audience, or release boundary.
 - `README.md` owns installation, refresh, and release commands. `CHANGELOG.md`
   owns released behavior. Do not cache those procedures here.
-- When changing an Agent Skill or repository guidance, use
-  `skills/writing-for-agents`; its disclosed mechanics own skill structure,
+- When changing an Agent Skill or repository guidance, use the
+  `writing-for-agents` skill; its disclosed mechanics own skill structure,
   invocation metadata, instruction placement, and behavioral proof.
 
 ## Harness Compatibility
@@ -22,7 +30,7 @@ consumer separately.
 
 | Surface | Invocation and policy owner | Distribution and proof |
 | --- | --- | --- |
-| Codex | Explicit invocation uses `$skill`. Put Codex-only policy in `skills/<name>/agents/openai.yaml`; `policy.allow_implicit_invocation: false` makes a skill explicit-only. | Install from the Codex `personal` marketplace. Prove the installed version, enabled state, and explicit invocation after refresh. |
+| Codex | Explicit invocation uses `$skill`. Put Codex-only policy in the skill's `agents/openai.yaml`; `policy.allow_implicit_invocation: false` makes a skill explicit-only. | Install from the Codex `personal` marketplace. Prove the installed version, enabled state, and explicit invocation after refresh. |
 | Claude Code / Desktop | Plugin skills use namespaced `/plugin:skill` invocation. Claude honors `disable-model-invocation: true` in `SKILL.md` frontmatter: the description is not loaded and the skill runs only when the user calls it. The flag also blocks one skill invoking another. | Install from the Claude `personal` marketplace. Reload plugins or start a fresh session, then prove namespaced invocation. Cowork and cloud sessions do not inherit this Mac's user skill directories. |
 | Cursor local | Explicit invocation uses `/skill-name`. Cursor reads Claude's skill folders, so it honors the same `disable-model-invocation: true` flag. It does not read Claude settings or Claude plugin manifests. | Import this GitHub repository as a user marketplace, install Personal Skills, reload the window, and prove the exact cached release plus slash-palette availability. Never infer freshness from the marketplace card alone. |
 | Cursor Cloud | Runs in an isolated Linux environment with cloned repositories; local `~/.cursor` state and plugin caches are absent. | Prove a configured team/repository delivery path in a fresh Cloud run and retain a release-specific invocation result. Local Cursor proof does not transfer. |
@@ -47,10 +55,13 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
 - Do not split a skill into its own plugin merely because it gains references or
   ordinary helper scripts. Split when the component needs its own installation,
   authority, runtime, or lifecycle.
-- Claude-only mods (`plugins/complexity-lens`, `plugins/cache-meter`) list only
-  in `.claude-plugin/marketplace.json`: other clients auto-discover their
+- Each catalog lists only the plugins its harness can use. Claude-only mods
+  (`plugins/complexity-lens`, `plugins/cache-meter`) list only in
+  `.claude-plugin/marketplace.json`: other clients auto-discover their
   `hooks/hooks.json` and cannot parse it. Their validation is
-  `claude plugin validate` and `claude plugin test`.
+  `claude plugin validate` and `claude plugin test`. The Codex-native plugins
+  (`build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`) list in the
+  Codex and Grok catalogs.
 - A release is not complete until manifests, tag, GitHub Release, locally
   installed consumers, and applicable remote consumers are proven separately.
 

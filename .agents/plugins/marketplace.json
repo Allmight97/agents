@@ -7,9 +7,8 @@
     {
       "name": "personal-skills",
       "source": {
-        "source": "url",
-        "url": "https://github.com/Allmight97/agents.git",
-        "ref": "main"
+        "source": "local",
+        "path": "./plugins/personal-skills"
       },
       "policy": {
         "installation": "AVAILABLE",

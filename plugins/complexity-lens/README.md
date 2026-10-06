@@ -8,7 +8,8 @@ hotspot score.
 After an Edit or Write, the model also gets one extra context line when the file
 has a function over the limit. A toast appears when an edit adds one.
 
-`scripts/complexity_rank.py` is a copy of `skills/whittle/scripts/complexity_rank.py`.
+`scripts/complexity_rank.py` is a copy of
+`plugins/personal-skills/skills/whittle/scripts/complexity_rank.py`.
 `python3 scripts/release_metadata.py set` copies it and `check` fails when the
 two differ. Edit the whittle copy only.
 
