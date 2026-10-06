@@ -47,6 +47,10 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
 - Do not split a skill into its own plugin merely because it gains references or
   ordinary helper scripts. Split when the component needs its own installation,
   authority, runtime, or lifecycle.
+- Claude-only mods (`plugins/complexity-lens`, `plugins/cache-meter`) list only
+  in `.claude-plugin/marketplace.json`: other clients auto-discover their
+  `hooks/hooks.json` and cannot parse it. Their validation is
+  `claude plugin validate` and `claude plugin test`.
 - A release is not complete until manifests, tag, GitHub Release, locally
   installed consumers, and applicable remote consumers are proven separately.
 

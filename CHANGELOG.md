@@ -4,10 +4,25 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
-## [Unreleased]
+## [0.26.0] - 2026-10-05
 
 ### Added
 
+- Two Claude-only Claude Code mods ship as nested plugins, listed only in the
+  Claude catalog (Codex, Cursor, and Grok cannot parse their `hooks/hooks.json`;
+  `scripts/validate_marketplace_plugins.py` now rejects them elsewhere). Both
+  need function hooks (Claude Code 2.1.259 or later with
+  `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`).
+  - `complexity-lens` 0.1.0 shows the worst-scoring files Claude reads or edits
+    above the prompt and gives the model a context line after an edit that
+    leaves a function over the limit. It carries a copy of whittle's
+    `complexity_rank.py`; `scripts/release_metadata.py set` copies it and
+    `check` fails on drift.
+  - `cache-meter` 0.1.0, adapted from MIT-licensed `prompt-cache-control` in
+    `davila7/claude-code-templates` (`THIRD_PARTY_NOTICES.md`), shows prompt-cache
+    hit rate, tokens read, written, and sent uncached, and a countdown to expiry
+    as one compact line above the prompt. The line fits the band width and draws
+    below other band mods. `/cache` keeps the full table.
 - Explicit-only skills now work on Claude, Cursor, and Grok Build:
   `pre-pr-gut-check`, `security-threat-model`, `parallels-windows-ops`,
   `visual-brief`, `retro`, `handoff`, and `wait-what` carry
@@ -19,7 +34,8 @@ unchanged surfaces, or commit-by-commit narration.
   copy without them against the pinned `skills-ref`, and requires the Codex
   switch wherever the flag is set.
 - `whittle` ranks the files in scope with `scripts/complexity_rank.py`
-  (over-threshold functions times recent churn, with `scc` as fallback).
+  (over-threshold functions times recent churn, with `scc` as fallback). The
+  default Biome cognitive threshold is 20.
 
 ## [0.25.0] - 2026-10-05
 

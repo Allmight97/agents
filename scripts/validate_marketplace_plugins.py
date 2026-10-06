@@ -12,6 +12,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 GROK_MARKETPLACE = ROOT / ".grok-plugin" / "marketplace.json"
+CLAUDE_MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
+CURSOR_MARKETPLACE = ROOT / ".cursor-plugin" / "marketplace.json"
 GROK_PERSONAL_SKILLS_SOURCE = {
     "source": "url",
     "url": "https://github.com/Allmight97/agents.git",
@@ -221,6 +223,45 @@ def validate_grok_marketplace() -> None:
         )
 
 
+def catalog_names(path: Path) -> set[str]:
+    return {
+        entry.get("name")
+        for entry in load_json(path).get("plugins", [])
+        if isinstance(entry, dict)
+    }
+
+
+def validate_claude_only_plugins() -> None:
+    """Claude-only mods list in the Claude catalog and nowhere else.
+
+    A mod's hooks/hooks.json is auto-discovered by Codex, Cursor, and Grok, which
+    cannot parse it, so no other catalog or manifest may carry the plugin.
+    """
+    other_catalogs = {
+        "Codex": catalog_names(MARKETPLACE),
+        "Cursor": catalog_names(CURSOR_MARKETPLACE),
+        "Grok": catalog_names(GROK_MARKETPLACE),
+    }
+    for entry in load_json(CLAUDE_MARKETPLACE).get("plugins", []):
+        name = entry.get("name")
+        if name == "personal-skills":
+            continue
+        plugin_dir = package_path(ROOT, entry.get("source"), f"Claude marketplace {name}")
+        manifest = load_json(plugin_dir / ".claude-plugin" / "plugin.json")
+        if manifest.get("name") != name:
+            raise ValidationError(f"Claude marketplace {name}: manifest name differs")
+        if not (plugin_dir / "hooks" / "hooks.json").is_file():
+            continue
+        for client, names in other_catalogs.items():
+            if name in names:
+                raise ValidationError(
+                    f"{name}: a Claude-only mod cannot appear in the {client} catalog"
+                )
+        for foreign in (".codex-plugin", ".cursor-plugin", ".grok-plugin", "plugin.json"):
+            if (plugin_dir / foreign).exists():
+                raise ValidationError(f"{name}: a Claude-only mod cannot carry {foreign}")
+
+
 def validate() -> None:
     entries = load_json(MARKETPLACE).get("plugins")
     if not isinstance(entries, list):
@@ -245,6 +286,7 @@ def validate() -> None:
             validate_build_apple_apps(plugin_dir, native_manifest)
 
     validate_grok_marketplace()
+    validate_claude_only_plugins()
 
 
 def main() -> int:

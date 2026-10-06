@@ -16,6 +16,7 @@ plugins rather than an authoring checkout.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for repo subscribers.
 - `plugins/`: separately installable plugins and their owned runtimes. In addition to the Codex
   plugins, `oura-mcp` is a hosted Streamable HTTP service for a private ChatGPT MCP connection.
+  `complexity-lens` and `cache-meter` are Claude-only Claude Code mods (see Claude Marketplace).
 - `mcp/README.md`: local MCP notes.
 
 ## Claude Marketplace
@@ -31,6 +32,22 @@ claude plugin install personal-skills@personal
 Plugin skills are namespaced, for example `/personal-skills:diagnose` and
 `/personal-skills:whittle`. Whittle lives in this shared skill tree, not as a
 separate plugin.
+
+The Claude catalog also lists two Claude Code mods as nested plugins,
+`complexity-lens` and `cache-meter`. They need function hooks (Claude Code
+2.1.259 or later with `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`):
+
+```bash
+claude plugin install complexity-lens@personal
+claude plugin install cache-meter@personal
+```
+
+They are Claude-only. Codex, Cursor, and Grok auto-discover a plugin's
+`hooks/hooks.json` and cannot parse a mod's, so keep these plugins out of every
+other catalog and manifest; `scripts/validate_marketplace_plugins.py` enforces
+that. `plugins/complexity-lens/scripts/complexity_rank.py` is a copy of the
+whittle script; `release_metadata.py set` refreshes it. Test a mod with
+`claude plugin test plugins/<name>`.
 
 To publish a new skill or revision, follow the repository release workflow
 below, then update or reload the installed plugin.
@@ -211,8 +228,9 @@ rules at the top of `CHANGELOG.md`:
    python3 scripts/release_metadata.py set X.Y.Z
    ```
 
-   Give changed nested plugins their own component versions and name them in
-   the same changelog section.
+   The command also copies whittle's `complexity_rank.py` into
+   `plugins/complexity-lens/`. Give changed nested plugins their own component
+   versions and name them in the same changelog section.
 4. Validate changed skills plus all four plugin manifests. CI runs
    `scripts/validate_skills.py` on every root and nested `SKILL.md`: pinned
    Agent Skills reference validator (`skills-ref` on `PATH`) plus explicit-only

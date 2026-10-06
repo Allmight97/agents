@@ -1,0 +1,18 @@
+{
+  "name": "complexity-lens",
+  "version": "0.1.0",
+  "description": "Shows complexity, density and hotspot score for files Claude reads or edits.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "mod",
+    "function-hooks",
+    "complexity"
+  ],
+  "types": "./types/index.d.ts"
+}

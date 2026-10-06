@@ -11,6 +11,18 @@
       "source": "./",
       "skills": "./skills",
       "category": "productivity"
+    },
+    {
+      "name": "complexity-lens",
+      "description": "Claude Code mod: complexity, density and hotspot score above the prompt for files Claude reads or edits. Claude only; needs function hooks.",
+      "source": "./plugins/complexity-lens",
+      "category": "development"
+    },
+    {
+      "name": "cache-meter",
+      "description": "Claude Code mod: one-line prompt-cache meter above the prompt with a countdown to cache expiry. Claude only; needs function hooks.",
+      "source": "./plugins/cache-meter",
+      "category": "development"
     }
   ]
 }

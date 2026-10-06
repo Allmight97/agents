@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +22,8 @@ CURSOR_MARKETPLACE = ROOT / ".cursor-plugin" / "marketplace.json"
 CODEX_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 GROK_MANIFEST = ROOT / ".grok-plugin" / "plugin.json"
 GROK_MARKETPLACE = ROOT / ".grok-plugin" / "marketplace.json"
+WHITTLE_RANKER = ROOT / "skills" / "whittle" / "scripts" / "complexity_rank.py"
+COMPLEXITY_LENS_RANKER = ROOT / "plugins" / "complexity-lens" / "scripts" / "complexity_rank.py"
 CURSOR_MARKETPLACE_ENTRY_KEYS = {
     "name",
     "source",
@@ -134,6 +137,12 @@ def validate() -> str:
             "https://github.com/Allmight97/agents.git"
         )
 
+    if COMPLEXITY_LENS_RANKER.read_bytes() != WHITTLE_RANKER.read_bytes():
+        mismatches.append(
+            f"{COMPLEXITY_LENS_RANKER.relative_to(ROOT)} differs from "
+            f"{WHITTLE_RANKER.relative_to(ROOT)}; run release_metadata.py set"
+        )
+
     if mismatches:
         raise ReleaseMetadataError("release metadata drift:\n- " + "\n- ".join(mismatches))
 
@@ -176,6 +185,8 @@ def synchronize(version: str, cachebuster: str | None) -> str:
         entry.pop("version", None)
         write_json(path, marketplace)
 
+    shutil.copyfile(WHITTLE_RANKER, COMPLEXITY_LENS_RANKER)
+
     return validate()
 
 
@@ -186,7 +197,7 @@ def parser() -> argparse.ArgumentParser:
     subcommands = result.add_subparsers(dest="command", required=True)
     subcommands.add_parser("check", help="fail when release metadata has drifted")
     set_parser = subcommands.add_parser(
-        "set", help="set every manifest from the latest CHANGELOG release"
+        "set", help="set every manifest from the latest CHANGELOG release and copy the shared ranker"
     )
     set_parser.add_argument("version", help="release version, for example 0.10.0")
     set_parser.add_argument(
