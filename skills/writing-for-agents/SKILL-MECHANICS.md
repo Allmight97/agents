@@ -6,9 +6,11 @@ Shared writing guidance lives in [SKILL.md](SKILL.md).
 ## Discovery and portability
 
 Identify the skill's job and actual target clients. Preserve existing
-invocation policy unless the user asks to change it. Keep automatic discovery
-for new skills by default; sensitivity of an action belongs in its permission
-boundary.
+invocation policy unless the user asks to change it. Choose discovery for a new
+skill by context cost. A model-invoked skill puts its description in context on
+every turn; a user-invoked skill costs nothing until called. Make a skill
+model-invoked only when the model must pick it up without being asked.
+Sensitivity of an action belongs in its permission boundary.
 
 Descriptions should name the capability and the task that needs it. Put
 procedure in the body and add exclusions only when they prevent plausible

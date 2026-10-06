@@ -53,8 +53,16 @@ prevents a concrete failure. Keep approval boundaries tied to the action and
 existing authority, and make completion include the requested implementation
 and verification when both are in scope.
 
+Write a completion criterion the agent can check and that forces the needed
+legwork. "Every changed caller accounted for" beats "produce a change list".
+
+Count context cost. Every always-loaded line, such as an AGENTS.md line or a
+model-invoked skill description, costs context on every turn. A user-invoked
+skill costs nothing until called.
+
 Remove duplicate meanings, stale state, process narration, and generic advice
-already supplied by the environment. Prefer the intended behavior; retain a
+already supplied by the environment. Apply the no-op test: delete a sentence
+the model already obeys by default. Prefer the intended behavior; retain a
 prohibition when it protects a specific costly boundary. After a decision,
 rewrite around the new state rather than appending history.
 

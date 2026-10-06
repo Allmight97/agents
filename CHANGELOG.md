@@ -6,8 +6,33 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+### Added
+
+- `retro`, `handoff`, and `wait-what` are adapted from `mattpocock/skills` and
+  run only on explicit request (Codex `allow_implicit_invocation: false`).
+  `retro` points to `writing-for-agents`.
+- Skills adapted from `mattpocock/skills` record the upstream path and last
+  reviewed commit in `THIRD_PARTY_NOTICES.md`; the README gives the command to
+  see upstream changes since that commit.
+
 ### Changed
 
+- `writing-for-agents` counts context cost (always-loaded lines versus
+  user-invoked skills), asks for checkable completion criteria that force the
+  needed legwork, and adds the no-op test. New skills choose discovery by
+  context cost instead of defaulting to automatic discovery.
+- `codebase-design` says in its description that it is a reference vocabulary,
+  not a workflow.
+- `diagnose` redacts secrets and personal data from pasted output, lists bisect
+  and differential runs as feedback loops, tags temporary instrumentation with
+  one prefix that must grep empty before done, asks for the confirmed cause in
+  the fix's commit message, and warns that the human-assisted loop's `capture`
+  echoes values, so sign-in is a `step`.
+- `grill-me` states once that finding discoverable facts is the agent's job.
+- `pre-pr-gut-check` reports whether the change is a one-way or two-way door
+  and its blast radius.
+- `improve-codebase-architecture`, `pre-pr-gut-check`, `security-threat-model`,
+  `parallels-windows-ops`, and `visual-brief` are explicit-only in Codex.
 - `pre-pr-gut-check` states the branch's intended end state first and judges
   every lens against it. Shape lenses (improve-codebase-architecture scoped to
   the diff, whittle, code-review, and security-best-practices or impeccable
@@ -25,6 +50,10 @@ unchanged surfaces, or commit-by-commit narration.
   `zero-tech-debt` are noted in `THIRD_PARTY_NOTICES.md`.
 - `codebase-design` names modules for the responsibility callers rely on rather
   than the history that produced them.
+
+### Removed
+
+- `resolving-merge-conflicts`.
 
 ## [0.24.1] - 2026-09-28
 

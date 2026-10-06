@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: "Stress-test a plan, design, or decision through questions that resolve consequential choices. Use when the user asks to be grilled, pressure-test tradeoffs, or expose blind spots; inspect discoverable facts before asking."
+description: "Stress-test a plan, design, or decision through questions that resolve consequential choices. Use when the user asks to be grilled, pressure-test tradeoffs, or expose blind spots."
 ---
 
 # Grill Me
@@ -16,31 +16,30 @@ design, and repository discussions. Stay project-agnostic when no repository
 owns the decision. When one does, follow its applicable instructions and source
 without importing repository-specific nouns or routing into this shared skill.
 
+Finding discoverable facts is your job, never the user's. Read the applicable
+`AGENTS.md`, owner documentation, code, tests, and tools yourself, or use an
+authorized bounded subagent. Ask the user only for decisions.
+
 ## Loop
 
 For the first response and every later round:
 
 1. Name the decision or proposal being grilled in one sentence. Do not only
    acknowledge the request.
-2. For repository-grounded work, inspect the nearest applicable `AGENTS.md`,
-   owner documentation, code, and tests needed to resolve material facts.
-3. Separate facts from decisions: resolve discoverable facts from artifacts or
-   tools, and put each action-changing decision to the user.
-4. Map the decision tree. The **frontier** is every unresolved user decision
+2. Separate facts from decisions, and resolve the facts that change a decision.
+3. Map the decision tree. The **frontier** is every unresolved user decision
    whose prerequisites are settled.
-5. Ask the actionable frontier in a manageable round, with a recommendation for
+4. Ask the actionable frontier in a manageable round, with a recommendation for
    each question. Split a wide frontier to respect the user's attention and the
    question tool's limits; prioritize decisions that unblock the most work. Each
    question and recommendation must stand without assuming
    the answer to another question in the same round; otherwise it waits for a
    later round.
-6. After each answer, record settled decisions and recompute the frontier.
-   Inspect more source when the answer exposes a new factual dependency.
+5. After each answer, record settled decisions and recompute the frontier.
+   Resolve any new fact the answer exposes.
 
-When a frontier branch needs a discoverable fact, use tools or an authorized
-bounded subagent to find it. Treat that fact as an unsettled prerequisite for its
-downstream questions, but continue the round with the rest of the unblocked
-frontier.
+Treat a fact still being found as an unsettled prerequisite for its downstream
+questions, and continue the round with the rest of the unblocked frontier.
 
 For repository-grounded work, identify the owning behavior when instructions,
 documentation, code, or tests conflict. Ask which source should change only
@@ -60,9 +59,8 @@ boundary crossed, expected outcome, and what evidence would settle it.
 If the user is overloaded, tired, or time-constrained, reduce the active surface:
 ask for the next executable decision rather than opening a full decision tree.
 
-Do not pad the frontier with fact requests, cosmetic preferences, or questions
-whose answers would not change the result. Do not ask the user to restate facts
-that available artifacts can answer.
+Do not pad the frontier with cosmetic preferences or questions whose answers
+would not change the result.
 
 ## Stop Conditions
 

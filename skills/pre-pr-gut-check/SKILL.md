@@ -81,7 +81,9 @@ Re-run the repository's verification for the touched owners. Report:
 
 - the dispositions, real bugs first, with deferred items ready for the PR body;
 - which lenses ran and which were skipped, with the reason;
-- the checks re-run after fixes and their results.
+- the checks re-run after fixes and their results;
+- whether the change is a one-way or two-way door (hard or easy to reverse)
+  and its blast radius.
 
 If nothing earns a fix, say so in one line.
 

@@ -11,11 +11,15 @@ does not need the same process as an intermittent production failure.
 
 ## Establish The Signal
 
+Redact secrets and personal data from any output you paste or quote; write
+`<REDACTED>` in their place.
+
 Read the relevant owner guidance and enough code, logs, and recent changes to
 identify the actual path. Prefer a focused failing test, command, captured
-trace, or browser interaction that reproduces the user's symptom. Make it fast
-and repeatable where possible; minimize only while doing so helps isolate the
-cause. Preserve the original scenario for final verification.
+trace, browser interaction, bisect over a known good and bad state, or
+differential run of two versions or configurations that reproduces the user's
+symptom. Make it fast and repeatable where possible; minimize only while doing
+so helps isolate the cause. Preserve the original scenario for final verification.
 
 For intermittent failures, record attempts and failure frequency. Choose a
 sample size that can distinguish the proposed fix; one passing run is weak
@@ -27,8 +31,8 @@ specific access or artifact needed when it blocks further progress. Production
 instrumentation and access changes require their own authorization.
 
 Use [the human-assisted loop template](scripts/hitl-loop.template.sh) when the
-trigger requires manual interaction and a repeatable capture would help.
-Redact secrets and keep captured content to what the diagnosis needs.
+trigger requires manual interaction and a repeatable capture would help. Keep
+captured content to what the diagnosis needs.
 
 ## Test The Cause
 
@@ -39,7 +43,8 @@ explanation when evidence contradicts it.
 
 Prefer a debugger, focused logs, or a minimal experiment. For performance,
 measure the relevant scenario before changing it; preserve workload and
-configuration for the comparison. Tag temporary instrumentation for cleanup.
+configuration for the comparison. Tag all temporary instrumentation with one
+unique prefix, such as `[DIAG-x7k2]`.
 
 ## Fix And Verify
 
@@ -49,10 +54,11 @@ pass afterward. Choose the lowest test tier that reaches the bug; an assertion
 that bypasses the failed handoff cannot prove it.
 
 Recheck the original scenario and run the owning project's required checks.
-Remove temporary instrumentation and task-owned harnesses that no longer earn
-keep. If runtime proof remains unavailable, report what the code and checks
-establish and what remains unverified rather than claiming the bug reproduced
-or was conclusively fixed.
+Grep for the instrumentation prefix; it must return nothing before you finish.
+Remove task-owned harnesses that no longer earn keep. When you commit the fix,
+state the confirmed cause in the commit message. If runtime proof remains
+unavailable, report what the code and checks establish and what remains
+unverified rather than claiming the bug reproduced or was conclusively fixed.
 
 Lead the result with the cause, correction, and evidence. Recommend broader
 architecture work only when the investigation exposed a concrete remaining

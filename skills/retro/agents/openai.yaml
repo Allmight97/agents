@@ -1,0 +1,7 @@
+interface:
+  display_name: "Retro"
+  short_description: "Retrospective on a coding session"
+  default_prompt: "Use $retro to review this session and suggest improvements to the agent's environment."
+
+policy:
+  allow_implicit_invocation: false

@@ -2,3 +2,6 @@ interface:
   display_name: "Parallels Windows Ops"
   short_description: "Operate and tune Parallels Windows VMs"
   default_prompt: "Use $parallels-windows-ops to audit my Parallels Windows VM access and recommend safe optimization changes."
+
+policy:
+  allow_implicit_invocation: false

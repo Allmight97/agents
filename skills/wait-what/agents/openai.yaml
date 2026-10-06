@@ -1,0 +1,7 @@
+interface:
+  display_name: "Wait, What"
+  short_description: "Re-pitch the last message in plain terms"
+  default_prompt: "Use $wait-what to re-pitch your last message in plain terms."
+
+policy:
+  allow_implicit_invocation: false

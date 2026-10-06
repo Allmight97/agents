@@ -1,17 +1,10 @@
 # Third-Party Notices
 
-This skill is informed by and adapts concepts from `writing-for-agents` in
-[`mattpocock/skills`](https://github.com/mattpocock/skills/tree/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76/skills/productivity/writing-for-agents).
+This skill is adapted from `grill-me` and `grilling` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4588b32/skills/productivity/grill-me).
 
-The guidance on repairing existing automated checks is also informed by
-[`retro`](https://github.com/mattpocock/skills/blob/0243b6e/skills/in-progress/retro/SKILL.md).
-
-- Upstream path: `skills/productivity/writing-for-agents` in
-  [`mattpocock/skills`](https://github.com/mattpocock/skills).
-- Last reviewed upstream commit: `4588b32`. That path is unchanged since
-  `6654f6b`.
-- Upstream `retro` moved to `skills/engineering/retro` with no content change
-  by `4588b32`.
+- Upstream path: `skills/productivity/grill-me` in [`mattpocock/skills`](https://github.com/mattpocock/skills).
+- Last reviewed upstream commit: `4588b32`.
+- Related upstream path: `skills/productivity/grilling`.
 
 ## MIT License
 

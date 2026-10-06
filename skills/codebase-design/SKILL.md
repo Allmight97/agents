@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: Design module interfaces that hide complexity and concentrate ownership. Use for interface design, deepening a module, dependency seams, and testability tradeoffs; related skills may use its design vocabulary.
+description: Reference vocabulary and principles for module interface design, not a workflow. Use when designing or deepening a module, placing a dependency seam, or weighing testability tradeoffs; related skills may use its vocabulary.
 ---
 
 # Codebase Design

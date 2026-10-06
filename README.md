@@ -250,6 +250,19 @@ rules at the top of `CHANGELOG.md`:
    - Grok Bot: enable the account-saved skill for the Bot and retain a successful
      `/` invocation task URL. Do not infer personal-plugin version parity.
 
+## Upstream Skill Tracking
+
+Skills adapted from `mattpocock/skills` record the upstream path and last
+reviewed commit in their `THIRD_PARTY_NOTICES.md`. To see upstream changes for
+one path since that commit, using a scratch clone in OS temp:
+
+```bash
+d=$(mktemp -d) && git clone -q https://github.com/mattpocock/skills "$d" &&
+  git -C "$d" diff <reviewed-commit> HEAD -- <upstream-path>
+```
+
+After reviewing, update the recorded commit.
+
 ## Machine-Local Support
 
 `/Users/jstar/.agents` may remain as a non-repository machine-state directory
