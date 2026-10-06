@@ -1,6 +1,7 @@
 ---
 name: improve-codebase-architecture
-description: Find refactor opportunities when the user explicitly requests an architecture review or a scan for structural friction.
+description: "Scan code for architecture friction (shallow modules, leaky seams, untestable interfaces) and recommend bounded refactor candidates."
+disable-model-invocation: true
 ---
 
 # Improve Codebase Architecture

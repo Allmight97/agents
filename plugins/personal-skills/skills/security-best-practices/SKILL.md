@@ -1,6 +1,7 @@
 ---
 name: "security-best-practices"
-description: "Apply security best-practice guidance for Python, JavaScript/TypeScript, or Go when the user requests a security review, secure implementation, or remediation. Skip ordinary reviews and unrelated development."
+description: "Apply stack-specific security guidance (Python, JavaScript/TypeScript, Go web stacks) for a security review, secure implementation, or vulnerability fix."
+disable-model-invocation: true
 ---
 
 # Security Best Practices

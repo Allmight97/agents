@@ -1,6 +1,6 @@
 ---
 name: visual-brief
-description: Create an HTML explanation when a diagram, comparison, or expandable evidence makes substantial material easier to understand.
+description: "Explain substantial material as one HTML brief: diagram, comparison, or expandable evidence, readable without the chat."
 disable-model-invocation: true
 ---
 

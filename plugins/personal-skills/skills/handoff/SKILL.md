@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: "Compact the current conversation into a handoff document for another agent. Use only when the user asks for a handoff."
+description: "Write a handoff file so a fresh agent can continue this work; saved to the OS temp directory."
 disable-model-invocation: true
 ---
 

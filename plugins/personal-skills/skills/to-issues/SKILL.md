@@ -1,6 +1,6 @@
 ---
 name: to-issues
-description: Turn a settled plan or parent GitHub issue into child issues, one per coherent vertical pull request, with native dependencies. Use when the user asks to split work into issues or create actionable tickets; resolve material scope choices before publishing.
+description: "Split a settled plan or parent GitHub issue into child issues, one per vertical pull request, linked with native sub-issue and blocked-by relationships. Use when the user asks to split work into issues or tickets."
 ---
 
 # To Issues

@@ -1,6 +1,6 @@
 ---
 name: whittle
-description: "Simplify an implementation or review accidental complexity when the user explicitly invokes Whittle. Preserve required behavior while removing unnecessary machinery. General correctness and security reviews have separate owners."
+description: "Simplify an implementation or audit it for accidental complexity, keeping required behavior. Use when the user invokes Whittle by name."
 ---
 
 # Whittle

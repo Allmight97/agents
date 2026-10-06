@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Develop or advance a GitHub roadmap for work that spans sessions and has unresolved scope or design decisions.
+description: "Map large or foggy work into a GitHub roadmap issue, or advance an existing roadmap by its number. Use when work spans sessions and scope or design decisions are still open."
 ---
 
 # Wayfinder

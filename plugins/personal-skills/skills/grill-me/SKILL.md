@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: "Stress-test a plan, design, or decision through questions that resolve consequential choices. Use when the user asks to be grilled, pressure-test tradeoffs, or expose blind spots."
+description: "Pressure-test a plan, design, or decision by asking the open questions that change it, with a recommendation for each. Use when the user asks to be grilled or to pressure-test a choice."
 ---
 
 # Grill Me

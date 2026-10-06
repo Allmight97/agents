@@ -1,6 +1,6 @@
 ---
 name: wait-what
-description: "Re-pitch the last message when it did not land. Use only when the user asks for it, for example by saying \"wait, what?\"."
+description: "Re-pitch the last message in short plain sentences, with a little context first."
 disable-model-invocation: true
 ---
 

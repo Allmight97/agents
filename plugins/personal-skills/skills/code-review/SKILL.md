@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review changed code in a PR, branch, diff, or worktree for correctness, requested behavior, regressions, and proof gaps. Use for code review and merge-readiness decisions."
+description: "Review a PR, branch, diff, or worktree for correctness, requested behavior, regressions, and missing proof. Use for code review or a merge verdict."
 ---
 
 # Code Review

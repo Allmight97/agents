@@ -1,6 +1,6 @@
 ---
 name: parallels-windows-ops
-description: "Audit or operate a local Parallels Windows VM. Use for guest access, CLI versus GUI control, measured resource tuning, and Mac/Windows integration settings."
+description: "Audit, operate, or tune a local Parallels Windows VM: prlctl access ladder, measured resource tuning, Mac/Windows integration hygiene."
 disable-model-invocation: true
 ---
 

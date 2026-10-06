@@ -1,6 +1,6 @@
 ---
 name: impeccable
-description: "Design, build, critique, or refine frontend interfaces. Use for UI layout, typography, color, accessibility, interaction, motion, and browser-based visual iteration; backend-only work is outside scope."
+description: "Design, build, critique, or polish a frontend interface: layout, typography, color, accessibility, interaction, motion, browser-checked iteration. Use for UI changes and UX critique; commands include craft, critique, audit, polish."
 ---
 
 Design and iterate real frontend interfaces with explicit UX choices, implementation, and browser proof where visual behavior matters.

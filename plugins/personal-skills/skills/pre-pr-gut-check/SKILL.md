@@ -1,6 +1,6 @@
 ---
 name: pre-pr-gut-check
-description: "Run a holistic end-of-implementation review of a branch diff and apply the fixes that earn their keep. Use before a PR is opened, updated, or marked ready, or when the user asks for a gut check."
+description: "Gut-check a finished branch before its PR opens or goes ready: architecture, whittle, code-review, security, UI, and guidance lenses, then apply the fixes that earn their keep."
 disable-model-invocation: true
 ---
 
@@ -12,7 +12,10 @@ bring the branch to its intended end state.
 
 Fully load each composed skill, including the mechanics files it names for the
 mode in use. Loading a skill here is the explicit invocation it may require.
-A skill that is unavailable is a skipped lens; report it as skipped.
+The skill tool refuses user-only skills, so read
+[improve-codebase-architecture](../improve-codebase-architecture/SKILL.md) and
+[security-best-practices](../security-best-practices/SKILL.md) from their
+files. A skill that is unavailable is a skipped lens; report it as skipped.
 
 ## Establish the review
 

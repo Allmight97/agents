@@ -1,6 +1,6 @@
 ---
 name: writing-for-agents
-description: Write or audit agent-consumed guidance, including skills, repository instructions, issues, and handoffs. Use when instruction clarity, placement, or execution scope is the task.
+description: "Write or audit guidance that agents read: SKILL.md files, AGENTS.md or CLAUDE.md, issues, specs, and handoffs. Use when the task is instruction clarity, rule placement, or skill triggers."
 ---
 
 # Writing for Agents

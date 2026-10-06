@@ -4,6 +4,17 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.28.0] - 2026-10-06
+
+### Changed
+
+- All 19 personal-skills descriptions are rewritten. Each one the agent can
+  load says what the skill does and when to use it; each user-only one says
+  what you get when you call it.
+- `task-compass`, `improve-codebase-architecture`, and `security-best-practices`
+  are user-only in every client (Claude, Cursor, Grok, Codex). Call them by
+  name. `pre-pr-gut-check` reads the last two from their files.
+
 ## [0.27.2] - 2026-10-05
 
 ### Changed

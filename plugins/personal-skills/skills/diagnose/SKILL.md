@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: Diagnose and fix bugs or performance regressions using a focused reproduction, competing explanations, and evidence that tests the cause. Use for debugging reported failures or slow behavior.
+description: "Diagnose and fix a reported bug, failing or flaky test, or performance regression by reproducing it and testing the cause. Use for debugging requests."
 ---
 
 # Diagnose

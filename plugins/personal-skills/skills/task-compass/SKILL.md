@@ -1,6 +1,7 @@
 ---
 name: task-compass
-description: Clarify the primary outcome when solving, learning, or building a reusable system compete within one request.
+description: "Set the primary outcome and proportionate proof for a mixed or rambling request, and park the rest."
+disable-model-invocation: true
 ---
 
 # Task Compass

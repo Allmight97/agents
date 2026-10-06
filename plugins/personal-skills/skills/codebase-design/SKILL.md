@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: Reference vocabulary and principles for module interface design, not a workflow. Use when designing or deepening a module, placing a dependency seam, or weighing testability tradeoffs; related skills may use its vocabulary.
+description: "Vocabulary and principles for module interface design: module, interface, depth, seam, adapter, locality. Use when designing or consolidating a module, placing a dependency seam, or weighing testability."
 ---
 
 # Codebase Design
