@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """Rank files by where complexity and recent change meet.
 
-Score = (functions over the cognitive threshold) x (recent commits). Without a
-linter count the score falls back to scc Complexity x recent commits and the
-file is flagged `scc-only`. Density (Complexity per 100 code lines) is context.
+Score = (functions over the per-function threshold) x (recent commits). Biome
+counts TS/JS functions over the cognitive threshold; lizard counts functions in
+other languages over the cyclomatic (CCN) threshold. Without either count the
+score falls back to scc Complexity x recent commits and the file is flagged
+`scc-only`. Density (Complexity per 100 code lines) is context.
 Exit 3 when scc is missing; 0 otherwise.
 """
 
 from __future__ import annotations
 
 import argparse
+import csv
+import io
 import json
 import re
 import shutil
@@ -92,9 +96,32 @@ def biome_complexities(biome: list[str], root: Path, files: list[str], only: boo
     return found
 
 
-def linter_counts(root: Path, files: list[str], threshold: int, mode: str) -> dict[str, dict]:
-    candidates = [f for f in files if Path(f).suffix in BIOME_EXTENSIONS]
-    if mode == "none" or not candidates or not (root / "biome.json").exists():
+def find_lizard() -> list[str] | None:
+    if shutil.which("lizard"):
+        return ["lizard"]
+    return ["uvx", "lizard"] if shutil.which("uvx") else None
+
+
+def lizard_counts(root: Path, files: list[str], ccn: int) -> dict[str, dict]:
+    lizard = find_lizard()
+    if lizard is None or not files:
+        return {}
+    result = run(lizard + ["--csv", *files], root)
+    if result.returncode != 0:
+        return {}
+    # CSV columns: nloc, ccn, token, param, length, location, file, function, ...
+    functions: dict[str, list[int]] = {}
+    for row in csv.reader(io.StringIO(result.stdout)):
+        if len(row) > 6 and row[1].isdigit():
+            functions.setdefault(row[6], []).append(int(row[1]))
+    return {
+        f: {"over": sum(1 for c in found if c > ccn), "exempt": False, "source": "lizard"}
+        for f, found in functions.items()
+    }
+
+
+def biome_counts(root: Path, candidates: list[str], threshold: int) -> dict[str, dict]:
+    if not candidates or not (root / "biome.json").exists():
         return {}
     biome = find_biome(root)
     if biome is None:
@@ -107,9 +134,21 @@ def linter_counts(root: Path, files: list[str], threshold: int, mode: str) -> di
         f: {
             "over": sum(1 for c in forced.get(f, []) if c > threshold),
             "exempt": bool(forced.get(f)) and not enforced.get(f),
+            "source": "biome",
         }
         for f in candidates
     }
+
+
+def linter_counts(root: Path, files: list[str], args: argparse.Namespace) -> dict[str, dict]:
+    biome_files = [f for f in files if Path(f).suffix in BIOME_EXTENSIONS]
+    other_files = [f for f in files if Path(f).suffix not in BIOME_EXTENSIONS]
+    counts: dict[str, dict] = {}
+    if args.linters in ("auto", "lizard"):
+        counts.update(lizard_counts(root, other_files, args.ccn))
+    if args.linters in ("auto", "biome"):
+        counts.update(biome_counts(root, biome_files, args.threshold))
+    return counts
 
 
 def scc_by_file(root: Path, files: list[str]) -> dict[str, dict]:
@@ -125,7 +164,7 @@ def scc_by_file(root: Path, files: list[str]) -> dict[str, dict]:
 
 def build_rows(root: Path, files: list[str], args: argparse.Namespace, in_git: bool) -> list[dict]:
     scc = scc_by_file(root, files)
-    linter = linter_counts(root, files, args.threshold, args.linters)
+    linter = linter_counts(root, files, args)
     rows = []
     for rel in files:
         entry = scc.get(rel)
@@ -156,6 +195,7 @@ def build_rows(root: Path, files: list[str], args: argparse.Namespace, in_git: b
                 "density": round(entry["Complexity"] * 100 / code, 1) if code else 0.0,
                 "churn": churn,
                 "over_threshold_fns": over,
+                "per_function_source": count["source"] if count else None,
                 "score": score(over, entry["Complexity"], churn),
                 "flags": flags,
             }
@@ -165,12 +205,13 @@ def build_rows(root: Path, files: list[str], args: argparse.Namespace, in_git: b
 
 
 def render_table(rows: list[dict]) -> str:
-    header = ["score", "over_fns", "churn", "complexity", "density", "code", "flags", "file"]
+    header = ["score", "over_fns", "source", "churn", "complexity", "density", "code", "flags", "file"]
     lines = ["  ".join(header)]
     for r in rows:
         cells = [
             "-" if r["score"] is None else r["score"],
             "-" if r["over_threshold_fns"] is None else r["over_threshold_fns"],
+            r["per_function_source"] or "-",
             "-" if r["churn"] is None else r["churn"],
             r["complexity"],
             r["density"],
@@ -186,10 +227,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("paths", nargs="*", help="files to rank")
     parser.add_argument("--changed", action="store_true", help="files changed since the merge-base with the default branch, plus working-tree edits")
-    parser.add_argument("--threshold", type=int, default=15, help="cognitive complexity per function (default 15; values below the repo's Biome max undercount)")
+    parser.add_argument("--threshold", type=int, default=15, help="Biome cognitive complexity per TS/JS function (default 15; values below the repo's Biome max undercount)")
+    parser.add_argument("--ccn", type=int, default=10, help="lizard cyclomatic complexity per function in other languages (default 10)")
     parser.add_argument("--churn-days", type=int, default=90)
     parser.add_argument("--min-age-days", type=int, default=30, help="files younger than this get churn 0")
-    parser.add_argument("--linters", choices=["auto", "biome", "none"], default="auto")
+    parser.add_argument("--linters", choices=["auto", "biome", "lizard", "none"], default="auto", help="per-function source: auto = Biome for TS/JS, lizard for the rest, when available")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 

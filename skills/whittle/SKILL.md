@@ -30,7 +30,7 @@ quietly broaden Whittle into a general review.
 
 Run `python3 scripts/complexity_rank.py <files in scope>` (or `--changed`) from
 the target repository, with the path relative to this skill. Prefer cuts in
-files with a high over-threshold function count and non-zero churn. Density is
+files with a high over-threshold function count (Biome for TS/JS, lizard otherwise) and non-zero churn. Density is
 context, not rank. A file flagged `scc-only` is ranked by a weaker proxy; say
 so. When the script exits 3 (`scc` missing), skip this step and say so.
 
