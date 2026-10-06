@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.26.1] - 2026-10-05
+
+### Changed
+
+- `whittle`'s complexity ranker and `complexity-lens` 0.1.1 pin lizard 1.24.0,
+  matching ABB's Rust complexity check, so the band, the skill, and the repo
+  check count Rust `match` functions the same way. Move all three to a newer
+  lizard together once it clears the 10-day cooldown.
+
 ## [0.26.0] - 2026-10-05
 
 ### Added

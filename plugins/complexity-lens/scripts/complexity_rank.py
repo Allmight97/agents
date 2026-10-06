@@ -96,10 +96,13 @@ def biome_complexities(biome: list[str], root: Path, files: list[str], only: boo
     return found
 
 
+LIZARD = "lizard==1.24.0"
+
+
 def find_lizard() -> list[str] | None:
-    if shutil.which("lizard"):
-        return ["lizard"]
-    return ["uvx", "lizard"] if shutil.which("uvx") else None
+    if shutil.which("uvx"):
+        return ["uvx", LIZARD]
+    return ["lizard"] if shutil.which("lizard") else None
 
 
 def lizard_counts(root: Path, files: list[str], ccn: int) -> dict[str, dict]:
