@@ -28,3 +28,6 @@ node_modules/
 *.pem
 *.p12
 *.pfx
+
+# Written by Claude Code when it loads a mod folder; extends its ignored .claude-plugin/types/.
+plugins/*/tsconfig.json
