@@ -4,6 +4,23 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [Unreleased]
+
+### Added
+
+- Explicit-only skills now work on Claude, Cursor, and Grok Build:
+  `pre-pr-gut-check`, `security-threat-model`, `parallels-windows-ops`,
+  `visual-brief`, `retro`, `handoff`, and `wait-what` carry
+  `disable-model-invocation: true` next to their Codex switch.
+  `improve-codebase-architecture` stays Codex-only because `pre-pr-gut-check`
+  invokes it.
+- `scripts/validate_skills.py` replaces the CI validation loop. It allows the
+  `disable-model-invocation` and `user-invocable` extension keys, validates a
+  copy without them against the pinned `skills-ref`, and requires the Codex
+  switch wherever the flag is set.
+- `whittle` ranks the files in scope with `scripts/complexity_rank.py`
+  (over-threshold functions times recent churn, with `scc` as fallback).
+
 ## [0.25.0] - 2026-10-05
 
 ### Added

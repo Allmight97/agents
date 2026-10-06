@@ -46,8 +46,8 @@ marketplace and `personal-skills` installed from it. Cursor reads the native
 `.cursor-plugin/marketplace.json` and `.cursor-plugin/plugin.json` manifests
 while sharing the same root `skills/` tree used by Claude and Codex.
 
-Keep Cursor metadata in `.cursor-plugin/` rather than relying on Cursor's
-fallback parsing of Claude manifests. The harness manifests are intentionally
+Keep Cursor metadata in `.cursor-plugin/`. Cursor reads Claude's skill
+folders but not Claude plugin manifests or settings. The harness manifests are intentionally
 thin wrappers around one shared skill source.
 
 Cursor's personal Git marketplace can remain pinned to an earlier imported
@@ -213,11 +213,13 @@ rules at the top of `CHANGELOG.md`:
 
    Give changed nested plugins their own component versions and name them in
    the same changelog section.
-4. Validate changed skills plus all four plugin manifests. CI validates every
-   root and nested `SKILL.md` against a pinned Agent Skills reference validator.
-   Release metadata alignment can be checked locally with:
+4. Validate changed skills plus all four plugin manifests. CI runs
+   `scripts/validate_skills.py` on every root and nested `SKILL.md`: pinned
+   Agent Skills reference validator (`skills-ref` on `PATH`) plus explicit-only
+   parity. Check locally with:
 
    ```bash
+   python3 scripts/validate_skills.py
    python3 scripts/release_metadata.py check
    ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.

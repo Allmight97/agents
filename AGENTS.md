@@ -23,17 +23,21 @@ consumer separately.
 | Surface | Invocation and policy owner | Distribution and proof |
 | --- | --- | --- |
 | Codex | Explicit invocation uses `$skill`. Put Codex-only policy in `skills/<name>/agents/openai.yaml`; `policy.allow_implicit_invocation: false` makes a skill explicit-only. | Install from the Codex `personal` marketplace. Prove the installed version, enabled state, and explicit invocation after refresh. |
-| Claude Code / Desktop | Plugin skills use namespaced `/plugin:skill` invocation. Claude supports `disable-model-invocation: true`, but that field is a client extension rather than portable Agent Skills frontmatter. | Install from the Claude `personal` marketplace. Reload plugins or start a fresh session, then prove namespaced invocation. Cowork and cloud sessions do not inherit this Mac's user skill directories. |
-| Cursor local | Explicit invocation uses `/skill-name`. Cursor supports `disable-model-invocation: true`, also as non-portable frontmatter. | Import this GitHub repository as a user marketplace, install Personal Skills, reload the window, and prove the exact cached release plus slash-palette availability. Never infer freshness from the marketplace card alone. |
+| Claude Code / Desktop | Plugin skills use namespaced `/plugin:skill` invocation. Claude honors `disable-model-invocation: true` in `SKILL.md` frontmatter: the description is not loaded and the skill runs only when the user calls it. The flag also blocks one skill invoking another. | Install from the Claude `personal` marketplace. Reload plugins or start a fresh session, then prove namespaced invocation. Cowork and cloud sessions do not inherit this Mac's user skill directories. |
+| Cursor local | Explicit invocation uses `/skill-name`. Cursor reads Claude's skill folders, so it honors the same `disable-model-invocation: true` flag. It does not read Claude settings or Claude plugin manifests. | Import this GitHub repository as a user marketplace, install Personal Skills, reload the window, and prove the exact cached release plus slash-palette availability. Never infer freshness from the marketplace card alone. |
 | Cursor Cloud | Runs in an isolated Linux environment with cloned repositories; local `~/.cursor` state and plugin caches are absent. | Prove a configured team/repository delivery path in a fresh Cloud run and retain a release-specific invocation result. Local Cursor proof does not transfer. |
-| Grok Build | Skills appear as `/skill-name`, or `/plugin:skill` when names collide. Grok honors `disable-model-invocation` in skill frontmatter; do not add that field to portable `SKILL.md` files. | Install from the Grok `personal` marketplace via `.grok-plugin/marketplace.json`. Prove with `grok plugin details` and `grok inspect` after refresh. Keep Grok Build separate from Grok Bot. |
+| Grok Build | Skills appear as `/skill-name`, or `/plugin:skill` when names collide. Grok honors `disable-model-invocation` in skill frontmatter. It reads Claude marketplaces, plugins, skills, hooks, and `CLAUDE.md`, but not Claude's `settings.json`. | Install from the Grok `personal` marketplace via `.grok-plugin/marketplace.json`. Prove with `grok plugin details` and `grok inspect` after refresh. Keep Grok Build separate from Grok Bot. |
 | Grok Bot | Uses account-saved cloud skills, `/` references, and per-Bot private-skill enablement. Current official documentation does not establish Cursor marketplace ingestion or version parity. | Prove the skill in a Bot task. Keep Grok Bot separate from Grok Build CLI and do not claim synchronization from Cursor or Grok Build state. |
 
-For a strict shared skill, do not add client-extension frontmatter that fails the
-portable validator. If cross-client explicit-only behavior justifies a
-client-specific projection later, name its owner and validation cost before
-adding it. Until then, only Codex's separate `openai.yaml` policy is a
-deterministic portable-tree-safe manual-only control.
+Explicit-only means two switches: `disable-model-invocation: true` in `SKILL.md`
+(Claude, Cursor, Grok Build) and `policy.allow_implicit_invocation: false` in
+`agents/openai.yaml` (Codex, which ignores unknown frontmatter keys).
+`scripts/validate_skills.py` allows only those extension keys (and
+`user-invocable`), validates a copy without them against the pinned
+Agent Skills validator, and requires the Codex switch wherever the flag is set.
+A skill another skill invokes by name stays unflagged, because the flag blocks
+that call: `whittle` (invoked by `pre-pr-gut-check`) and
+`improve-codebase-architecture` (a `pre-pr-gut-check` lens) are Codex-only.
 
 ## Editing And Release Boundaries
 
@@ -51,7 +55,7 @@ deterministic portable-tree-safe manual-only control.
 Before release, run the repository commands documented in `README.md`, inspect
 the final diff, and verify:
 
-- every changed skill passes the pinned Agent Skills validator;
+- `python3 scripts/validate_skills.py` passes (pinned Agent Skills validator plus the explicit-only parity rule);
 - native and portable plugin metadata remain aligned;
 - removed skill names have no stale routes;
 - manual-only claims match the client mechanism actually shipped;

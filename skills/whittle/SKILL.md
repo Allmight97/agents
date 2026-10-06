@@ -26,6 +26,14 @@ If the requested review also asks whether code is correct, secure, performant,
 or ready to merge, route that question to its owning review workflow. Do not
 quietly broaden Whittle into a general review.
 
+## Rank The Scope
+
+Run `python3 scripts/complexity_rank.py <files in scope>` (or `--changed`) from
+the target repository, with the path relative to this skill. Prefer cuts in
+files with a high over-threshold function count and non-zero churn. Density is
+context, not rank. A file flagged `scc-only` is ranked by a weaker proxy; say
+so. When the script exits 3 (`scc` missing), skip this step and say so.
+
 ## Find The Smallest Owner
 
 Understand the real flow, its callers, and its governing boundary before

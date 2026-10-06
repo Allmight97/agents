@@ -1,6 +1,7 @@
 ---
 name: retro
 description: "Conduct a retrospective on a coding session and suggest improvements to the agent's environment. Use only when the user asks for a retro or retrospective."
+disable-model-invocation: true
 ---
 
 # Retro

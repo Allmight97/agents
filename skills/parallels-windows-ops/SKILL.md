@@ -1,6 +1,7 @@
 ---
 name: parallels-windows-ops
 description: "Audit or operate a local Parallels Windows VM. Use for guest access, CLI versus GUI control, measured resource tuning, and Mac/Windows integration settings."
+disable-model-invocation: true
 ---
 
 # Parallels Windows Ops

@@ -1,6 +1,7 @@
 ---
 name: security-threat-model
 description: Build a repository-grounded threat model of assets, trust boundaries, attacker capabilities, abuse paths, and mitigations. Use when the user explicitly requests threat modeling; ordinary code review and architecture summaries do not trigger it.
+disable-model-invocation: true
 ---
 
 # Repository Threat Model

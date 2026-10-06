@@ -1,6 +1,7 @@
 ---
 name: pre-pr-gut-check
 description: "Run a holistic end-of-implementation review of a branch diff and apply the fixes that earn their keep. Use before a PR is opened, updated, or marked ready, or when the user asks for a gut check."
+disable-model-invocation: true
 ---
 
 # Pre-PR Gut Check

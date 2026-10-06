@@ -1,6 +1,7 @@
 ---
 name: visual-brief
 description: Create an HTML explanation when a diagram, comparison, or expandable evidence makes substantial material easier to understand.
+disable-model-invocation: true
 ---
 
 # Visual Brief

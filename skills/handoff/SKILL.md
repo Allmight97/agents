@@ -1,6 +1,7 @@
 ---
 name: handoff
 description: "Compact the current conversation into a handoff document for another agent. Use only when the user asks for a handoff."
+disable-model-invocation: true
 ---
 
 # Handoff
