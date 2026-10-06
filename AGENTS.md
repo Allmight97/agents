@@ -56,7 +56,8 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
   ordinary helper scripts. Split when the component needs its own installation,
   authority, runtime, or lifecycle.
 - Each catalog lists only the plugins its harness can use. Claude-only mods
-  (`plugins/complexity-lens`, `plugins/cache-meter`) list only in
+  (`plugins/complexity-lens`, `plugins/cache-meter`,
+  `plugins/nested-agents-md`) list only in
   `.claude-plugin/marketplace.json`: other clients auto-discover their
   `hooks/hooks.json` and cannot parse it. Their validation is
   `claude plugin validate` and `claude plugin test`. The Codex-native plugins

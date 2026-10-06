@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.29.0] - 2026-10-06
+
+### Added
+
+- `nested-agents-md` 0.1.0, a Claude Code mod. Claude Code loads a nested
+  `AGENTS.md` only when Claude reads a file with the Read tool. This mod also
+  loads it when a Bash command names a file, or Edit or Write changes one
+  (anthropics/claude-code#90450). Claude only.
+
 ## [0.28.0] - 2026-10-06
 
 ### Changed
