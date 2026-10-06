@@ -4,6 +4,14 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.27.1] - 2026-10-05
+
+### Fixed
+
+- `complexity-lens` 0.1.3 and `whittle`'s complexity ranker measure each file
+  inside its own repository. A file outside the session's repository no longer
+  stops the ranker with "rank exit 1".
+
 ## [0.27.0] - 2026-10-05
 
 ### Changed

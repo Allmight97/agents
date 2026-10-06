@@ -247,11 +247,15 @@ def main() -> int:
             print("scc not installed; skipping complexity ranking")
         return 3
 
-    cwd = Path.cwd()
-    root = repo_root(cwd)
+    paths = [Path(p).resolve() for p in args.paths]
+    base = paths[0].parent if paths else Path.cwd()
+    root = repo_root(base)
     in_git = root is not None
-    root = root or cwd
-    files = [str(Path(p).resolve().relative_to(root)) for p in args.paths]
+    root = root or base
+    files = [str(p.relative_to(root)) for p in paths if p.is_relative_to(root)]
+    for p in paths:
+        if not p.is_relative_to(root):
+            print(f"skipped {p}: outside {root}", file=sys.stderr)
     if args.changed:
         if not in_git:
             sys.exit("--changed needs a git repository")

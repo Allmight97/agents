@@ -14,7 +14,7 @@ async function measure($: EngineInterface, path: string): Promise<{ row: Row; be
   try {
     const ran = await $.process.run(
       ['python3', `${$.plugin.root}/scripts/complexity_rank.py`, '--json', path],
-      { timeoutMs: 20000 },
+      { timeoutMs: 20000, cwd: path.slice(0, path.lastIndexOf('/')) || '/' },
     )
     if (ran.exitCode !== 0) {
       await update($, problem, () => `rank exit ${ran.exitCode}`)
