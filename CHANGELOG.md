@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.27.2] - 2026-10-05
+
+### Changed
+
+- `complexity-lens` 0.1.4 starts its list over with each new message and
+  colours each row by how much it needs attention: red when this request added
+  a function over the limit, yellow when the file has one, dim otherwise.
+  Rows sort by that order first.
+
 ## [0.27.1] - 2026-10-05
 
 ### Fixed

@@ -16,15 +16,19 @@ const ROW = {
 
 type Runs = string[][]
 
-function fakeEngine(on: On, rows: object[], runs: Runs, exitCode = 0) {
+function fakeEngine(on: On, rows: object[] | object[][], runs: Runs, exitCode = 0) {
+  let rankCalls = 0
   on('process.run', (_$, e) => {
     const argv = (e as unknown as { argv: string[] }).argv
     runs.push(argv)
     const isRank = argv.some(a => a.endsWith('complexity_rank.py'))
-    return { value: { exitCode: isRank ? exitCode : 0, stdout: isRank ? JSON.stringify(rows) : 'scc 3.0', stderr: '' } } as never
+    const sequence = Array.isArray(rows[0]) ? (rows as object[][]) : [rows as object[]]
+    const out = isRank ? sequence[Math.min(rankCalls++, sequence.length - 1)] : undefined
+    return { value: { exitCode: isRank ? exitCode : 0, stdout: isRank ? JSON.stringify(out) : 'scc 3.0', stderr: '' } } as never
   })
   on('session.start', (_$, e) => ({ cwd: e.cwd }) as never)
   on('tool.call', () => ({ result: { text: 'ok' } }) as never)
+  on('prompt.submit', (_$, e) => e as never)
   on('ui.toast', () => ({ value: undefined }))
   on('ui.render', ($, e) => {
     const { Text } = $.ui.resolve(e)
@@ -60,7 +64,30 @@ describe('complexity-lens', () => {
     await edit($)
     const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
     expect(await ui.find({ type: 'Text', text: 'other mod band' })).toBeDefined()
-    expect(await ui.find({ type: 'Text', text: /app\.ts {2}complexity 80 · 67 per 100 lines · 2 over limit · changed 4× · score 8/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: 'src/app.ts' })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: '2 over limit' })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /complexity 80 · 67 per 100 lines · changed 4× · score 8/ })).toBeDefined()
+    await ui.unmount()
+  })
+
+  test('a function added over the limit during this request shows how many were added', async ($, on) => {
+    fakeEngine(on, [[ROW], [{ ...ROW, over_threshold_fns: 3, score: 12 }]], [])
+    await start($)
+    await edit($, 'Read')
+    const result = (await edit($)) as { context?: string[] }
+    expect(result.context?.[0]).toContain('(was 2 at the start of this request)')
+    const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
+    expect(await ui.find({ type: 'Text', text: '3 over limit (+1)' })).toBeDefined()
+    await ui.unmount()
+  })
+
+  test('a new message clears the rows', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    await edit($)
+    await $.prompt.submit({ text: 'next task' } as never)
+    const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
+    expect(await ui.findAll({ type: 'Text' })).toHaveLength(1)
     await ui.unmount()
   })
 

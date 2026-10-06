@@ -10,8 +10,10 @@ export type Row = {
   flags: string[]
 }
 
+export type Shown = Row & { baseline: number | null }
+
 declare module 'claude-code' {
   interface PluginState {
-    'complexity-lens': { rows: Row[]; problem: string | null }
+    'complexity-lens': { rows: Shown[]; problem: string | null }
   }
 }
