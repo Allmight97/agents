@@ -38,6 +38,10 @@ preserving its obligations, consider collapsing it. If that knowledge spreads
 to callers, the layer was carrying useful responsibility. Thin wrappers can
 still own authorization, lifecycle, interoperability, or platform contracts.
 
+Name a module and its interface for the responsibility callers rely on. A name
+that records how the code arrived, such as `legacy`, `new`, `v2`, or `wrapper`,
+makes callers learn history.
+
 Judge reader effort along two axes: indirections to trace and mutable state to
 hold in mind. Flattening calls while scattering state can make the system harder
 to understand. Prefer a design that reduces their combined burden.

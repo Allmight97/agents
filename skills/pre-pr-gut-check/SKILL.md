@@ -1,78 +1,91 @@
 ---
 name: pre-pr-gut-check
-description: "Run an end-of-implementation gut check on a branch diff before a PR is opened, updated, or marked ready, or when the user says \"gut check\". Composes whittle review, codebase-design, the repository's test-value skill, a writing-for-agents check of docs and guidance, and an optional low-effort code review, then applies only fixes that earn their keep."
+description: "Run a holistic end-of-implementation review of a branch diff and apply the fixes that earn their keep. Use before a PR is opened, updated, or marked ready, or when the user asks for a gut check."
 ---
 
 # Pre-PR Gut Check
 
-A gut check, not a directive. Look for the few changes that clearly earn their
-keep before reviewers see the branch; leave everything else alone. No busywork,
-no churn to show effort.
+Review a finished branch for shape, simplicity, correctness, tests, and agent
+guidance by composing the skills that own each lens, then apply the fixes that
+bring the branch to its intended end state.
 
-## Scope and scale
+Fully load each composed skill, including the mechanics files it names for the
+mode in use. Loading a skill here is the explicit invocation it may require.
+A skill that is unavailable is a skipped lens; report it as skipped.
 
-Review the branch diff against its base branch (the PR base when one exists,
-otherwise the repository default branch), including uncommitted work.
+## Establish the review
 
-Scale to the diff:
+Gather once and give every lens:
 
-- **Trivial** (docs, config, a small mechanical edit): report one line —
-  `Gut check: trivial diff, nothing to check.` — and stop.
-- **Substantial** (behavior, interfaces, tests, or multiple owners): run the
-  full pass below.
+- the diff against the base branch (the PR base when one exists, otherwise the
+  default branch), including uncommitted work;
+- the intended end state in one or two sentences, inferred from the PR, issue,
+  commits, or conversation; ask only when those sources conflict or are silent;
+- the target repository's guidance along the changed paths and its
+  verification commands.
 
-## Passes
+A diff that changes behavior, interfaces, tests, skills, or agent guidance gets
+the full check. Otherwise report `Gut check: trivial diff, nothing to check.`
+and stop.
 
-Fully load each skill, including any mechanics files it tells you to read, and
-apply it to this diff. Loading a skill here is the explicit invocation it may
-require.
+## Shape lenses
 
-1. **whittle** in review mode: accidental complexity the diff adds or leaves.
-2. **codebase-design** on the interfaces the diff changed: caller knowledge,
-   owners, seams.
-3. **The repository's test-value skill**, if one exists (for example ABB's
-   `.agents/skills/audit-test-value`): tests the diff added, changed, or
-   orphaned.
-4. **Docs and guidance** with **writing-for-agents**: the repository's
-   instruction network (`AGENTS.md`/`CLAUDE.md` chain, owner guidance, skills,
-   and documents such as changelogs) against what the diff
-   changed. Look for stale rules, pointers, or interface lists, and for a new
-   invariant with no owner. Any skill the diff adds or changes gets its own
-   writing-for-agents check. Doc fixes follow writing-for-agents.
-5. **Code review at low effort** for correctness (Claude Code: `/code-review
-   low`). Optional: skip it when the user drops it or the client has no
-   equivalent, and say so.
+These judge the diff against the end state and do not depend on each other.
+When the client supports delegation, run each in its own subagent so one skill's
+criteria do not blur into another's.
 
-A skill that is not installed or cannot load is a skipped pass, not a silent
-one.
+- **improve-codebase-architecture**, its Explore and Recommend steps, scoped
+  to the modules the diff touches. Its candidates feed the dispositions below
+  in place of its report and candidate selection.
+- **whittle** in review mode on the diff.
+- **code-review** on the changed behavior, unless the user drops it.
+- **security-best-practices** when the diff changes a trust boundary such as
+  authentication, authorization, input parsing, secrets, or outbound requests.
+- **impeccable** critique when the diff changes a user interface.
 
-## Dispositions
+## Decide and apply
 
-Merge candidates from all passes; drop duplicates. Give each surviving
-candidate exactly one disposition:
+Merge candidates from every lens and drop duplicates. Give each one
+disposition, written as one plain sentence: what it is, whether a user would
+notice, and whether it is a real bug or tidiness. Judge severity apart from
+disposition: a defect a user would notice is a real bug even when it predates
+the branch or is deferred, and a structural change that also removes one is a
+bug fix.
 
-- **fix** — clear value, inside the branch's scope, cheap to prove;
-- **defer** — real, but belongs to later work or another owner;
-- **reject** — taste, speculative, or not worth its cost.
+- **fix**: changes behavior, prevents a person or agent from acting wrongly,
+  or is needed to reach the end state; stays within the branch; and can be
+  proven with the repository's checks;
+- **defer**: real, but outside the end state or owned by other work; it goes
+  in the PR body, and opening issues is outside this check;
+- **reject**: taste, tidiness that changes no behavior or next action,
+  speculative, or costs more than it returns.
 
-Write each as one plain sentence: what it is, whether a user would notice, and
-whether it is a real bug or just tidiness.
+Apply structural fixes (moves and deletions) before simplifications, and both
+before correctness fixes, so later fixes land on code that survives.
 
-## Apply and report
+## Consequence lenses
 
-Apply only the `fix` items, then re-run the focused checks for the touched
-owners (the repository's own verification commands). Put `defer` items in the
-PR body. Do not open issues for them.
+Run these on the diff after shape fixes, since they judge what the code became:
 
-Report:
+- **The repository's test-value skill**, if it has one: whether tests pin
+  required behavior of the final shape, including assumptions the fixes removed.
+- **writing-for-agents** on the guidance and documents the branch affects:
+  stale rules, pointers, or interface lists, and new invariants without an
+  owner. Each skill the branch adds or changes gets its own check.
 
-- the dispositions;
-- which passes ran and which were skipped, with the reason — never claim a pass
-  that did not run;
+Disposition and apply their candidates the same way.
+
+## Verify and report
+
+Re-run the repository's verification for the touched owners. Report:
+
+- the dispositions, real bugs first, with deferred items ready for the PR body;
+- which lenses ran and which were skipped, with the reason;
 - the checks re-run after fixes and their results.
 
-If nothing earns a fix, say so in one line and stop.
+If nothing earns a fix, say so in one line.
 
-Once the report is final and any fix commits are made, record the reviewed
-commit so a pre-PR reminder hook can tell the check is current:
+When no gut-check fixes remain uncommitted, record the reviewed commit so a
+pre-PR reminder hook can tell the check is current:
 `git rev-parse HEAD > "$(git rev-parse --git-dir)/pre-pr-gut-check"`.
+Otherwise skip the record and say so.

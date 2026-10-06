@@ -4,6 +4,28 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [Unreleased]
+
+### Changed
+
+- `pre-pr-gut-check` states the branch's intended end state first and judges
+  every lens against it. Shape lenses (improve-codebase-architecture scoped to
+  the diff, whittle, code-review, and security-best-practices or impeccable
+  when the diff reaches their subject) run before consequence lenses (test value
+  and writing-for-agents), which review the code after shape fixes. A fix must
+  change behavior, prevent a wrong action, or be needed for the end state;
+  tidiness alone is rejected. Severity is judged apart from disposition, and
+  the report leads with real bugs. Skill and guidance diffs are no longer
+  treated as trivial, and the reviewed commit is recorded only when no
+  gut-check fixes remain uncommitted.
+- `whittle` measures cuts against the intended end state, requires a current
+  caller or named external consumer for compatibility paths, and requires proof
+  when a cut removes an assumption about permissions, navigation, persisted
+  data, or external callers. Concepts adapted from `jnsahaj/skills`
+  `zero-tech-debt` are noted in `THIRD_PARTY_NOTICES.md`.
+- `codebase-design` names modules for the responsibility callers rely on rather
+  than the history that produced them.
+
 ## [0.24.1] - 2026-09-28
 
 ### Changed

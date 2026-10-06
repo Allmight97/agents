@@ -8,7 +8,8 @@ description: "Simplify an implementation or review accidental complexity when th
 Remove accidental complexity without weakening the required outcome. Judge the
 smallest solution by total system cost, not line count: implementation surface,
 dependencies, conceptual branches, proof burden, maintenance, and change
-amplification all count.
+amplification all count. Measure against the intended end state: the code that
+would exist had the requirement been known from the start.
 
 ## Set The Mode
 
@@ -41,6 +42,12 @@ change. Direct code is valuable when it remains readable and correct on real
 edge cases; compressing behavior into fewer lines is not simplification by
 itself.
 
+Compatibility paths kept for an older shape, such as aliases, modes, fallbacks,
+shims, and forwarding wrappers, need a current caller or a named external
+consumer. Search for callers before preserving one; without either, it is
+removable work. Include scaffolding the change itself left from earlier
+attempts.
+
 For a bug, find the owning cause and affected sibling paths rather than
 patching only the reported caller. Trace as far as needed to support that claim;
 do not turn exhaustive caller enumeration into ceremony.
@@ -61,7 +68,9 @@ scope; it does not renegotiate settled scope.
 Use the owning repository's proof requirements. Prefer the smallest check that
 can falsify the changed behavior at its stable boundary; do not add a framework,
 fixture system, or per-function suite merely to make simplification look
-responsible. A small diff without adequate proof is unfinished.
+responsible. When a cut removes an assumption about permissions, navigation,
+persisted data, or external callers, prove the behavior that replaces it. A
+small diff without adequate proof is unfinished.
 
 Stop when further cuts would trade away clarity, ownership, behavior, or proof.
 If the remaining differences are taste, say the code is already lean and ship.
