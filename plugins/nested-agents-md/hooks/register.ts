@@ -6,6 +6,7 @@ const MAIN_LOOP = 'main'
 const MAX_TOKENS = 32
 const TOKEN = /"((?:[^"\\]|\\.)*)"|'([^']*)'|([^\s"'|;&<>()`]+)/g
 const WRITTEN = /(?:>>?|\btee(?:\s+-a)?)\s*(?:"([^"]*)"|'([^']*)'|([^\s"'|;&<>()`]+))/g
+const CD = /(?:^|[;&|(]\s*)cd\s+(?:"([^"]*)"|'([^']*)'|([^\s"'|;&<>()`]+))/g
 const NONE: readonly FsAncestor[] = []
 
 type Target = { path: string; mayBeNew: boolean }
@@ -61,7 +62,7 @@ export function register(on: On): void {
     const loop = e.agentId ?? MAIN_LOOP
     const sent = given.get(loop) ?? new Set<string>()
     given.set(loop, sent)
-    const targets = await targetsOf($, paths, root)
+    const targets = await targetsOf($, paths, cdDirsOf(e), root)
     const fresh: FsAncestor[] = []
 
     for (const target of targets) {
@@ -95,6 +96,11 @@ function pathsOf(e: { tool: string } & Record<string, unknown>): Target[] | unde
   return isFileTool && typeof e.file_path === 'string' ? [{ path: e.file_path, mayBeNew: e.tool === 'Write' }] : undefined
 }
 
+const cdDirsOf = (e: { tool: string } & Record<string, unknown>): string[] =>
+  e.tool === 'Bash' && typeof e.command === 'string'
+    ? [...e.command.matchAll(CD)].map(match => match[1] ?? match[2] ?? match[3] ?? '').reverse()
+    : []
+
 function tokensOf(command: string): string[] {
   const tokens: string[] = []
 
@@ -115,17 +121,30 @@ function tokensOf(command: string): string[] {
   return tokens
 }
 
-async function targetsOf($: EngineInterface, targets: Target[], root: string): Promise<string[]> {
+async function targetsOf($: EngineInterface, targets: Target[], cdDirs: string[], root: string): Promise<string[]> {
   const [cwd, home] = await Promise.all([$.session.cwd(), $.env.get('HOME')])
-  const kept = await Promise.all(
-    targets.map(async ({ path, mayBeNew }) => {
-      const absolute = absoluteOf(path, cwd, home)
-
-      return path !== '' && isBelow(absolute, root) && (await isFileTarget($, absolute, mayBeNew)) ? absolute : undefined
-    }),
-  )
+  const bases = [...cdDirs.map(dir => absoluteOf(dir, cwd, home)), cwd]
+  const kept = await Promise.all(targets.map(target => firstTargetOf($, target, bases, home, root)))
 
   return [...new Set(kept.filter(path => path !== undefined))]
+}
+
+async function firstTargetOf(
+  $: EngineInterface,
+  { path, mayBeNew }: Target,
+  bases: string[],
+  home: string | undefined,
+  root: string,
+): Promise<string | undefined> {
+  for (const base of path === '' ? [] : bases) {
+    const absolute = absoluteOf(path, base, home)
+
+    if (isBelow(absolute, root) && (await isFileTarget($, absolute, mayBeNew))) {
+      return absolute
+    }
+  }
+
+  return undefined
 }
 
 async function isFileTarget($: EngineInterface, path: string, mayBeNew: boolean): Promise<boolean> {
@@ -166,19 +185,29 @@ async function attaches($: EngineInterface): Promise<boolean> {
 const isOn = (value: string | undefined): boolean =>
   value !== undefined && ['1', 'true', 'yes', 'on'].includes(value.trim().toLowerCase())
 
-function absoluteOf(path: string, cwd: string, home: string | undefined): string {
+function absoluteOf(path: string, base: string, home: string | undefined): string {
   if ((path === '~' || path.startsWith('~/')) && home !== undefined) {
-    return `${home.replace(/\/+$/, '')}${path.slice(1)}`
+    return normal(`${home}${path.slice(1)}`)
   }
 
-  return path.startsWith('/') ? path : `${cwd.replace(/\/+$/, '')}/${path}`
+  return normal(path.startsWith('/') ? path : `${base}/${path}`)
 }
 
-const normal = (path: string): string =>
-  path
-    .replaceAll('\\', '/')
-    .replace(/\/\.(?=\/|$)/g, '')
-    .replace(/(?<=.)\/+$/, '')
+function normal(path: string): string {
+  const parts: string[] = []
+
+  for (const part of path.replaceAll('\\', '/').split('/')) {
+    if (part === '..' && parts.length > 1) {
+      parts.pop()
+    } else if (part === '..') {
+      continue
+    } else if (part !== '.' && (part !== '' || parts.length === 0)) {
+      parts.push(part)
+    }
+  }
+
+  return parts.join('/') || '/'
+}
 
 const isBelow = (path: string, dir: string): boolean => normal(path).startsWith(`${normal(dir)}/`)
 

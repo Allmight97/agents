@@ -1,6 +1,6 @@
 {
   "name": "nested-agents-md",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Loads nested AGENTS.md for files Claude touches through Bash, Edit or Write, where the built-in agents-md mod loads them only on Read.",
   "author": {
     "name": "JStar",

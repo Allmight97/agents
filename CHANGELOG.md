@@ -4,6 +4,13 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.29.1] - 2026-10-06
+
+### Fixed
+
+- `nested-agents-md` 0.1.1 also loads nested `AGENTS.md` for a path after
+  `cd <folder>` in the same command, and for a path spelled with `..`.
+
 ## [0.29.0] - 2026-10-06
 
 ### Added

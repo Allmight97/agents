@@ -93,6 +93,21 @@ describe('nested-agents-md', () => {
     expect(await bash($, "cat > sub2/new.py <<'EOF'\nx = 1\nEOF")).toEqual(['Contents of /repo/sub2/AGENTS.md:\n\n# sub2 rules\n'])
   })
 
+  test('a path after cd resolves against that folder', async ($, on) => {
+    projectOf(on)
+
+    expect(await bash($, 'cd sub && head -2 deep/x.py')).toEqual([
+      'Contents of /repo/sub/AGENTS.md:\n\n# sub rules\n',
+      'Contents of /repo/sub/deep/AGENTS.md:\n\n# deep rules\n',
+    ])
+  })
+
+  test('a path spelled with .. resolves to the file it names', async ($, on) => {
+    projectOf(on)
+
+    expect(await bash($, 'head -2 ./sub/deep/../calc.py')).toEqual(['Contents of /repo/sub/AGENTS.md:\n\n# sub rules\n'])
+  })
+
   test('a repo-wide search and words that are not files attach nothing', async ($, on) => {
     projectOf(on)
 
