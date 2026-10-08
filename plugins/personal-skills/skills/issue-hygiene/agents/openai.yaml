@@ -1,0 +1,7 @@
+interface:
+  display_name: "Issue Hygiene"
+  short_description: "Resume-ready issue bodies, authorized writes"
+  default_prompt: "Use $issue-hygiene before writing, labeling, or closing this GitHub issue."
+
+policy:
+  allow_implicit_invocation: true

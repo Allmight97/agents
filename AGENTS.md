@@ -58,9 +58,12 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
 - Each catalog lists only the plugins its harness can use. Claude-only mods
   (`plugins/complexity-lens`, `plugins/cache-meter`,
   `plugins/nested-agents-md`) list only in
-  `.claude-plugin/marketplace.json`: other clients auto-discover their
-  `hooks/hooks.json` and cannot parse it. Their validation is
-  `claude plugin validate` and `claude plugin test`. The Codex-native plugins
+  `.claude-plugin/marketplace.json`: their `hooks/hooks.json` names
+  function-hook `modules`, which other clients auto-discover and cannot parse.
+  Their validation is `claude plugin validate` and `claude plugin test`. A
+  command-hook plugin (`plugins/issue-hygiene-reminder`, a `hooks/hooks.json`
+  with `hooks`) is portable: it lists in the Claude and Codex catalogs, and its
+  proof is its own test script. The Codex-native plugins
   (`build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`) list in the
   Codex and Grok catalogs.
 - A release is not complete until manifests, tag, GitHub Release, locally

@@ -28,6 +28,12 @@
       "description": "Claude Code mod: loads nested AGENTS.md for files Claude touches through Bash, Edit or Write; the built-in agents-md mod loads them only on Read. Claude only; needs function hooks.",
       "source": "./plugins/nested-agents-md",
       "category": "development"
+    },
+    {
+      "name": "issue-hygiene-reminder",
+      "description": "Claude Code and Codex hook: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, GitHub MCP issue writes), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
+      "source": "./plugins/issue-hygiene-reminder",
+      "category": "development"
     }
   ]
 }

@@ -214,8 +214,10 @@ def catalog_names(path: Path) -> set[str]:
 def validate_claude_only_plugins() -> None:
     """Claude-only mods list in the Claude catalog and nowhere else.
 
-    A mod's hooks/hooks.json is auto-discovered by Codex, Cursor, and Grok, which
-    cannot parse it, so no other catalog or manifest may carry the plugin.
+    A mod's hooks/hooks.json names function-hook "modules", which Codex, Cursor,
+    and Grok auto-discover and cannot parse, so no other catalog or manifest may
+    carry the plugin. A hooks.json with command "hooks" is portable and may list
+    elsewhere.
     """
     other_catalogs = {
         "Codex": catalog_names(MARKETPLACE),
@@ -230,7 +232,8 @@ def validate_claude_only_plugins() -> None:
         manifest = load_json(plugin_dir / ".claude-plugin" / "plugin.json")
         if manifest.get("name") != name:
             raise ValidationError(f"Claude marketplace {name}: manifest name differs")
-        if not (plugin_dir / "hooks" / "hooks.json").is_file():
+        hooks_file = plugin_dir / "hooks" / "hooks.json"
+        if not hooks_file.is_file() or "modules" not in load_json(hooks_file):
             continue
         for client, names in other_catalogs.items():
             if name in names:

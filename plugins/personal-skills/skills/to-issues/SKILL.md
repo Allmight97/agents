@@ -8,7 +8,7 @@ description: "Split a settled plan or parent GitHub issue into child issues, one
 Break a plan into the fewest issues that each track one coherent vertical pull
 request (tracer bullets).
 
-Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md` when present in the repo.
+Follow `issue-hygiene` for publish authorization, label gates, and body rules; the template below is the child-issue shape.
 
 ## Process
 

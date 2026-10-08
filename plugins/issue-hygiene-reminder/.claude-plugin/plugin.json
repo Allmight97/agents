@@ -1,0 +1,17 @@
+{
+  "name": "issue-hygiene-reminder",
+  "version": "0.1.0",
+  "description": "Claude Code and Codex hook: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, GitHub MCP issue writes), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "hooks",
+    "github",
+    "issues"
+  ]
+}

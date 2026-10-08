@@ -10,9 +10,11 @@ authoring checkout.
 ## Tracked
 
 - `.claude-plugin/marketplace.json`: Claude catalog (`personal-skills`,
-  `complexity-lens`, `cache-meter`, `nested-agents-md`).
+  `complexity-lens`, `cache-meter`, `nested-agents-md`,
+  `issue-hygiene-reminder`).
 - `.agents/plugins/marketplace.json`: Codex catalog (`personal-skills`,
-  `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`).
+  `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`,
+  `issue-hygiene-reminder`).
 - `.cursor-plugin/marketplace.json`: Cursor catalog (`personal-skills`).
 - `.grok-plugin/marketplace.json`: Grok Build catalog (same four plugins as
   Codex).
@@ -22,6 +24,9 @@ authoring checkout.
 - `plugins/complexity-lens/`, `plugins/cache-meter/`,
   `plugins/nested-agents-md/`: Claude-only Claude Code mods (see Claude
   Marketplace).
+- `plugins/issue-hygiene-reminder/`: a command-hook plugin for Claude Code and
+  Codex that reminds the model of the `issue-hygiene` rules before a GitHub
+  issue write.
 - `plugins/build-apple-apps/`, `plugins/m365-tenant-ops/`,
   `plugins/native-browser-bridge/`: Codex-native plugins, also listed for Grok.
 - `plugins/oura-mcp/`: a hosted Streamable HTTP service for a private ChatGPT
@@ -55,6 +60,14 @@ The Claude catalog also lists three Claude Code mods, `complexity-lens`,
 claude plugin install complexity-lens@personal
 claude plugin install cache-meter@personal
 claude plugin install nested-agents-md@personal
+```
+
+`issue-hygiene-reminder` is a command-hook plugin, not a mod, so it needs no
+function hooks and also installs in Codex (`codex plugin add
+issue-hygiene-reminder@personal`, then trust its hook under `/hooks`):
+
+```bash
+claude plugin install issue-hygiene-reminder@personal
 ```
 
 They are Claude-only. Codex, Cursor, and Grok auto-discover a plugin's
@@ -272,6 +285,7 @@ rules at the top of `CHANGELOG.md`:
    claude plugin test plugins/complexity-lens
    claude plugin test plugins/cache-meter
    claude plugin test plugins/nested-agents-md
+   sh plugins/issue-hygiene-reminder/tests/remind.test.sh
    ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
    Then create the GitHub Release object; a pushed tag alone is not a formal

@@ -4,6 +4,29 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.30.0] - 2026-10-08
+
+### Added
+
+- `issue-hygiene`, a shared skill: publish authorization, resume-ready body
+  rules (current state and one next action, evidence in the repo or the
+  issue, one open fork with a default, no decision checklists, no agent
+  names), label gates, and freshness when a referenced PR merges. It replaces
+  per-repository issue-tracker and triage-label docs.
+- `issue-hygiene-reminder` 0.1.0, a command-hook plugin for Claude Code and
+  Codex. Before a GitHub issue write (`gh issue create|edit|close|comment`,
+  `gh api` on issues, GitHub MCP issue writes) it adds a one-paragraph
+  reminder of those rules and names the skill. It never blocks. Codex runs it
+  only after its hooks are trusted.
+
+### Changed
+
+- `to-issues` follows `issue-hygiene` instead of reading a repository's
+  `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`.
+- `scripts/validate_marketplace_plugins.py` treats only a `hooks/hooks.json`
+  with function-hook `modules` as Claude-only; one with command `hooks` may
+  list in other catalogs.
+
 ## [0.29.1] - 2026-10-06
 
 ### Fixed
