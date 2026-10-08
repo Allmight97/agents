@@ -11,13 +11,13 @@ authoring checkout.
 
 - `.claude-plugin/marketplace.json`: Claude catalog (`personal-skills`,
   `complexity-lens`, `cache-meter`, `nested-agents-md`,
-  `issue-hygiene-reminder`).
+  `issue-hygiene-reminder`, `oura-mcp`).
 - `.agents/plugins/marketplace.json`: Codex catalog (`personal-skills`,
   `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`,
   `issue-hygiene-reminder`).
 - `.cursor-plugin/marketplace.json`: Cursor catalog (`personal-skills`).
-- `.grok-plugin/marketplace.json`: Grok Build catalog (same four plugins as
-  Codex).
+- `.grok-plugin/marketplace.json`: Grok Build catalog (the four Codex plugins
+  plus `oura-mcp`).
 - `plugins/personal-skills/`: the shared skill tree (`skills/`) with its
   `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.grok-plugin`
   manifests.
@@ -29,8 +29,11 @@ authoring checkout.
   issue write.
 - `plugins/build-apple-apps/`, `plugins/m365-tenant-ops/`,
   `plugins/native-browser-bridge/`: Codex-native plugins, also listed for Grok.
-- `plugins/oura-mcp/`: a hosted Streamable HTTP service for a private ChatGPT
-  MCP connection; not in any catalog.
+- `plugins/oura-mcp/`: a self-hosted Streamable HTTP MCP for one Oura
+  account. ChatGPT reaches it through the OpenAI tunnel; Claude Code and Grok
+  Build install it as a plugin that prompts for the public URL and access
+  token. Not in the Codex catalog: Codex plugin MCP servers have no documented
+  way to carry a bearer token.
 - `mcp/README.md`: local MCP notes.
 
 No plugin folder contains another plugin's manifest, and the repo root carries
@@ -219,8 +222,8 @@ Name the source `personal` so the qualifier matches Codex and Claude
 source name, keep that qualifier or rename the `[[marketplace.sources]]` entry
 in `~/.grok/config.toml`.
 
-The Grok catalog exposes four plugins: `personal-skills`, `build-apple-apps`,
-`native-browser-bridge`, and `m365-tenant-ops`, each a local folder
+The Grok catalog exposes five plugins: `personal-skills`, `build-apple-apps`,
+`native-browser-bridge`, `m365-tenant-ops`, and `oura-mcp`, each a local folder
 (`./plugins/<name>`) in the catalog checkout. Grok rejects the marketplace root
 itself as a plugin path, so the shared skills must live in their own folder.
 After install, enable a plugin if `grok plugin list` shows it disabled:

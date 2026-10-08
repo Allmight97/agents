@@ -38,6 +38,8 @@ const config = {
   clientSecret: requiredEnv("OURA_CLIENT_SECRET"),
   redirectUri: requiredEnv("OURA_REDIRECT_URI"),
   setupKey: requiredEnv("SETUP_KEY"),
+  mcpAccessToken: optionalSecret("MCP_ACCESS_TOKEN"),
+  mcpPublicHostname: process.env.MCP_PUBLIC_HOSTNAME,
   credentialFile: process.env.OURA_CREDENTIAL_FILE ?? "/data/oura-credential.json",
   port: Number(process.env.PORT ?? "8787")
 };
@@ -211,7 +213,7 @@ class OuraCredential {
 const credential = new OuraCredential();
 
 function createMcpServer() {
-  const server = new McpServer({ name: "oura-private-data", version: "1.0.0" });
+  const server = new McpServer({ name: "oura-private-data", version: "1.1.0" });
 
   server.registerTool(
     "oura_catalog",
@@ -248,7 +250,12 @@ const mcpHandler = toNodeHandler(
     responseMode: "json"
   })
 );
-const validateMcpHost = hostHeaderValidation(["oura-mcp", "localhost", "127.0.0.1"]);
+const TUNNEL_HOSTNAME = "oura-mcp";
+const validateMcpHost = hostHeaderValidation(
+  [TUNNEL_HOSTNAME, "localhost", "127.0.0.1", config.mcpPublicHostname].filter(
+    (value): value is string => Boolean(value)
+  )
+);
 const validateMcpOrigin = originValidation([
   "localhost",
   "127.0.0.1",
@@ -293,6 +300,11 @@ const server = createHttpServer(async (request, response) => {
         return;
       }
       if (!validateMcpHost(request, response) || !validateMcpOrigin(request, response)) return;
+      if (!accessTokenMatches(request)) {
+        response.setHeader("www-authenticate", "Bearer");
+        sendJson(response, 401, { error: "Unauthorized" });
+        return;
+      }
       await mcpHandler(request, response);
       return;
     }
@@ -348,9 +360,24 @@ function parseBoundary(value: string, kind: "date" | "datetime") {
 function setupKeyMatches(request: IncomingMessage) {
   const supplied = request.headers["x-setup-key"];
   const value = Array.isArray(supplied) ? supplied[0] : (supplied ?? "");
-  const left = createHash("sha256").update(value).digest();
-  const right = createHash("sha256").update(config.setupKey).digest();
-  return value.length > 0 && timingSafeEqual(left, right);
+  return secretMatches(value, config.setupKey);
+}
+
+// The tunnel client reaches the container by its service name and is already
+// authenticated by OpenAI. Every other host needs the bearer token once one is set.
+function accessTokenMatches(request: IncomingMessage) {
+  if (!config.mcpAccessToken) return true;
+  const hostname = (request.headers.host ?? "").split(":")[0];
+  if (hostname === TUNNEL_HOSTNAME) return true;
+  const supplied = request.headers.authorization ?? "";
+  const token = supplied.startsWith("Bearer ") ? supplied.slice("Bearer ".length) : "";
+  return secretMatches(token, config.mcpAccessToken);
+}
+
+function secretMatches(supplied: string, expected: string) {
+  const left = createHash("sha256").update(supplied).digest();
+  const right = createHash("sha256").update(expected).digest();
+  return supplied.length > 0 && timingSafeEqual(left, right);
 }
 
 function sendJson(response: ServerResponse, status: number, value: unknown) {
@@ -361,6 +388,12 @@ function sendJson(response: ServerResponse, status: number, value: unknown) {
 function sendText(response: ServerResponse, status: number, value: string) {
   response.writeHead(status, { "content-type": "text/plain; charset=utf-8" });
   response.end(value);
+}
+
+function optionalSecret(name: string) {
+  const value = process.env[name];
+  if (value !== undefined && value.length < 32) throw new Error(`${name} must be at least 32 characters.`);
+  return value || undefined;
 }
 
 function requiredEnv(name: string) {

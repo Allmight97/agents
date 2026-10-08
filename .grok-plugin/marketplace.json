@@ -40,6 +40,15 @@
         "type": "local",
         "path": "./plugins/native-browser-bridge"
       }
+    },
+    {
+      "name": "oura-mcp",
+      "description": "Read-only live access to one Oura account's API v2 data through a private MCP server you host.",
+      "category": "productivity",
+      "source": {
+        "type": "local",
+        "path": "./plugins/oura-mcp"
+      }
     }
   ]
 }

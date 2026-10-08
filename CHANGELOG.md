@@ -4,6 +4,18 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.31.0] - 2026-10-08
+
+### Added
+
+- `oura-mcp` 1.1.0 joins the Claude and Grok catalogs. The server accepts
+  `/mcp` on a public hostname (`MCP_PUBLIC_HOSTNAME`) when the request
+  carries the bearer token `MCP_ACCESS_TOKEN`; the OpenAI tunnel path is
+  unchanged, and with no token set the public hostname stays rejected. The
+  plugin prompts for the URL and token, and ships a user-only `oura` skill
+  that names the two tools and their bounds. Not in the Codex catalog: Codex
+  plugin MCP servers have no documented bearer mechanism.
+
 ## [0.30.0] - 2026-10-08
 
 ### Added

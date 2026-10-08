@@ -1,0 +1,32 @@
+{
+  "name": "oura-mcp",
+  "version": "1.1.0",
+  "description": "Read-only live access to one Oura account's API v2 data through a private MCP server you host.",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "oura",
+    "health"
+  ],
+  "userConfig": {
+    "mcp_url": {
+      "type": "string",
+      "title": "Oura MCP URL",
+      "description": "The /mcp endpoint on your host, for example https://your-nas.example.com/mcp",
+      "required": true
+    },
+    "access_token": {
+      "type": "string",
+      "title": "Access token",
+      "description": "The MCP_ACCESS_TOKEN value the server was started with",
+      "required": true,
+      "sensitive": true
+    }
+  }
+}

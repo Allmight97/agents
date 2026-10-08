@@ -34,6 +34,12 @@
       "description": "Claude Code and Codex hook: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, GitHub MCP issue writes), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
       "source": "./plugins/issue-hygiene-reminder",
       "category": "development"
+    },
+    {
+      "name": "oura-mcp",
+      "description": "Read-only live access to one Oura account's API v2 data through a private MCP server you host. Prompts for the server URL and access token.",
+      "source": "./plugins/oura-mcp",
+      "category": "productivity"
     }
   ]
 }

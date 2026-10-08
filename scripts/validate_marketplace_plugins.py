@@ -19,6 +19,7 @@ GROK_LOCAL_PLUGIN_PATHS = {
     "build-apple-apps": "./plugins/build-apple-apps",
     "m365-tenant-ops": "./plugins/m365-tenant-ops",
     "native-browser-bridge": "./plugins/native-browser-bridge",
+    "oura-mcp": "./plugins/oura-mcp",
 }
 MANIFEST_DIRS = (".claude-plugin", ".codex-plugin", ".cursor-plugin", ".grok-plugin")
 PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
