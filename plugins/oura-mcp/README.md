@@ -47,11 +47,19 @@ responses are never stored.
 
 ## Who may call `/mcp`
 
-- Host `oura-mcp` (the tunnel client): always.
-- Any other host: only when `MCP_ACCESS_TOKEN` is set and the request carries
-  `Authorization: Bearer <token>`; otherwise 401. The public hostname is
-  accepted only when `MCP_PUBLIC_HOSTNAME` names it. Browser origins other
-  than ChatGPT and localhost are rejected; CLI clients send no Origin.
+- Host `oura-mcp` (the tunnel client): always. The reverse proxy must preserve
+  the public request hostname; it must never rewrite it to `oura-mcp`.
+- Public host: accepted only when both `MCP_PUBLIC_HOSTNAME` and
+  `MCP_ACCESS_TOKEN` are set. Requests require `Authorization: Bearer <token>`;
+  a missing or wrong token returns 401.
+- Local diagnostics: `localhost` and `127.0.0.1` are accepted, and require the
+  bearer token when one is set. Unknown hosts return 403. Browser origins
+  other than ChatGPT and localhost are rejected; CLI clients send no Origin.
+
+An unset or empty access token disables the public hostname even if
+`MCP_PUBLIC_HOSTNAME` is configured. Nonempty tokens shorter than 32 characters
+refuse startup. Run `npm test` to check these boundaries and the public/tunnel
+authentication behavior.
 
 ## Claude Code and Grok Build
 
@@ -62,9 +70,23 @@ claude plugin install oura-mcp@personal
 The install prompts for the MCP URL (`https://<public hostname>/mcp`) and the
 access token; the token goes to the keychain, not to `settings.json`. The
 server then appears as `oura` with its two tools, and `/oura-mcp:oura` is a
-user-only skill naming their bounds. Grok Build installs the same plugin from
-the Grok catalog; whether it connects the remote MCP server is unproven until
-tried.
+user-only skill naming their bounds. Grok Build also discovers the installed
+Claude plugin and its skill. Grok Build 1.0.46 does not resolve the plugin's
+`${user_config.*}` values: its connection test fails with the literal URL
+placeholder. Configure a native user MCP entry in `~/.grok/config.toml` to
+supply the URL and bearer header; this takes precedence over the plugin's
+server definition:
+
+```toml
+[mcp_servers.oura]
+url = "https://your-nas.example.com/mcp"
+headers = { Authorization = "Bearer <MCP_ACCESS_TOKEN>" }
+```
+
+Keep that file private when storing a token there. Grok also supports
+`${ENVIRONMENT_VARIABLE}` in headers when the variable is present in the
+process environment. Verify the installed client's connection with
+`grok mcp doctor oura --json`; catalog presence alone does not prove access.
 
 Codex is not in the catalog: a Codex plugin's `mcp.json` carries a URL but no
 bearer token. Use ChatGPT's tunnel connection there.
