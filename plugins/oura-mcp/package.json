@@ -5,7 +5,8 @@
   "scripts": {
     "check": "tsc --noEmit",
     "build": "tsc --noEmit false --outDir dist",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "npm run build && node --test auth.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/node": "2.0.0",

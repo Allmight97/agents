@@ -252,7 +252,7 @@ const mcpHandler = toNodeHandler(
 );
 const TUNNEL_HOSTNAME = "oura-mcp";
 const validateMcpHost = hostHeaderValidation(
-  [TUNNEL_HOSTNAME, "localhost", "127.0.0.1", config.mcpPublicHostname].filter(
+  [TUNNEL_HOSTNAME, "localhost", "127.0.0.1", config.mcpAccessToken ? config.mcpPublicHostname : undefined].filter(
     (value): value is string => Boolean(value)
   )
 );
@@ -392,7 +392,7 @@ function sendText(response: ServerResponse, status: number, value: string) {
 
 function optionalSecret(name: string) {
   const value = process.env[name];
-  if (value !== undefined && value.length < 32) throw new Error(`${name} must be at least 32 characters.`);
+  if (value && value.length < 32) throw new Error(`${name} must be at least 32 characters.`);
   return value || undefined;
 }
 
