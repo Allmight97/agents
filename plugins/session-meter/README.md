@@ -5,19 +5,21 @@ prompt-cache use as one line above the prompt, and counts down to the moment
 the cache lapses.
 
 ```
-ctx 12% · 5h 2% · wk 2% · cache 100% · read 566k · wrote 1.1k · new 2 · 59:38 / 1h · warm
+ctx 12% · 5h 2% 4h14m · wk 2% · cache 100% · read 566k · wrote 1.1k · new 2 · 59:38 · warm
 ```
 
 - `ctx N%`: share of the context window in use.
 - `5h N%`, `wk N%`: share of the five-hour and weekly plan limits used, as the
   last API response reported them. Absent off a subscription. Green below 50%,
-  yellow below 80%, red from 80%.
+  yellow below 80%, red from 80%. After `5h N%` comes the time until the
+  five-hour window resets (`4h14m`, or `42m` under an hour).
 - `cache N%`: share of the last request's prompt that the cache served. Green
   from 90%, yellow from 50%, red below.
 - `read`, `wrote`, `new`: tokens read from the cache, written to it, and sent
   uncached.
-- `59:38 / 1h`: time left, then the cache lifetime. The clock turns yellow, then
-  red as the cache runs out.
+- `59:38`: time until the cache lapses. It starts at the cache lifetime (5:00
+  or 1:00:00) and turns yellow, then red as the cache runs out. `/meter` names the
+  lifetime.
 - The last word is the advice: `warm`, `expires soon`, `expired: /compact`,
   `expired`, `missed`, `cold`, `uncached`, or `off`.
 

@@ -1,6 +1,6 @@
 // Run with: claude plugin test plugins/session-meter
 import { describe, expect, test } from 'claude-code/testing'
-import { addTurn, fmtReset, limitLabel, planLimits, share, usageColor } from '../hooks/usage.ts'
+import { addTurn, fmtReset, fmtResetShort, limitLabel, planLimits, share, usageColor } from '../hooks/usage.ts'
 
 const usage = { input_tokens: 10, output_tokens: 5, cache_read_input_tokens: 80, cache_creation_input_tokens: 10 }
 const NOW = Date.parse('2026-10-10T12:00:00Z')
@@ -24,6 +24,7 @@ describe('plan limits', () => {
     expect(fmtReset('2026-10-12T15:00:00Z', NOW)).toBe('2d 3h')
     expect(fmtReset('2026-10-10T11:00:00Z', NOW)).toBe('')
     expect(fmtReset(undefined, NOW)).toBe('')
+    expect(fmtResetShort('2026-10-10T16:14:00Z', NOW)).toBe('4h14m')
   })
 })
 

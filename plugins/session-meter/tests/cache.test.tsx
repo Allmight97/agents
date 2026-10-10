@@ -150,7 +150,7 @@ describe('per-turn rows', () => {
 // The module end to end: a main-loop request feeds the band, a subagent's does not.
 type Calls = { status: (string | undefined)[]; logs: string[] }
 
-function fakeEngine(on: On, env: Record<string, string>, calls: Calls, cache = { read: 80_000, write: 1_000 }, limits: { kind: string; percentUsed: number }[] = []) {
+function fakeEngine(on: On, env: Record<string, string>, calls: Calls, cache = { read: 80_000, write: 1_000 }, limits: { kind: string; percentUsed: number; resetsAt?: string }[] = []) {
   on('session.usage', () => ({ value: { startedAt: 0, context: {}, rateLimits: limits } }) as never)
   on('session.start', async ($, e) => ({ cwd: e.cwd }) as never)
   on('session.end', async () => ({ sessionId: 's1' }) as never)
@@ -207,7 +207,7 @@ describe('the band', () => {
     expect(calls.status).toEqual([])
     await step($)
     const ui = await band($)
-    expect(await line(ui)).toMatch(/^cache 98% · read 80k · wrote 1k · new 300 · [45]:\d\d \/ 5m · warm$/)
+    expect(await line(ui)).toMatch(/^cache 98% · read 80k · wrote 1k · new 300 · [45]:\d\d · warm$/)
     expect(await ui.find({ type: 'Text', text: '98%' })).toMatchObject({ props: { color: 'green', bold: true } })
     expect(await ui.find({ type: 'Text', text: 'read 80k' })).toMatchObject({ props: { color: 'green' } })
     expect(await ui.find({ type: 'Text', text: 'wrote 1k' })).toMatchObject({ props: { color: 'yellow' } })
@@ -234,7 +234,18 @@ describe('the band', () => {
     expect(calls.logs.join('\n')).toContain('1h cache (ENABLE_PROMPT_CACHING_1H)')
     await step($)
     const ui = await band($)
-    expect(await line(ui)).toMatch(/ \/ 1h · warm$/)
+    expect(await line(ui)).toMatch(/ (1:00:00|59:\d\d) · warm$/)
+    await ui.unmount()
+  })
+
+  test('the five-hour limit shows the time until it resets', async ($, on) => {
+    const calls: Calls = { status: [], logs: [] }
+    const resetsAt = new Date(Date.now() + (2 * 60 + 14) * 60_000 + 30_000).toISOString()
+    fakeEngine(on, {}, calls, undefined, [{ kind: 'five_hour', percentUsed: 25, resetsAt }, { kind: 'seven_day', percentUsed: 5, resetsAt }])
+    await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
+    await step($)
+    const ui = await band($, 200)
+    expect(await line(ui)).toMatch(/^5h 25% 2h14m · wk 5% · cache /)
     await ui.unmount()
   })
 
@@ -291,10 +302,10 @@ describe('the band', () => {
     await step($)
     for (const surface of ['terminal', 'desktop'] as const) {
       for (const [columns, shape] of [
-        [100, /^cache 98% · read 80k · wrote 1k · new 300 · [45]:\d\d \/ 5m · warm$/],
-        [55, /^cache 98% · read 80k · wrote 1k · new 300 · [45]:\d\d \/ 5m$/],
-        [45, /^cache 98% · read 80k · wrote 1k · [45]:\d\d \/ 5m$/],
-        [35, /^cache 98% · read 80k · [45]:\d\d \/ 5m$/],
+        [100, /^cache 98% · read 80k · wrote 1k · new 300 · [45]:\d\d · warm$/],
+        [50, /^cache 98% · read 80k · wrote 1k · new 300 · [45]:\d\d$/],
+        [40, /^cache 98% · read 80k · wrote 1k · [45]:\d\d$/],
+        [30, /^cache 98% · read 80k · [45]:\d\d$/],
       ] as const) {
         const ui = await band($, columns, surface)
         expect(await line(ui)).toMatch(shape)
@@ -336,7 +347,7 @@ describe('the band', () => {
       { key: 'read', text: 'read 80k' },
       { key: 'wrote', text: 'wrote 1k' },
       { key: 'new', text: 'new 300' },
-      { key: 'clock', text: '4:59 / 5m' },
+      { key: 'clock', text: '4:59' },
       { key: 'advice', text: 'warm' },
     ] as const
     expect(fitParts(parts, 1).map(p => p.key)).toEqual(['cache', 'clock'])
