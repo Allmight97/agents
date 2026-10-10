@@ -62,7 +62,9 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
   `plugins/explore-model`) list only in
   `.claude-plugin/marketplace.json`: their `hooks/hooks.json` names
   function-hook `modules`, which other clients auto-discover and cannot parse.
-  Their validation is `claude plugin validate` and `claude plugin test`. A
+  Their validation is `claude plugin validate` and `claude plugin test`, run
+  with every plugin's tests by `scripts/test_plugins.py`, which finds tests by
+  file name. A
   command-hook plugin (`plugins/issue-hygiene-reminder`, a `hooks/hooks.json`
   with `hooks`) is portable: it lists in the Claude and Codex catalogs, and its
   proof is its own test script. The Codex-native plugins
