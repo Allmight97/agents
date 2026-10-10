@@ -1,19 +1,24 @@
 /**
- * cache-meter — Claude Mod (EARLY ACCESS)
+ * session-meter — Claude Mod (EARLY ACCESS)
  *
- * A prompt-cache meter for Claude Code. Every main-loop request reports how
- * many prompt tokens the cache served (`cache_read_input_tokens`), wrote
+ * A session meter for Claude Code: prompt cache, context window, plan limits
+ * and subagent usage. Every main-loop request reports how many prompt tokens the cache served (`cache_read_input_tokens`), wrote
  * (`cache_creation_input_tokens`) and sent uncached (`input_tokens`); this mod
  * keeps those per request and per turn, counts down to the moment the cache
  * lapses, and says what to do about it: keep going, /compact or /clear.
  *
  *   - `turn.step` reads each main-loop request's usage (subagents have their
  *     own prefixes and are left out)
+ *   - `session.measure` reads the context fill and the plan's rate-limit
+ *     windows (five-hour, weekly)
+ *   - `agent.spawn` names each subagent; `turn.complete` adds each subagent
+ *     turn's tokens to its row
  *   - `$.clock.every(1000)` redraws the countdown, and only while its text
  *     changes: an idle, expired session costs nothing
  *   - one compact line above the prompt (the AbovePrompt component; it keeps what other
  *     band mods draw), an optional status
- *     line entry, and `/cache`, a pane with one row per turn
+ *     line entry, and `/meter`, a pane with context, limits, one row per turn and one
+ *     per subagent
  *
  * The lifetime is counted from the start of the request that last wrote or read
  * the cache, as Anthropic documents it. Which lifetime Claude Code asked for
@@ -26,7 +31,7 @@
  *
  * Needs CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 (Claude Code >= 2.1.259).
  *
- * Options (pluginConfigs["cache-meter@personal"].options):
+ * Options (pluginConfigs["session-meter@personal"].options):
  *   ttl: "auto" | "5m" | "1h"   cache lifetime (default auto)
  *   warnSeconds: number         countdown threshold for the warning (default 60)
  *   compactAtTokens: number     prompt size that makes an expired cache suggest /compact (default 100000)
@@ -59,9 +64,11 @@ import {
   segments,
 } from './cache.ts'
 import type { Account, Advice, BandPart, CacheEnv, Sample, Ttl } from './cache.ts'
+import { addTurn, fmtReset, limitLabel, planLimits, share, stepTokens, usageColor } from './usage.ts'
+import type { AgentTally, Limit, Tokens } from './usage.ts'
 
-const PANE = 'cache'
-const COMMAND = 'cache'
+const PANE = 'meter'
+const COMMAND = 'meter'
 const KEEP = 200
 // below this a lapsed cache costs too little to interrupt anyone about
 const TOAST_MIN_TOKENS = 20_000
@@ -81,6 +88,16 @@ let lastKey = ''
 let toastedFor = 0
 let toastLevel = Infinity
 let isPaneOpen = false
+let context: { tokens?: number; window: number; percent?: number } | undefined
+let limits: Limit[] = []
+let mainTokens: Tokens = { input: 0, output: 0 }
+let agents = new Map<string, AgentTally>()
+const agentLabels = new Map<string, string>()
+
+function resetUsage() {
+  mainTokens = { input: 0, output: 0 }
+  agents = new Map()
+}
 
 type Policy = { warnMs: number; compactAtTokens: number }
 
@@ -141,6 +158,10 @@ export const register: Register = (on, options) => {
     samples = []
     lastKey = ''
     toastedFor = 0
+    resetUsage()
+    const measured = await $.session.usage().catch(() => undefined)
+    context = measured?.context
+    limits = measured?.rateLimits ?? []
     const none = () => undefined
     env = {
       enable1h: await $.env.get('ENABLE_PROMPT_CACHING_1H').catch(none),
@@ -154,7 +175,7 @@ export const register: Register = (on, options) => {
     pinned = options.ttl === '5m' || options.ttl === '1h'
     observed = undefined
     setting = await readSetting($)
-    account = accountOf((await $.session.usage().catch(() => undefined))?.rateLimits ?? [])
+    account = accountOf(limits)
     const choice = decideTtl(options.ttl, env, setting, account)
     baseTtl = choice.ttl
     ttl = baseTtl
@@ -164,12 +185,12 @@ export const register: Register = (on, options) => {
     await $.command
       .register({
         name: COMMAND,
-        description: 'Prompt-cache usage per turn and the time left before it lapses (stop closes)',
+        description: 'Context, plan limits, prompt cache per turn and subagent usage (stop closes)',
         argumentHint: '[stop]',
         immediate: true,
       })
-      .catch(err => $.ui.log(`cache-meter: /${COMMAND} not registered: ${err}`))
-    $.ui.log(`cache-meter loaded: ${ttl} cache (${ttlSource}), /${COMMAND} opens the table`, { to: 'debug' })
+      .catch(err => $.ui.log(`session-meter: /${COMMAND} not registered: ${err}`))
+    $.ui.log(`session-meter loaded: ${ttl} cache (${ttlSource}), /${COMMAND} opens the pane`, { to: 'debug' })
 
     timer?.cancel()
     timer = $.clock.every(1000, () => {
@@ -205,6 +226,7 @@ export const register: Register = (on, options) => {
       samples = []
       lastKey = ''
       toastedFor = 0
+      resetUsage()
       observed = undefined
       ttl = baseTtl
       ttlSource = envSource
@@ -234,6 +256,8 @@ export const register: Register = (on, options) => {
       }
       samples.push(sample)
       if (samples.length > KEEP) samples = samples.slice(-KEEP)
+      const step = stepTokens(r.usage)
+      mainTokens = { input: mainTokens.input + step.input, output: mainTokens.output + step.output }
       if (!pinned) {
         // the account can change under a session: a subscription running out of plan usage moves to usage credits
         account = accountOf((await $.session.usage().catch(() => undefined))?.rateLimits ?? [])
@@ -249,7 +273,7 @@ export const register: Register = (on, options) => {
           observed = seen
           ttl = seen ?? baseTtl
           ttlSource = `observed from request timing; ${envSource} said ${baseTtl}`
-          $.ui.log(`cache-meter: cache lifetime is ${ttl} (${ttlSource})`, { to: 'debug' })
+          $.ui.log(`session-meter: cache lifetime is ${ttl} (${ttlSource})`, { to: 'debug' })
         }
       }
       lastKey = ''
@@ -259,14 +283,35 @@ export const register: Register = (on, options) => {
     return r
   })
 
+  on('session.measure', async ($, e, next) => {
+    context = e.context
+    limits = e.rateLimits
+    $.ui.invalidate('ui.render')
+    return next(e)
+  })
+
+  on('agent.spawn', async ($, e, next) => {
+    const r = await next(e)
+    if (r.agentId) agentLabels.set(r.agentId, `${e.subagentType}: ${e.description}`)
+    return r
+  })
+
+  on('turn.complete', async ($, e, next) => {
+    if (e.agentId && e.usage) {
+      agents.set(e.agentId, addTurn(agents.get(e.agentId), e.agentId, agentLabels.get(e.agentId) ?? e.agentId, e.usage))
+      if (isPaneOpen) $.ui.invalidate('ui.render')
+    }
+    return next(e)
+  })
+
   on('command.run', { command: COMMAND }, async ($, e) => {
     if (e.args.trim().toLowerCase() === 'stop') {
       await $.ui.close({ id: PANE }).catch(() => undefined)
       isPaneOpen = false
-      return { text: 'cache table closed' }
+      return { text: 'session meter closed' }
     }
     isPaneOpen = true
-    await $.ui.open({ id: PANE, title: 'cache', focus: true })
+    await $.ui.open({ id: PANE, title: 'session meter', focus: true })
     $.ui.invalidate('ui.render')
     const { advice } = current(policy, Date.now())
     return { text: `${ttl} cache (${ttlSource}) · ${advice.text} · /${COMMAND} stop closes` }
@@ -302,7 +347,11 @@ export const register: Register = (on, options) => {
 
     const pct = Math.round(hitRatio(last) * 100)
     const counting = advice.kind !== 'uncached' && advice.kind !== 'off'
+    const ctxPct = context?.percent === undefined ? undefined : Math.round(context.percent)
+    const plan = planLimits(limits).filter(l => l.kind === 'five_hour' || l.kind === 'seven_day')
     const parts: BandPart[] = [
+      ...(ctxPct === undefined ? [] : [{ key: 'ctx' as const, text: `ctx ${ctxPct}%` }]),
+      ...plan.map(l => ({ key: (l.kind === 'five_hour' ? '5h' : 'wk') as BandPart['key'], text: `${limitLabel(l.kind)} ${Math.round(l.percentUsed)}%` })),
       { key: 'cache', text: `cache ${pct}%` },
       { key: 'read', text: `read ${fmtTokens(last.read)}` },
       { key: 'wrote', text: `wrote ${fmtTokens(last.write)}` },
@@ -313,6 +362,10 @@ export const register: Register = (on, options) => {
     type Cell = { key: string; text: string; color?: string; bold?: boolean }
     const cells = fitParts(parts, columns).flatMap((part, i): Cell[] => {
       const lead: Cell[] = i > 0 ? [{ key: `${part.key}:dot`, text: '·' }] : []
+      if (part.key === 'ctx' || part.key === '5h' || part.key === 'wk') {
+        const value = part.key === 'ctx' ? (ctxPct ?? 0) : Math.round(plan.find(l => limitLabel(l.kind) === part.key)?.percentUsed ?? 0)
+        return [...lead, { key: part.key, text: part.key, color: 'cyan' }, { key: `${part.key}:pct`, text: `${value}%`, color: usageColor(value), bold: true }]
+      }
       if (part.key === 'cache') {
         return [...lead, { key: 'cache', text: 'cache', color: 'cyan', bold: true }, { key: 'pct', text: `${pct}%`, color: ratioColor(pct), bold: true }]
       }
@@ -363,13 +416,44 @@ export const register: Register = (on, options) => {
     const lifeFilled = Math.round(life * barW)
     const [sr, sw, sn] = last ? segments(last.read, last.write, last.fresh, barW) : [0, 0, 0]
     const rows = all.slice(-Math.max(3, (e.viewport?.rows ?? 24) - 16))
+    const meters = [
+      ...(context?.percent === undefined
+        ? []
+        : [{ key: 'ctx', label: 'context', pct: context.percent, note: `${fmtTokens(context.tokens ?? 0)} / ${fmtTokens(context.window)}` }]),
+      ...planLimits(limits).map(l => {
+        const reset = fmtReset(l.resetsAt, now)
+        return { key: l.kind, label: limitLabel(l.kind), pct: l.percentUsed, note: reset ? `resets in ${reset}` : '' }
+      }),
+    ]
+    const agentRows = [...agents.values()].sort((a, b) => b.input + b.output - (a.input + a.output))
+    const total: Tokens = agentRows.reduce((t, a) => ({ input: t.input + a.input, output: t.output + a.output }), mainTokens)
     const icon = advice.kind === 'warm' ? '●' : advice.kind === 'soon' ? '▲' : advice.kind === 'expired' || advice.kind === 'miss' ? '✖' : '○'
 
     return (
       <Box flexDirection="column">
         <Box key="title" flexDirection="row" columnGap={1}>
-          <Text bold color="cyan">{sp('⚡ PROMPT CACHE')}</Text>
+          <Text bold color="cyan">{sp('⚡ SESSION METER')}</Text>
           <Text dimColor>{sp(`· ${ttl} lifetime (${ttlSource})`)}</Text>
+        </Box>
+
+        <Box key="usage" flexDirection="column" marginTop={1}>
+          <Text bold color="cyan">{sp('CONTEXT AND PLAN LIMITS')}</Text>
+          {meters.length === 0 ? <Text dimColor>{sp('no reading yet')}</Text> : null}
+          {meters.map(m => {
+            const filled = Math.round((Math.min(100, m.pct) / 100) * barW)
+            return (
+              <Box key={`m:${m.key}`} flexDirection="row" columnGap={1}>
+                {cell(`m:label:${m.key}`, 7, m.label, 'cyan', true)}
+                {solid(`m:bar:${m.key}`, [[filled, usageColor(m.pct)], [barW - filled, 'gray']])}
+                <Text bold color={usageColor(m.pct)}>{sp(`${Math.round(m.pct)}%`)}</Text>
+                <Text dimColor>{sp(m.note)}</Text>
+              </Box>
+            )
+          })}
+        </Box>
+
+        <Box key="cachehead" marginTop={1}>
+          <Text bold color="cyan">{sp('PROMPT CACHE')}</Text>
         </Box>
 
         <Box key="clock" flexDirection="column" marginTop={1}>
@@ -425,6 +509,30 @@ export const register: Register = (on, options) => {
               </Box>
             )
           })}
+        </Box>
+
+        <Box key="agents" flexDirection="column" marginTop={1}>
+          <Text bold color="cyan">{sp('SUBAGENTS')}</Text>
+          <Text dimColor>{sp(fit(`main loop ${fmtTokens(mainTokens.input)} in · ${fmtTokens(mainTokens.output)} out · ${share(mainTokens, total)}% of session tokens`, width))}</Text>
+          {agentRows.length === 0 ? <Text dimColor>{sp('none this session')}</Text> : null}
+          {agentRows.length > 0 ? (
+            <Box key="ahead" flexDirection="row" columnGap={1}>
+              {cell('ah:turns', 5, 'turns', 'cyan', true)}
+              {cell('ah:in', 6, 'in', 'green', true)}
+              {cell('ah:out', 6, 'out', 'yellow', true)}
+              {cell('ah:share', 5, 'share', 'magenta', true)}
+              <Text bold color="cyan">{sp('agent')}</Text>
+            </Box>
+          ) : null}
+          {agentRows.map(a => (
+            <Box key={`a:${a.id}`} flexDirection="row" columnGap={1}>
+              {cell(`a:turns:${a.id}`, 5, String(a.turns))}
+              {cell(`a:in:${a.id}`, 6, fmtTokens(a.input), 'green')}
+              {cell(`a:out:${a.id}`, 6, fmtTokens(a.output), 'yellow')}
+              {cell(`a:share:${a.id}`, 5, `${share(a, total)}%`, 'magenta', true)}
+              <Text dimColor wrap="truncate-end">{sp(fit(a.label, Math.max(10, width - 28)))}</Text>
+            </Box>
+          ))}
         </Box>
 
         <Box key="foot" marginTop={1} flexDirection="column">

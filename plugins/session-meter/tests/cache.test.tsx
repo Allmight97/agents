@@ -1,4 +1,4 @@
-// Run with: CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test plugins/cache-meter
+// Run with: claude plugin test plugins/session-meter
 import { describe, expect, test } from 'claude-code/testing'
 import {
   advise,
@@ -195,7 +195,7 @@ async function step($: Engine, over: { turnId?: string; index?: number; agentId?
 
 const bandProps = (bodyColumns: number) => ({ hasSurvey: false, bodyColumns }) as never
 const band = ($: Engine, bodyColumns = 100, surface: 'terminal' | 'desktop' = 'terminal') =>
-  $.ui.mount({ plugin: 'cache-meter', surface, component: 'AbovePrompt', props: bandProps(bodyColumns) })
+  $.ui.mount({ plugin: 'session-meter', surface, component: 'AbovePrompt', props: bandProps(bodyColumns) })
 const line = async (ui: Awaited<ReturnType<typeof band>>) => (await ui.findAll({ type: 'Text' })).filter(t => t.text !== 'other mod band').map(t => t.text).join(' ')
 
 describe('the band', () => {
@@ -339,7 +339,7 @@ describe('the band', () => {
       { key: 'clock', text: '4:59 / 5m' },
       { key: 'advice', text: 'warm' },
     ] as const
-    expect(fitParts(parts, 1).map(p => p.key)).toEqual(['cache', 'read', 'clock'])
+    expect(fitParts(parts, 1).map(p => p.key)).toEqual(['cache', 'clock'])
   })
 })
 

@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-`cache-meter` is adapted from `prompt-cache-control` in
+`session-meter` is adapted from `prompt-cache-control` in
 [`davila7/claude-code-templates`](https://github.com/davila7/claude-code-templates),
 path `cli-tool/components/mods/observability/prompt-cache-control`, taken at
 commit `ef41915c4b69c2b8e2dfa37ae65977e438f853d0`. The upstream author is
@@ -8,7 +8,7 @@ commit `ef41915c4b69c2b8e2dfa37ae65977e438f853d0`. The upstream author is
 
 ## Changes
 
-- Renamed to `cache-meter`; the hooks module is `hooks/cache-meter.tsx`.
+- Renamed to `session-meter`; the hooks module is `hooks/session-meter.tsx`.
 - The `AbovePrompt` band is one compact line with no bar and no glyphs. It sizes
   itself to `bodyColumns`, drops parts when narrow, and draws what other band
   mods return beneath it.

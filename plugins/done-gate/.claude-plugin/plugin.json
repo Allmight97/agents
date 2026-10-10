@@ -1,0 +1,13 @@
+{
+  "name": "done-gate",
+  "version": "0.1.0",
+  "description": "Blocks Claude from ending a turn while code under guarded paths differs from the working tree that last passed the repository's check command. Proof is a git tree id of the whole working tree, so edits through Edit, Write, Bash or a subagent all count. Blocks once, then lets the turn end with a toast. Inactive without .claude/done-gate.json. Needs function hooks (early access).",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": ["mod", "function-hooks", "verification", "stop-hook"]
+}
