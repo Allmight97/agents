@@ -4,6 +4,19 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [Unreleased]
+
+### Changed
+
+- `scripts/refresh_harnesses.py` updates and verifies every plugin installed
+  from the `personal` marketplace in the Claude Code CLI, mods included, not
+  only Personal Skills.
+- `scripts/test_plugins.py` runs every plugin's tests, found by file name; CI
+  runs it on every pull request and push to main.
+- `release_metadata.py set` refuses unless local `main` matches `origin/main`.
+- `validate_skills.py` runs the pinned `skills-ref` through `uvx` when it is
+  not installed.
+
 ## [0.33.1] - 2026-10-10
 
 ### Changed

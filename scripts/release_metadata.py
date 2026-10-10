@@ -7,6 +7,7 @@ import argparse
 import json
 import re
 import shutil
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -149,9 +150,28 @@ def validate() -> str:
     return expected
 
 
+def require_synced_main() -> None:
+    """A release cut from a main that differs from origin/main would drop or hide commits."""
+
+    def git(*args: str) -> str:
+        return subprocess.run(["git", *args], cwd=ROOT, check=True, capture_output=True, text=True).stdout.strip()
+
+    branch = git("branch", "--show-current")
+    if branch != "main":
+        raise ReleaseMetadataError(f"release from main, not {branch or 'a detached HEAD'}")
+    git("fetch", "--quiet", "origin", "main")
+    ahead, behind = git("rev-list", "--left-right", "--count", "HEAD...origin/main").split()
+    if ahead != "0" or behind != "0":
+        raise ReleaseMetadataError(
+            f"main is {ahead} commit(s) ahead of and {behind} behind origin/main; "
+            "push or pull until they match"
+        )
+
+
 def synchronize(version: str, cachebuster: str | None) -> str:
     if SEMVER_RE.fullmatch(version) is None:
         raise ReleaseMetadataError(f"unsupported semantic version: {version!r}")
+    require_synced_main()
 
     changelog_version = latest_changelog_version()
     if changelog_version != version:
@@ -217,7 +237,7 @@ def main() -> int:
         else:
             version = validate()
             print(f"release metadata aligned at {version}")
-    except (OSError, json.JSONDecodeError, KeyError, StopIteration, ReleaseMetadataError) as error:
+    except (OSError, json.JSONDecodeError, KeyError, StopIteration, subprocess.CalledProcessError, ReleaseMetadataError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
     return 0
