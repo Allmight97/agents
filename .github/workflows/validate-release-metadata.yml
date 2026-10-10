@@ -17,12 +17,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install pinned Agent Skills reference validator
-        run: >-
-          python3 -m pip install
-          "check-jsonschema==0.37.4"
-          "PyYAML==6.0.3"
-          "git+https://github.com/agentskills/agentskills.git@217be548739f21d6008915c29aefe320ea1a90af#subdirectory=skills-ref"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: astral-sh/setup-uv@v6
+      - name: Install validators and the Claude Code CLI
+        run: |
+          python3 -m pip install "check-jsonschema==0.37.4" "PyYAML==6.0.3"
+          npm install --global @anthropic-ai/claude-code@2.1.296
       - name: Validate every Agent Skill
         run: python3 scripts/validate_skills.py
       - name: Validate native Codex plugins
@@ -46,3 +48,5 @@ jobs:
             plugins/build-apple-apps/mcp.json
       - name: Check manifest and marketplace alignment
         run: python3 scripts/release_metadata.py check
+      - name: Run every plugin's tests
+        run: python3 scripts/test_plugins.py

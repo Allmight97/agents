@@ -23,6 +23,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+SKILLS_REF_PIN = "git+https://github.com/agentskills/agentskills.git@217be548739f21d6008915c29aefe320ea1a90af#subdirectory=skills-ref"
 EXTENSION_KEYS = {"disable-model-invocation", "user-invocable"}
 SPEC_KEYS = {"name", "description", "license", "allowed-tools", "metadata", "compatibility"}
 
@@ -73,16 +74,22 @@ def check_skill(skill_file: Path, scratch: Path) -> list[str]:
     (target / "SKILL.md").write_text(
         "---\n" + yaml.safe_dump(portable, sort_keys=False, allow_unicode=True, width=10**6) + "---\n" + body
     )
-    result = subprocess.run(["skills-ref", "validate", str(target)], capture_output=True, text=True)
+    result = subprocess.run([*skills_ref(), "validate", str(target)], capture_output=True, text=True)
     if result.returncode != 0:
         errors.append((result.stdout + result.stderr).strip() or "skills-ref validate failed")
     shutil.rmtree(target)
     return errors
 
 
+def skills_ref() -> list[str]:
+    if shutil.which("skills-ref"):
+        return ["skills-ref"]
+    return ["uvx", "--from", SKILLS_REF_PIN, "skills-ref"]
+
+
 def main() -> int:
-    if shutil.which("skills-ref") is None:
-        print("skills-ref is not installed; see the pinned install in the CI workflow", file=sys.stderr)
+    if shutil.which("skills-ref") is None and shutil.which("uvx") is None:
+        print("install uv (for uvx) or skills-ref: python3 -m pip install " + SKILLS_REF_PIN, file=sys.stderr)
         return 2
     skill_files = sorted(
         p

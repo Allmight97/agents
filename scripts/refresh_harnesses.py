@@ -158,24 +158,31 @@ def claude_plugins(exe: str) -> list[dict[str, Any]]:
     return payload if isinstance(payload, list) else payload.get("installed", [])
 
 
-def claude_cli(expected_version: str, refresh: bool) -> str:
+def repo_version(plugin_id: str) -> str:
+    name = plugin_id.split("@")[0]
+    return release_metadata.load_json(ROOT / "plugins" / name / ".claude-plugin" / "plugin.json")["version"]
+
+
+def claude_cli(refresh: bool) -> str:
+    """Every plugin installed from the personal marketplace, mods included, at this release's version."""
     exe = resolve_executable("claude", bundled_claude())
     if exe is None:
         return "Claude Code CLI: unavailable (claude executable not found)"
-    if not plugin_matches(claude_plugins(exe)):
-        return (
-            f"Claude Code CLI: {PLUGIN_ID} not installed from a CLI marketplace; "
-            "Claude Desktop is checked separately"
-        )
+    installed = {p["id"]: p.get("version") for p in claude_plugins(exe) if p.get("id", "").endswith("@personal")}
+    if not installed:
+        return "Claude Code CLI: no @personal plugins installed; Claude Desktop is checked separately"
+    expected = {plugin_id: repo_version(plugin_id) for plugin_id in installed}
     if refresh:
         run(exe, "plugin", "marketplace", "update", "personal")
-        run(exe, "plugin", "update", PLUGIN_ID)
-    actual = find_plugin(claude_plugins(exe)).get("version")
-    if actual != expected_version:
-        raise HarnessError(
-            f"Claude Code CLI: expected {expected_version}, found {actual!r}"
-        )
-    return f"Claude Code CLI: current at {actual}"
+        for plugin_id, version in installed.items():
+            if version != expected[plugin_id]:
+                run(exe, "plugin", "update", plugin_id)
+    actual = {p["id"]: p.get("version") for p in claude_plugins(exe)}
+    stale = [f"{i} is {actual.get(i)!r}, expected {v}" for i, v in expected.items() if actual.get(i) != v]
+    if stale:
+        raise HarnessError("Claude Code CLI: " + "; ".join(stale))
+    current = ", ".join(f"{i.split('@')[0]} {v}" for i, v in sorted(expected.items()))
+    return f"Claude Code CLI: current ({current}); /reload-plugins or a new session applies updates"
 
 
 def claude_desktop(expected_version: str) -> str:
@@ -359,7 +366,7 @@ def main() -> int:
     checks = (
         lambda: github_release(version),
         lambda: codex(codex_version, not args.check_only),
-        lambda: claude_cli(version, not args.check_only),
+        lambda: claude_cli(not args.check_only),
         lambda: claude_desktop(version),
         lambda: grok(version, not args.check_only),
         lambda: cursor(version, commit, not args.check_only),

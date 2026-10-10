@@ -84,7 +84,8 @@ other catalog and manifest; `scripts/validate_marketplace_plugins.py` enforces
 that. `plugins/complexity-lens/scripts/complexity_rank.py` is a copy of
 `plugins/personal-skills/skills/whittle/scripts/complexity_rank.py`;
 `release_metadata.py set` refreshes it. Test a mod with
-`claude plugin test plugins/<name>`.
+`claude plugin test plugins/<name>`; `python3 scripts/test_plugins.py` runs
+every plugin's tests.
 
 To publish a new skill or revision, follow the repository release workflow
 below, then update or reload the installed plugin.
@@ -267,7 +268,8 @@ rules at the top of `CHANGELOG.md`:
    section; omit intermediate churn and unchanged surfaces.
 3. Synchronize every `plugins/personal-skills` manifest from that changelog
    version. The command also gives Codex a fresh cache-buster and ensures each
-   catalog's `personal-skills` entry is a version-free local source:
+   catalog's `personal-skills` entry is a version-free local source. It
+   refuses unless local `main` matches `origin/main`:
 
    ```bash
    python3 scripts/release_metadata.py set X.Y.Z
@@ -278,11 +280,13 @@ rules at the top of `CHANGELOG.md`:
    versions and name them in the same changelog section.
 4. Validate changed skills, every plugin manifest, and the catalogs. CI runs
    `scripts/validate_skills.py` on every `SKILL.md` (pinned Agent Skills
-   reference validator, `skills-ref` on `PATH`, plus explicit-only parity),
+   reference validator: `skills-ref` on `PATH`, else the pinned commit
+   through `uvx`; plus explicit-only parity),
    `scripts/validate_codex_plugins.py` with the pinned Codex validator (it
    strips `disable-model-invocation`, which that validator predates and the
-   Codex runtime ignores), `scripts/validate_marketplace_plugins.py`, and
-   `scripts/release_metadata.py check`. Check locally with:
+   Codex runtime ignores), `scripts/validate_marketplace_plugins.py`,
+   `scripts/release_metadata.py check`, and `scripts/test_plugins.py`. Check
+   locally with:
 
    ```bash
    python3 scripts/validate_skills.py
@@ -290,12 +294,7 @@ rules at the top of `CHANGELOG.md`:
    python3 scripts/release_metadata.py check
    claude plugin validate .
    for p in plugins/*/; do claude plugin validate "$p"; done
-   claude plugin test plugins/complexity-lens
-   claude plugin test plugins/session-meter
-   claude plugin test plugins/nested-agents-md
-   claude plugin test plugins/done-gate
-   claude plugin test plugins/explore-model
-   sh plugins/issue-hygiene-reminder/tests/remind.test.sh
+   python3 scripts/test_plugins.py
    ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.
    Then create the GitHub Release object; a pushed tag alone is not a formal
@@ -313,7 +312,8 @@ rules at the top of `CHANGELOG.md`:
    python3 scripts/refresh_harnesses.py
    ```
 
-   Codex, the Claude Code CLI, and Grok Build are refreshed automatically when
+   Codex, the Claude Code CLI (every plugin installed from the `personal`
+   marketplace, mods included), and Grok Build are refreshed automatically when
    their CLIs are installed; the script also finds the CLIs bundled with the
    ChatGPT and Claude Desktop apps. Claude Desktop syncs Personal Skills from the
    claude.ai account: the script verifies that copy, but updating it happens in
