@@ -16,6 +16,7 @@ Run `bash scripts/check.sh` and fix any failure before you finish.
 - At the end of a main-loop turn, the mod compares the tree with the last
   proven one, or with the tree at session start when nothing passed yet. If a
   changed file is under `paths`, it blocks the turn once and names the check.
+  With `resolve`, the repository's own command decides instead (below).
 - The second stop in a row goes through, so a turn cannot loop. A toast then
   says the turn finished without a passing check.
 - A broken config blocks once with the reason. A failure inside the mod blocks
@@ -37,6 +38,13 @@ mod does nothing.
   absent means every file.
 - `hint`: the command named in the block message. Defaults to the first
   pattern.
+- `resolve`: optional. A command and its arguments, run from the repository
+  root, that decides which checks are unmet. It reads JSON on stdin,
+  `{ "changed": [files changed since session start], "passes": [{ "command",
+  "changed": [files changed since that command passed] }] }`, and prints one
+  unmet check per line (nothing when all are met). With `resolve`, `paths` and
+  `hint` are unused. Use it when the repository already owns a map from paths
+  to checks, so the map has one owner.
 
 Limits: a check passes when the tests it runs pass, so deleting a failing test
 passes too. The tree id is written through a private index at

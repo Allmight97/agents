@@ -1,6 +1,6 @@
 // Run with: claude plugin test plugins/done-gate
 import { describe, expect, test } from 'claude-code/testing'
-import { decide, isCheck, parseConfig } from '../hooks/gate.ts'
+import { decide, decideResolved, isCheck, parseConfig } from '../hooks/gate.ts'
 import type { Config } from '../hooks/gate.ts'
 
 const config = (over: object = {}): Config => {
@@ -20,6 +20,10 @@ describe('parseConfig', () => {
 
   test('rejects an invalid pattern', () => {
     expect(parseConfig('{"checks": ["("]}')).toEqual({ error: '"checks" holds an invalid regular expression' })
+  })
+
+  test('rejects an empty resolve command', () => {
+    expect(parseConfig('{"checks": ["x"], "resolve": []}')).toEqual({ error: '"resolve" must be a non-empty command and argument list' })
   })
 
   test('uses the first check as the hint when none is given', () => {
@@ -53,5 +57,20 @@ describe('decide', () => {
 
   test('guards every file when paths is empty', () => {
     expect(decide({ config: config({ paths: [] }), unproven: ['README.md'], isRetry: false }).kind).toBe('block')
+  })
+})
+
+describe('decideResolved', () => {
+  test('passes when the repository reports nothing unmet', () => {
+    expect(decideResolved({ unmet: [], isRetry: false })).toEqual({ kind: 'pass' })
+  })
+
+  test('blocks with each unmet check the repository printed', () => {
+    const verdict = decideResolved({ unmet: ['bash scripts/verify.sh engine', 'bash scripts/verify.sh host'], isRetry: false })
+    expect(verdict.kind === 'block' && verdict.reason.includes('verify.sh engine; bash scripts/verify.sh host')).toBe(true)
+  })
+
+  test('releases the retry', () => {
+    expect(decideResolved({ unmet: ['bash scripts/verify.sh engine'], isRetry: true }).kind).toBe('release')
   })
 })
