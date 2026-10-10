@@ -4,6 +4,17 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.33.1] - 2026-10-10
+
+### Changed
+
+- `session-meter` 0.2.1: the band shows the time until the five-hour plan
+  window resets after its percentage (`5h 25% 2h14m`, `42m` under an hour),
+  and the cache countdown drops its `/ 1h` suffix; `/meter` still names the
+  cache lifetime.
+- `explore-model` README: which model the `haiku` alias resolves to on each
+  provider, and how to pin one.
+
 ## [0.33.0] - 2026-10-10
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "session-meter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Session meter as one compact line above the Claude Code prompt: context-window fill, five-hour and weekly plan-limit use, and prompt-cache use with a live countdown to the cache's expiry and what to do about it (keep going, compact or clear). /meter opens a pane with context and limit bars and reset times, a per-turn cache table, and one row per subagent with its turns, tokens and share of the session's tokens. The cache TTL follows Claude Code's own rules for your account and corrects itself from request timing. Needs function hooks (early access).",
   "author": {
     "name": "JStar",
