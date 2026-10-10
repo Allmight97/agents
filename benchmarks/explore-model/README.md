@@ -33,8 +33,7 @@ with every request, billed at the model's cache-read price.
    subagent per combination, passing `model` and `effort` on the Agent call
    (none for the default; disable the `explore-model` mod first, or it
    fills Haiku in). Run them in the background.
-3. Grade each report against the key with the rubric (`round1-rubric.md`; the
-   round 2 and 3 rubrics are inside their keys) before mapping codes to
+3. Grade each report against the rubric inside its round's key file before mapping codes to
    combinations. A fabricated location scores the task 0.
 4. `python3 cost.py ~/.claude/projects/<project dir>/<session id>` prints cost,
    time and tool calls per run.

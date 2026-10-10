@@ -9,7 +9,9 @@ and effort change. A call that names its own model or effort keeps it.
 Why Haiku: `benchmarks/explore-model/` in this repository. On audiobook-boss,
 Haiku matched the main-model Explore on every task at about 1/30 the cost.
 
-Options (`model`, `effort`) are in `.claude-plugin/plugin.json`. Needs function
+`haiku` is an alias: on the Anthropic API it tracks the newest Haiku (Haiku
+5.5 from Claude Code 2.1.293); on Bedrock, Vertex and Foundry it resolves to
+Haiku 4.5. Options (`model`, `effort`) are in `.claude-plugin/plugin.json`. Needs function
 hooks (early access).
 
 Install with `/plugin install explore-model --marketplace Allmight97/agents`.

@@ -19,9 +19,6 @@ export function withExploreDefaults<T extends { subagent_type?: string; model?: 
 }
 
 export const register: Register = (on, options) => {
-  const defaults: Defaults = {
-    model: typeof options.model === 'string' ? options.model : 'haiku',
-    effort: typeof options.effort === 'string' ? options.effort : 'medium',
-  }
+  const defaults: Defaults = { model: String(options.model), effort: String(options.effort) }
   on('tool.call', { tool: 'Agent' }, ($, e, next) => next(withExploreDefaults(e, defaults)))
 }
