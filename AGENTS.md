@@ -4,7 +4,8 @@
 
 - The repository root is a marketplace, never a plugin: it holds one catalog
   per harness (`.claude-plugin/`, `.agents/plugins/`, `.cursor-plugin/`,
-  `.grok-plugin/`), docs, scripts, and CI. Every plugin is one folder under
+  `.grok-plugin/`), docs, scripts, CI, and `benchmarks/` (measurement kits that
+  no catalog lists). Every plugin is one folder under
   `plugins/<name>/` with its own per-harness manifests, and no plugin folder
   contains another plugin's manifest. claude.ai's marketplace sync rejects a
   plugin whose tree holds a nested `.claude-plugin/plugin.json`;
@@ -57,7 +58,8 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
   authority, runtime, or lifecycle.
 - Each catalog lists only the plugins its harness can use. Claude-only mods
   (`plugins/complexity-lens`, `plugins/session-meter`,
-  `plugins/nested-agents-md`, `plugins/done-gate`) list only in
+  `plugins/nested-agents-md`, `plugins/done-gate`,
+  `plugins/explore-model`) list only in
   `.claude-plugin/marketplace.json`: their `hooks/hooks.json` names
   function-hook `modules`, which other clients auto-discover and cannot parse.
   Their validation is `claude plugin validate` and `claude plugin test`. A

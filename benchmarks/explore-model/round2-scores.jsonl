@@ -1,0 +1,32 @@
+{"task":"R1","combo":"k1","rep":"r1","score":1.0,"fab":false}
+{"task":"R1","combo":"k1","rep":"r2","score":1.0,"fab":false}
+{"task":"R1","combo":"k2","rep":"r1","score":1.0,"fab":false}
+{"task":"R1","combo":"k2","rep":"r2","score":1.0,"fab":false}
+{"task":"R1","combo":"k3","rep":"r1","score":1.0,"fab":false}
+{"task":"R1","combo":"k3","rep":"r2","score":1.0,"fab":false}
+{"task":"R1","combo":"k4","rep":"r1","score":1.0,"fab":false}
+{"task":"R1","combo":"k4","rep":"r2","score":1.0,"fab":false}
+{"task":"R2","combo":"k4","rep":"r2","score":0.5,"fab":false,"note":"says none; no engine code location"}
+{"task":"R2","combo":"k4","rep":"r1","score":0.5,"fab":false,"note":"says none; no engine code location"}
+{"task":"R2","combo":"k1","rep":"r2","score":0.5,"fab":false,"note":"says none; no engine code location"}
+{"task":"R2","combo":"k2","rep":"r2","score":0.5,"fab":false,"note":"says none; no engine code location"}
+{"task":"R2","combo":"k1","rep":"r1","score":0.5,"fab":false,"note":"says none; no engine code location"}
+{"task":"R2","combo":"k2","rep":"r1","score":0.5,"fab":false,"note":"says none; no engine code location"}
+{"task":"R2","combo":"k3","rep":"r1","score":0.5,"fab":false,"note":"cites engine AGENTS.md, no code"}
+{"task":"R2","combo":"k3","rep":"r2","score":0.5,"fab":false,"note":"cites AGENTS.md"}
+{"task":"R3","combo":"k4","rep":"r2","score":1.0,"fab":false,"note":"said 15 entries, listed 13"}
+{"task":"R3","combo":"k4","rep":"r1","score":1.0,"fab":false}
+{"task":"R3","combo":"k1","rep":"r1","score":1.0,"fab":false,"note":"said 14 entries, listed 13"}
+{"task":"R4","combo":"k4","rep":"r1","score":1.0,"fab":false}
+{"task":"R3","combo":"k1","rep":"r2","score":1.0,"fab":false}
+{"task":"R3","combo":"k2","rep":"r1","score":1.0,"fab":false}
+{"task":"R3","combo":"k2","rep":"r2","score":1.0,"fab":false}
+{"task":"R3","combo":"k3","rep":"r1","score":1.0,"fab":false}
+{"task":"R3","combo":"k3","rep":"r2","score":1.0,"fab":false}
+{"task":"R4","combo":"k4","rep":"r2","score":1.0,"fab":false}
+{"task":"R4","combo":"k1","rep":"r2","score":1.0,"fab":false}
+{"task":"R4","combo":"k2","rep":"r1","score":1.0,"fab":false}
+{"task":"R4","combo":"k1","rep":"r1","score":1.0,"fab":false}
+{"task":"R4","combo":"k2","rep":"r2","score":1.0,"fab":false}
+{"task":"R4","combo":"k3","rep":"r2","score":1.0,"fab":false}
+{"task":"R4","combo":"k3","rep":"r1","score":1.0,"fab":false}

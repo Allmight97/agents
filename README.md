@@ -10,7 +10,7 @@ authoring checkout.
 ## Tracked
 
 - `.claude-plugin/marketplace.json`: Claude catalog (`personal-skills`,
-  `complexity-lens`, `session-meter`, `nested-agents-md`, `done-gate`,
+  `complexity-lens`, `session-meter`, `nested-agents-md`, `done-gate`, `explore-model`,
   `issue-hygiene-reminder`, `oura-mcp`).
 - `.agents/plugins/marketplace.json`: Codex catalog (`personal-skills`,
   `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`,
@@ -22,8 +22,11 @@ authoring checkout.
   `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.grok-plugin`
   manifests.
 - `plugins/complexity-lens/`, `plugins/session-meter/`,
-  `plugins/nested-agents-md/`, `plugins/done-gate/`: Claude-only Claude Code mods (see Claude
+  `plugins/nested-agents-md/`, `plugins/done-gate/`,
+  `plugins/explore-model/`: Claude-only Claude Code mods (see Claude
   Marketplace).
+- `benchmarks/explore-model/`: the measurement behind running the Explore
+  subagent on Haiku. Not a plugin; no catalog lists it.
 - `plugins/issue-hygiene-reminder/`: a command-hook plugin for Claude Code and
   Codex that reminds the model of the `issue-hygiene` rules before a GitHub
   issue write.
@@ -55,8 +58,8 @@ Plugin skills are namespaced, for example `/personal-skills:diagnose` and
 `/personal-skills:whittle`. Whittle lives in this shared skill tree, not as a
 separate plugin.
 
-The Claude catalog also lists four Claude Code mods, `complexity-lens`,
-`session-meter`, `nested-agents-md`, and `done-gate`. They need function hooks (Claude Code
+The Claude catalog also lists five Claude Code mods, `complexity-lens`,
+`session-meter`, `nested-agents-md`, `done-gate`, and `explore-model`. They need function hooks (Claude Code
 2.1.287 or later; earlier builds need `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`):
 
 ```bash
@@ -64,6 +67,7 @@ claude plugin install complexity-lens@personal
 claude plugin install session-meter@personal
 claude plugin install nested-agents-md@personal
 claude plugin install done-gate@personal
+claude plugin install explore-model@personal
 ```
 
 `issue-hygiene-reminder` is a command-hook plugin, not a mod, so it needs no
@@ -290,6 +294,7 @@ rules at the top of `CHANGELOG.md`:
    claude plugin test plugins/session-meter
    claude plugin test plugins/nested-agents-md
    claude plugin test plugins/done-gate
+   claude plugin test plugins/explore-model
    sh plugins/issue-hygiene-reminder/tests/remind.test.sh
    ```
 5. Commit, tag the repository release as `vX.Y.Z`, and push the commit and tag.

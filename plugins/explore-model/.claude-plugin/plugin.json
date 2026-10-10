@@ -1,0 +1,29 @@
+{
+  "name": "explore-model",
+  "version": "0.1.0",
+  "description": "Runs the built-in Explore subagent on a chosen model and effort (default Haiku, medium) whenever the Agent call leaves them out. Keeps Anthropic's Explore prompt and read-only tools; a call that names its own model or effort keeps it. Needs function hooks (early access).",
+  "author": {
+    "name": "JStar",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": ["mod", "function-hooks", "subagents", "cost"],
+  "userConfig": {
+    "model": {
+      "type": "string",
+      "title": "Explore model",
+      "description": "Model for Explore subagents whose Agent call names none",
+      "default": "haiku",
+      "options": ["haiku", "sonnet", "opus"]
+    },
+    "effort": {
+      "type": "string",
+      "title": "Explore effort",
+      "description": "Reasoning effort for Explore subagents whose Agent call names none",
+      "default": "medium",
+      "options": ["low", "medium", "high"]
+    }
+  }
+}
