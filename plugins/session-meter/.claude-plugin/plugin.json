@@ -1,7 +1,7 @@
 {
-  "name": "cache-meter",
+  "name": "session-meter",
   "version": "0.1.0",
-  "description": "Prompt-cache meter as one compact line above the Claude Code prompt: how many tokens each request read from, wrote to and sent past the cache, a live countdown to the cache's expiry, and what to do about it (keep going, compact or clear). The TTL follows Claude Code's own rules for your account (1 hour on a Claude subscription, 5 minutes on an API key, cloud provider or usage credits, plus the TTL variables and setting) and corrects itself from request timing. /cache opens a per-turn table. Needs function hooks (early access).",
+  "description": "Session meter as one compact line above the Claude Code prompt: context-window fill, five-hour and weekly plan-limit use, and prompt-cache use with a live countdown to the cache's expiry and what to do about it (keep going, compact or clear). /meter opens a pane with context and limit bars and reset times, a per-turn cache table, and one row per subagent with its turns, tokens and share of the session's tokens. The cache TTL follows Claude Code's own rules for your account and corrects itself from request timing. Needs function hooks (early access).",
   "author": {
     "name": "JStar",
     "url": "https://github.com/Allmight97"
@@ -14,6 +14,8 @@
     "function-hooks",
     "observability",
     "prompt-caching",
+    "rate-limits",
+    "subagents",
     "cost"
   ],
   "userConfig": {

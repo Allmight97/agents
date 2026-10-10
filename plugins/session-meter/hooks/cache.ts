@@ -1,5 +1,5 @@
 /**
- * cache.ts — the pure half of cache-meter: no `$`, no engine.
+ * cache.ts — the pure half of session-meter's prompt-cache view: no `$`, no engine.
  *
  * What it models, from Anthropic's prompt-caching documentation:
  *   - the cache lives 5 minutes by default, 1 hour when asked for; a read
@@ -245,13 +245,13 @@ export function ratioColor(pct: number): 'green' | 'yellow' | 'red' {
   return pct >= 90 ? 'green' : pct >= 50 ? 'yellow' : 'red'
 }
 
-export type BandPart = { key: 'cache' | 'read' | 'wrote' | 'new' | 'clock' | 'advice'; text: string }
+export type BandPart = { key: 'ctx' | '5h' | 'wk' | 'cache' | 'read' | 'wrote' | 'new' | 'clock' | 'advice'; text: string }
 
-/** The widest prefix of the parts that fits `columns` joined by ' · '; advice goes first, then new, then wrote. */
+/** The parts that fit `columns` joined by ' · '; advice goes first, then new, wrote, read and the weekly limit. */
 export function fitParts(parts: readonly BandPart[], columns: number): BandPart[] {
   const width = (list: readonly BandPart[]) => list.reduce((n, p) => n + p.text.length, 0) + 3 * Math.max(0, list.length - 1)
   let kept = [...parts]
-  for (const drop of ['advice', 'new', 'wrote'] as const) {
+  for (const drop of ['advice', 'new', 'wrote', 'read', 'wk'] as const) {
     if (width(kept) <= columns) break
     kept = kept.filter(p => p.key !== drop)
   }

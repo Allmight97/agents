@@ -56,7 +56,7 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
   ordinary helper scripts. Split when the component needs its own installation,
   authority, runtime, or lifecycle.
 - Each catalog lists only the plugins its harness can use. Claude-only mods
-  (`plugins/complexity-lens`, `plugins/cache-meter`,
+  (`plugins/complexity-lens`, `plugins/session-meter`,
   `plugins/nested-agents-md`, `plugins/done-gate`) list only in
   `.claude-plugin/marketplace.json`: their `hooks/hooks.json` names
   function-hook `modules`, which other clients auto-discover and cannot parse.
