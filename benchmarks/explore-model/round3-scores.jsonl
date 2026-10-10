@@ -1,0 +1,18 @@
+{"task":"H1","combo":"k2","rep":"r2","score":1.0,"fab":false,"note":"very thorough; found atomic write + host retry dialog"}
+{"task":"H1","combo":"k1","rep":"r2","score":1.0,"fab":false}
+{"task":"H1","combo":"k1","rep":"r1","score":0.875,"fab":false,"note":"missed saved-vs-IPC separation; wrongly said AGENTS.md is silent on compatibility"}
+{"task":"H1","combo":"k2","rep":"r1","score":1.0,"fab":false}
+{"task":"H1","combo":"k3","rep":"r1","score":1.0,"fab":false}
+{"task":"H1","combo":"k3","rep":"r2","score":1.0,"fab":false}
+{"task":"H2","combo":"k2","rep":"r2","score":0.875,"fab":false,"note":"missed abandoned-workspace sweep; found guard drop + post-commit cancel nuance"}
+{"task":"H3","combo":"k1","rep":"r1","score":1.0,"fab":false,"note":"very thorough incl tag_registry freeform atom, fakeEngine fixture"}
+{"task":"H2","combo":"k3","rep":"r2","score":1.0,"fab":false}
+{"task":"H2","combo":"k1","rep":"r1","score":1.0,"fab":false}
+{"task":"H2","combo":"k2","rep":"r1","score":1.0,"fab":false}
+{"task":"H3","combo":"k3","rep":"r1","score":1.0,"fab":false}
+{"task":"H3","combo":"k1","rep":"r2","score":1.0,"fab":false}
+{"task":"H2","combo":"k1","rep":"r2","score":1.0,"fab":false}
+{"task":"H3","combo":"k2","rep":"r2","score":1.0,"fab":false}
+{"task":"H3","combo":"k2","rep":"r1","score":1.0,"fab":false}
+{"task":"H3","combo":"k3","rep":"r2","score":1.0,"fab":false}
+{"task":"H2","combo":"k3","rep":"r1","score":1.0,"fab":false}

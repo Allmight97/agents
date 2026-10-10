@@ -37,7 +37,7 @@ def request_cost(model, usage):
 
 def run_row(meta_path):
     desc = json.load(open(meta_path)).get('description', '')
-    if not re.match(r'(bench|b2) ', desc):
+    if not re.match(r'(bench|b2|b3) ', desc):
         return None
     task, combo = desc.split()[1:3]
     cost = 0.0

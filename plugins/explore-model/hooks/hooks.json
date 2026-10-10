@@ -1,0 +1,6 @@
+{
+  "description": "explore-model: tool.call on Agent fills model and effort for subagent_type Explore when the call leaves them out",
+  "modules": [
+    "./explore-model.ts"
+  ]
+}

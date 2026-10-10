@@ -36,6 +36,12 @@
       "category": "development"
     },
     {
+      "name": "explore-model",
+      "description": "Claude Code mod: runs the built-in Explore subagent on a chosen model and effort (default Haiku, medium) when the Agent call names none. Claude only; needs function hooks.",
+      "source": "./plugins/explore-model",
+      "category": "development"
+    },
+    {
       "name": "issue-hygiene-reminder",
       "description": "Claude Code and Codex hook: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, GitHub MCP issue writes), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
       "source": "./plugins/issue-hygiene-reminder",

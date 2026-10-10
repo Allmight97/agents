@@ -3,13 +3,13 @@
 Each task is one Explore subagent call against `/Users/jstar/Projects/audiobook-boss`
 (read only). Every combination gets the same prompt text. Only `model` and
 `effort` change. The description must start `bench T<n> c<k>` (round 1) or
-`b2 R<n> k<k> r<rep>` (round 2) so `cost.py` can find the run.
+`b2 R<n> k<k> r<rep>` (round 2) or `b3 H<n> k<k> r<rep>` (round 3) so `cost.py` can find the run.
 
 Every prompt ends with the same report shape:
 
 > Report: ANSWER (each hop or location as path:line function), CONFIDENCE
 > (high/medium/low with one reason), WRONG_LEADS (leads checked that turned
-> out wrong). Under 400 words.
+> out wrong). Under 400 words (500 in round 3).
 
 ## Round 1: ordinary searches
 
@@ -46,3 +46,20 @@ Every prompt ends with the same report shape:
   condition under which begin_lookup_apply returns without starting an apply,
   what state (if any) it changes on that path, and which SessionOutcome each
   path produces. Also say what happens on the success path.
+
+## Round 3: hard, multi-module searches
+
+- **H1 settings survival.** How does the app keep the user's settings across
+  launches and app upgrades? Say where they are stored, what happens with a
+  missing, damaged, or older-format settings file, how compatibility with
+  older saved files is protected, and what happens when a save fails
+  (including at shutdown). Cite the code, not only docs.
+- **H2 cancel cleanup.** When the user cancels a processing (export) job
+  mid-encode, what happens to partial and temporary files, and to output
+  folders the app created? Trace from the cancel action through the Tauri
+  command and the engine to the code that cleans up or keeps each kind of file.
+- **H3 change impact.** A developer wants to add a new editable metadata field
+  (for example "translator", written to an MP4 tag). Using the existing
+  narrator field as the model, which files across the frontend, the generated
+  bindings, the engine, and the metadata crates must change, and what does
+  each change do?
