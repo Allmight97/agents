@@ -61,7 +61,12 @@ const listed = (items: readonly string[]) =>
 function verdict(unmet: readonly string[], isRetry: boolean, block: string): Verdict {
   if (unmet.length === 0) return { kind: 'pass' }
   if (isRetry) return { kind: 'release', reason: `finished without a passing check (${listed(unmet)})` }
-  return { kind: 'block', reason: `${block} If the check cannot run here, say why in your reply.` }
+  return {
+    kind: 'block',
+    reason:
+      `${block} Run each command as given, with no pipe, redirect or chained command, so its exit code is the check's. ` +
+      'If the check cannot run here, say why in your reply.',
+  }
 }
 
 export function decide(input: { config: Config; unproven: readonly string[]; isRetry: boolean }): Verdict {
