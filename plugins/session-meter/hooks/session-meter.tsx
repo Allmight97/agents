@@ -64,7 +64,7 @@ import {
   segments,
 } from './cache.ts'
 import type { Account, Advice, BandPart, CacheEnv, Sample, Ttl } from './cache.ts'
-import { addTurn, fmtReset, limitLabel, planLimits, share, stepTokens, usageColor } from './usage.ts'
+import { addTurn, fmtReset, fmtResetShort, limitLabel, planLimits, share, stepTokens, usageColor } from './usage.ts'
 import type { AgentTally, Limit, Tokens } from './usage.ts'
 
 const PANE = 'meter'
@@ -119,6 +119,8 @@ const COLOR: Record<Advice['kind'], string | undefined> = {
   cold: undefined,
   uncached: undefined,
 }
+
+const fiveHourReset = (now: number) => fmtResetShort(limits.find(l => l.kind === 'five_hour')?.resetsAt, now)
 
 function shortLine(policy: Policy, now: number): string {
   const { last, advice, left } = current(policy, now)
@@ -196,7 +198,7 @@ export const register: Register = (on, options) => {
     timer = $.clock.every(1000, () => {
       const now = Date.now()
       const { last, advice, left } = current(policy, now)
-      const key = `${advice.kind}|${advice.text}|${left > 0 ? fmtClock(left) : ''}`
+      const key = `${advice.kind}|${advice.text}|${left > 0 ? fmtClock(left) : ''}|${fiveHourReset(now)}`
       if (key !== lastKey) {
         lastKey = key
         if (showStatus) $.ui.status(shortLine(policy, now))
@@ -349,14 +351,18 @@ export const register: Register = (on, options) => {
     const counting = advice.kind !== 'uncached' && advice.kind !== 'off'
     const ctxPct = context?.percent === undefined ? undefined : Math.round(context.percent)
     const plan = planLimits(limits).filter(l => l.kind === 'five_hour' || l.kind === 'seven_day')
+    const reset = fiveHourReset(Date.now())
     const parts: BandPart[] = [
       ...(ctxPct === undefined ? [] : [{ key: 'ctx' as const, text: `ctx ${ctxPct}%` }]),
-      ...plan.map(l => ({ key: (l.kind === 'five_hour' ? '5h' : 'wk') as BandPart['key'], text: `${limitLabel(l.kind)} ${Math.round(l.percentUsed)}%` })),
+      ...plan.map(l => ({
+        key: (l.kind === 'five_hour' ? '5h' : 'wk') as BandPart['key'],
+        text: `${limitLabel(l.kind)} ${Math.round(l.percentUsed)}%${l.kind === 'five_hour' && reset ? ` ${reset}` : ''}`,
+      })),
       { key: 'cache', text: `cache ${pct}%` },
       { key: 'read', text: `read ${fmtTokens(last.read)}` },
       { key: 'wrote', text: `wrote ${fmtTokens(last.write)}` },
       { key: 'new', text: `new ${fmtTokens(last.fresh)}` },
-      ...(counting ? [{ key: 'clock' as const, text: `${fmtClock(left)} / ${ttl}` }] : []),
+      ...(counting ? [{ key: 'clock' as const, text: fmtClock(left) }] : []),
       { key: 'advice', text: advice.short },
     ]
     type Cell = { key: string; text: string; color?: string; bold?: boolean }
@@ -364,14 +370,15 @@ export const register: Register = (on, options) => {
       const lead: Cell[] = i > 0 ? [{ key: `${part.key}:dot`, text: '·' }] : []
       if (part.key === 'ctx' || part.key === '5h' || part.key === 'wk') {
         const value = part.key === 'ctx' ? (ctxPct ?? 0) : Math.round(plan.find(l => limitLabel(l.kind) === part.key)?.percentUsed ?? 0)
-        return [...lead, { key: part.key, text: part.key, color: 'cyan' }, { key: `${part.key}:pct`, text: `${value}%`, color: usageColor(value), bold: true }]
+        const resetCell: Cell[] = part.key === '5h' && reset ? [{ key: '5h:reset', text: reset }] : []
+        return [...lead, { key: part.key, text: part.key, color: 'cyan' }, { key: `${part.key}:pct`, text: `${value}%`, color: usageColor(value), bold: true }, ...resetCell]
       }
       if (part.key === 'cache') {
         return [...lead, { key: 'cache', text: 'cache', color: 'cyan', bold: true }, { key: 'pct', text: `${pct}%`, color: ratioColor(pct), bold: true }]
       }
       if (part.key === 'clock') {
         const color = left > 0 ? lifeColor(left, ttl, policy.warnMs) : 'red'
-        return [...lead, { key: 'clock', text: fmtClock(left), color, bold: true }, { key: 'ttl', text: `/ ${ttl}` }]
+        return [...lead, { key: 'clock', text: fmtClock(left), color, bold: true }]
       }
       const color = part.key === 'read' ? 'green' : part.key === 'wrote' ? 'yellow' : part.key === 'new' ? 'cyan' : undefined
       return [...lead, { key: part.key, text: part.text, color }]

@@ -42,6 +42,9 @@ export function fmtReset(resetsAt: string | undefined, now: number): string {
   return hours > 0 ? `${hours}h ${mins % 60}m` : `${mins}m`
 }
 
+/** `fmtReset` without the space, for the band: `4h14m`. */
+export const fmtResetShort = (resetsAt: string | undefined, now: number): string => fmtReset(resetsAt, now).replace(' ', '')
+
 export const stepTokens = (u: StepUsage): Tokens => ({
   input: u.input_tokens + u.cache_read_input_tokens + u.cache_creation_input_tokens,
   output: u.output_tokens,
