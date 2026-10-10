@@ -1,6 +1,6 @@
 {
   "name": "oura-mcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Read-only live access to one Oura account's API v2 data through a private MCP server you host.",
   "author": {
     "name": "JStar",

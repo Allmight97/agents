@@ -4,6 +4,35 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.32.0] - 2026-10-10
+
+### Added
+
+- `done-gate` 0.1.0, a Claude Code mod in the Claude catalog. It blocks the
+  main loop from ending a turn while changed files have not passed the
+  repository's check: a Bash command matching `checks` in
+  `.claude/done-gate.json` that ends without error records a git tree id of
+  the whole working tree, and a stop with files changed since then blocks
+  once, then ends with a toast. A `resolve` command lets the repository say
+  which checks are unmet (audiobook-boss answers from its verify.sh lane
+  map). Inactive without the config file.
+
+### Changed
+
+- `cache-meter` is now `session-meter` 0.2.0. The band adds context fill and
+  five-hour and weekly plan-limit use; `/meter` (was `/cache`) adds limit
+  bars with reset times and one row per subagent with its turns, tokens and
+  share of the session's tokens. Reinstall as `session-meter@personal`;
+  options saved under `cache-meter` reset to defaults.
+- `issue-hygiene-reminder` 0.1.1: its Codex manifest passes the pinned Codex
+  validator. The `hooks` field is gone (Codex loads the default
+  `hooks/hooks.json`, the same file) and an `interface` block is added.
+
+### Fixed
+
+- `oura-mcp` 1.1.1: the public hostname is accepted only when
+  `MCP_ACCESS_TOKEN` is set, and an empty token variable counts as unset.
+
 ## [0.31.0] - 2026-10-08
 
 ### Added
