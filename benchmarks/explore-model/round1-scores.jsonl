@@ -1,0 +1,30 @@
+{"task":"T1","combo":"c2","score":0.8,"fab":false,"note":"no in-memory note at start; register_auth not named (admitted unread)"}
+{"task":"T1","combo":"c3","score":1.0,"fab":false,"note":""}
+{"task":"T1","combo":"c4","score":1.0,"fab":false,"note":""}
+{"task":"T1","combo":"c5","score":1.0,"fab":false,"note":""}
+{"task":"T1","combo":"c6","score":1.0,"fab":false,"note":""}
+{"task":"T2","combo":"c1","score":1.0,"fab":false,"note":""}
+{"task":"T2","combo":"c2","score":1.0,"fab":false,"note":""}
+{"task":"T2","combo":"c3","score":1.0,"fab":false,"note":""}
+{"task":"T2","combo":"c4","score":1.0,"fab":false,"note":""}
+{"task":"T2","combo":"c5","score":1.0,"fab":false,"note":"also found selection-change gap"}
+{"task":"T2","combo":"c6","score":1.0,"fab":false,"note":"also found selection-change gap"}
+{"task":"T1","combo":"c1","score":1.0,"fab":false,"note":""}
+{"task":"T5","combo":"c1","score":1.0,"fab":false,"note":""}
+{"task":"T5","combo":"c2","score":1.0,"fab":false,"note":""}
+{"task":"T5","combo":"c3","score":1.0,"fab":false,"note":""}
+{"task":"T5","combo":"c4","score":1.0,"fab":false,"note":""}
+{"task":"T5","combo":"c5","score":1.0,"fab":false,"note":""}
+{"task":"T5","combo":"c6","score":1.0,"fab":false,"note":""}
+{"task":"T3","combo":"c4","score":0.857,"fab":false,"note":"missed preserve path (called comment-iTunSMPB hits test-only)"}
+{"task":"T4","combo":"c2","score":0.875,"fab":false,"note":"chain starts at run_acquisition_job; no ui.rs/start_acquisition hop"}
+{"task":"T4","combo":"c5","score":1.0,"fab":false,"note":""}
+{"task":"T4","combo":"c3","score":0.875,"fab":false,"note":"chain starts at mod.rs start_acquisition; no ui.rs hop"}
+{"task":"T4","combo":"c1","score":1.0,"fab":false,"note":""}
+{"task":"T4","combo":"c4","score":1.0,"fab":false,"note":""}
+{"task":"T3","combo":"c5","score":0.857,"fab":false,"note":"missed preserve path; named test helper run.rs:513 as caller"}
+{"task":"T3","combo":"c3","score":0.857,"fab":false,"note":"missed preserve path"}
+{"task":"T4","combo":"c6","score":1.0,"fab":false,"note":""}
+{"task":"T3","combo":"c2","score":0.714,"fab":false,"note":"missed preserve path; chain stops at merge_audio_files_with_context (no job layer)"}
+{"task":"T3","combo":"c1","score":0.857,"fab":false,"note":"missed preserve path (all combos did; item 5 is a weak key item)"}
+{"task":"T3","combo":"c6","score":0.857,"fab":false,"note":"missed preserve path"}

@@ -24,6 +24,8 @@ authoring checkout.
 - `plugins/complexity-lens/`, `plugins/session-meter/`,
   `plugins/nested-agents-md/`, `plugins/done-gate/`: Claude-only Claude Code mods (see Claude
   Marketplace).
+- `benchmarks/explore-model/`: the measurement behind running the Explore
+  subagent on Haiku. Not a plugin; no catalog lists it.
 - `plugins/issue-hygiene-reminder/`: a command-hook plugin for Claude Code and
   Codex that reminds the model of the `issue-hygiene` rules before a GitHub
   issue write.

@@ -4,7 +4,8 @@
 
 - The repository root is a marketplace, never a plugin: it holds one catalog
   per harness (`.claude-plugin/`, `.agents/plugins/`, `.cursor-plugin/`,
-  `.grok-plugin/`), docs, scripts, and CI. Every plugin is one folder under
+  `.grok-plugin/`), docs, scripts, CI, and `benchmarks/` (measurement kits that
+  no catalog lists). Every plugin is one folder under
   `plugins/<name>/` with its own per-harness manifests, and no plugin folder
   contains another plugin's manifest. claude.ai's marketplace sync rejects a
   plugin whose tree holds a nested `.claude-plugin/plugin.json`;
