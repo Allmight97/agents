@@ -1,0 +1,6 @@
+{
+  "description": "done-gate: tool.call on Bash records the working tree that passed a configured check; classic.Stop blocks once while guarded files differ from it",
+  "modules": [
+    "./done-gate.ts"
+  ]
+}

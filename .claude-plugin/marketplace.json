@@ -30,6 +30,12 @@
       "category": "development"
     },
     {
+      "name": "done-gate",
+      "description": "Claude Code mod: blocks the end of a turn while guarded code differs from the working tree that last passed the repository's check command (configured in .claude/done-gate.json). Claude only; needs function hooks.",
+      "source": "./plugins/done-gate",
+      "category": "development"
+    },
+    {
       "name": "issue-hygiene-reminder",
       "description": "Claude Code and Codex hook: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, GitHub MCP issue writes), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
       "source": "./plugins/issue-hygiene-reminder",
