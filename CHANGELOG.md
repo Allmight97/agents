@@ -4,6 +4,19 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.33.0] - 2026-10-10
+
+### Added
+
+- `explore-model` 0.1.0, a Claude Code mod in the Claude catalog. The
+  built-in Explore subagent runs on the main conversation's model unless the
+  Agent call names one; this fills `model` and `effort` (default Haiku,
+  medium) on Explore calls that name neither. Explore keeps Anthropic's prompt
+  and read-only tools, and a call that names its own model or effort keeps it.
+- `benchmarks/explore-model/`, the measurement behind it: three rounds on
+  audiobook-boss in which Haiku matched the main-model Explore at about 1/30
+  the cost. Not a plugin; no catalog lists it.
+
 ## [0.32.0] - 2026-10-10
 
 ### Added
