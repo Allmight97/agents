@@ -1,0 +1,6 @@
+{
+  "description": "session-meter: turn.step reads each request's cache usage; session.measure reads context and plan limits; agent.spawn and turn.complete tally subagents; a one-second clock.every drives the countdown; ui.render draws the AbovePrompt band and the /meter pane",
+  "modules": [
+    "./session-meter.tsx"
+  ]
+}

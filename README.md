@@ -10,7 +10,7 @@ authoring checkout.
 ## Tracked
 
 - `.claude-plugin/marketplace.json`: Claude catalog (`personal-skills`,
-  `complexity-lens`, `cache-meter`, `nested-agents-md`, `done-gate`,
+  `complexity-lens`, `session-meter`, `nested-agents-md`, `done-gate`,
   `issue-hygiene-reminder`, `oura-mcp`).
 - `.agents/plugins/marketplace.json`: Codex catalog (`personal-skills`,
   `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`,
@@ -21,7 +21,7 @@ authoring checkout.
 - `plugins/personal-skills/`: the shared skill tree (`skills/`) with its
   `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.grok-plugin`
   manifests.
-- `plugins/complexity-lens/`, `plugins/cache-meter/`,
+- `plugins/complexity-lens/`, `plugins/session-meter/`,
   `plugins/nested-agents-md/`, `plugins/done-gate/`: Claude-only Claude Code mods (see Claude
   Marketplace).
 - `plugins/issue-hygiene-reminder/`: a command-hook plugin for Claude Code and
@@ -56,12 +56,12 @@ Plugin skills are namespaced, for example `/personal-skills:diagnose` and
 separate plugin.
 
 The Claude catalog also lists four Claude Code mods, `complexity-lens`,
-`cache-meter`, `nested-agents-md`, and `done-gate`. They need function hooks (Claude Code
+`session-meter`, `nested-agents-md`, and `done-gate`. They need function hooks (Claude Code
 2.1.287 or later; earlier builds need `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`):
 
 ```bash
 claude plugin install complexity-lens@personal
-claude plugin install cache-meter@personal
+claude plugin install session-meter@personal
 claude plugin install nested-agents-md@personal
 claude plugin install done-gate@personal
 ```
@@ -287,7 +287,7 @@ rules at the top of `CHANGELOG.md`:
    claude plugin validate .
    for p in plugins/*/; do claude plugin validate "$p"; done
    claude plugin test plugins/complexity-lens
-   claude plugin test plugins/cache-meter
+   claude plugin test plugins/session-meter
    claude plugin test plugins/nested-agents-md
    claude plugin test plugins/done-gate
    sh plugins/issue-hygiene-reminder/tests/remind.test.sh
