@@ -65,23 +65,6 @@ unchanged surfaces, or commit-by-commit narration.
   validator. The `hooks` field is gone (Codex loads the default
   `hooks/hooks.json`, the same file) and an `interface` block is added.
 
-### Fixed
-
-- `oura-mcp` 1.1.1: the public hostname is accepted only when
-  `MCP_ACCESS_TOKEN` is set, and an empty token variable counts as unset.
-
-## [0.31.0] - 2026-10-08
-
-### Added
-
-- `oura-mcp` 1.1.0 joins the Claude and Grok catalogs. The server accepts
-  `/mcp` on a public hostname (`MCP_PUBLIC_HOSTNAME`) when the request
-  carries the bearer token `MCP_ACCESS_TOKEN`; the OpenAI tunnel path is
-  unchanged, and with no token set the public hostname stays rejected. The
-  plugin prompts for the URL and token, and ships a user-only `oura` skill
-  that names the two tools and their bounds. Not in the Codex catalog: Codex
-  plugin MCP servers have no documented bearer mechanism.
-
 ## [0.30.0] - 2026-10-08
 
 ### Added
