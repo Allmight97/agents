@@ -1,0 +1,7 @@
+interface:
+  display_name: "Audit Human-Era Processes"
+  short_description: "Report process steps built for human speed and checks that do not prove their claim"
+  default_prompt: "Use $audit-human-era on this repository. Report only."
+
+policy:
+  allow_implicit_invocation: false

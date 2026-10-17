@@ -4,6 +4,16 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.35.0] - 2026-10-17
+
+### Added
+
+- `audit-human-era`, a user-invoked skill: audit a repo's CI, hooks, and
+  checks for steps built around human speed and for checks that do not prove
+  what they claim. Two lenses (pace and gesture, proof validity), evidence on
+  every finding, ranked ADOPT/ADAPT/DROP/GAP/OWNER output, a Claude and Codex
+  cross-check, and a report-only boundary.
+
 ## [0.34.0] - 2026-10-17
 
 ### Added
