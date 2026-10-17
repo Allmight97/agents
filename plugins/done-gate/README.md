@@ -8,15 +8,18 @@ done-gate: 2 file(s) changed since the last passing check (src/greet.py, tests/t
 Run `bash scripts/check.sh` and fix any failure before you finish.
 ```
 
-- Proof is the state of the working tree, not the order of tool calls. When a
-  Bash command that matches `checks` ends without error, the mod records a git
-  tree id of the whole working tree: tracked and untracked files, ignored files
-  left out. An edit made later through Edit, Write, `sed -i` or a subagent
-  changes that id.
-- At the end of a main-loop turn, the mod compares the tree with the last
-  proven one, or with the tree at session start when nothing passed yet. If a
-  changed file is under `paths`, it blocks the turn once and names the check.
-  With `resolve`, the repository's own command decides instead (below).
+- It counts only the files this session changes: each file an Edit or Write
+  call names, and each file a Bash command changes. For Bash, the mod records
+  a git tree id of the whole working tree (tracked and untracked files,
+  ignored files left out) before and after the command and diffs the two. A
+  command that is only `git checkout`, `switch`, `merge`, `pull`, `rebase`,
+  `reset` or `fetch` counts nothing, so branch switches and merges are not the
+  session's changes. Edits by another agent between commands do not count.
+- A Bash command that matches `checks` and ends without error covers every
+  change the session made before it. At the end of a main-loop turn, if a file
+  changed since the last pass is under `paths`, the mod blocks the turn once
+  and names the check. With `resolve`, the repository's own command decides
+  instead (below).
 - The second stop in a row goes through, so a turn cannot loop. A toast then
   says the turn finished without a passing check.
 - A broken config blocks once with the reason. A failure inside the mod blocks
@@ -40,14 +43,18 @@ mod does nothing.
   pattern.
 - `resolve`: optional. A command and its arguments, run from the repository
   root, that decides which checks are unmet. It reads JSON on stdin,
-  `{ "changed": [files changed since session start], "passes": [{ "command",
-  "changed": [files changed since that command passed] }] }`, and prints one
+  `{ "changed": [files the session changed], "passes": [{ "command",
+  "changed": [files the session changed since that command passed] }] }`, and prints one
   unmet check per line (nothing when all are met). With `resolve`, `paths` and
   `hint` are unused. Use it when the repository already owns a map from paths
   to checks, so the map has one owner.
 
 Limits: a check passes when the tests it runs pass, so deleting a failing test
-passes too. The tree id is written through a private index at
+passes too. A change another process makes while one of the session's Bash
+commands runs counts as the session's; so does the whole diff of a chained
+command such as `git checkout x && make`, and of git commands not listed above
+(`git stash pop`, `git restore`). Files a background Bash command changes after
+it returns, or that an MCP tool or NotebookEdit writes, do not count. The tree id is written through a private index at
 `.git/done-gate.index`; `git add --all` there writes blob objects to
 `.git/objects`, which `git gc` removes when unreferenced.
 

@@ -4,11 +4,12 @@
  * Blocks the main loop from ending a turn while changed files have not passed
  * the checks they need.
  *
- *   - Proof is a git tree id of the whole working tree (tracked and untracked,
- *     ignored files left out), written through a private index under .git.
- *     Edits by Edit, Write, Bash or a subagent all change it.
+ *   - Counts only the session's own changes: each file an Edit or Write
+ *     names, and each file a Bash command changes (a git tree id of the whole
+ *     working tree, through a private index under .git, before and after the
+ *     command). A lone HEAD-moving git command counts nothing.
  *   - `tool.call` on Bash: a command matching `checks` that ends without error
- *     records the tree it passed on.
+ *     covers every change the session made before it.
  *   - `classic.Stop`: with `resolve`, the repository's command reads the
  *     changed files and passes on stdin and prints each unmet check; without
  *     it, any file under `paths` changed since the last pass is unmet. Blocks
@@ -16,14 +17,14 @@
  *   - Inactive in a repository without `.claude/done-gate.json`.
  */
 import type { EngineInterface, Register } from 'claude-code'
-import { CONFIG_PATH, configFault, decide, decideResolved, isCheck, parseConfig } from './gate.ts'
+import { CONFIG_PATH, configFault, decide, decideResolved, isCheck, isHeadMove, parseConfig } from './gate.ts'
 import type { Config, Pass, Verdict } from './gate.ts'
 
 type Repo = { root: string; config: Config } | { root: string; fault: string }
 
-let startTree: string | undefined
-let lastPassTree: string | undefined
-const passTrees = new Map<string, string>()
+const touches: string[] = []
+let lastPassAt = 0
+const passAt = new Map<string, number>()
 let queue: Promise<unknown> = Promise.resolve()
 
 const serial = <T>(work: () => Promise<T>): Promise<T> => {
@@ -59,12 +60,11 @@ const treeOf = ($: EngineInterface, root: string) =>
 const changedBetween = async ($: EngineInterface, root: string, from: string, to: string) =>
   from === to ? [] : (await git($, root, ['diff', '--name-only', from, to])).split('\n').filter(Boolean)
 
-async function unmetChecks($: EngineInterface, root: string, resolve: string[], start: string, now: string) {
-  const passes: Pass[] = []
-  for (const [command, tree] of passTrees) {
-    passes.push({ command, changed: await changedBetween($, root, tree, now) })
-  }
-  const stdin = JSON.stringify({ changed: await changedBetween($, root, start, now), passes })
+const touchedSince = (at: number) => [...new Set(touches.slice(at))].sort()
+
+async function unmetChecks($: EngineInterface, root: string, resolve: string[]) {
+  const passes: Pass[] = [...passAt].map(([command, at]) => ({ command, changed: touchedSince(at) }))
+  const stdin = JSON.stringify({ changed: touchedSince(0), passes })
   const { exitCode, stdout, stderr } = await $.process.run(resolve, { cwd: root, stdin })
   if (exitCode !== 0) throw new Error(`resolve exited ${exitCode}: ${stderr.trim()}`)
   return stdout.split('\n').map(line => line.trim()).filter(Boolean)
@@ -74,33 +74,42 @@ async function verdictAtStop($: EngineInterface, isRetry: boolean): Promise<Verd
   const repo = await repoOf($)
   if (repo === undefined) return { kind: 'pass' }
   if ('fault' in repo) return isRetry ? { kind: 'pass' } : configFault(repo.fault)
-  const now = await treeOf($, repo.root)
-  startTree ??= now
   if (repo.config.resolve !== undefined) {
-    const unmet = await unmetChecks($, repo.root, repo.config.resolve, startTree, now)
+    const unmet = await unmetChecks($, repo.root, repo.config.resolve)
     return decideResolved({ unmet, isRetry })
   }
-  const unproven = await changedBetween($, repo.root, lastPassTree ?? startTree, now)
-  return decide({ config: repo.config, unproven, isRetry })
+  return decide({ config: repo.config, unproven: touchedSince(lastPassAt), isRetry })
 }
 
 export const register: Register = on => {
-  on('session.start', async ($, e, next) => {
-    const repo = await repoOf($).catch(() => undefined)
-    if (repo !== undefined) startTree = await treeOf($, repo.root).catch(() => undefined)
+  on('session.start', ($, e, next) => {
+    touches.length = 0
+    lastPassAt = 0
+    passAt.clear()
     return next(e)
   })
 
-  on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
+  on('tool.call', { tool: ['Edit', 'Write'] }, async ($, e, next) => {
     const ran = await next(e)
     if (ran.deny !== undefined || ran.isError === true) return ran
     const repo = await repoOf($).catch(() => undefined)
-    if (repo !== undefined && 'config' in repo && isCheck(repo.config, e.command)) {
-      const tree = await treeOf($, repo.root).catch(() => undefined)
-      if (tree !== undefined) {
-        lastPassTree = tree
-        passTrees.set(e.command.trim(), tree)
-      }
+    if (repo !== undefined && e.file_path.startsWith(`${repo.root}/`)) touches.push(e.file_path.slice(repo.root.length + 1))
+    return ran
+  })
+
+  on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
+    const repo = await repoOf($).catch(() => undefined)
+    if (repo === undefined || !('config' in repo)) return next(e)
+    const before = isHeadMove(e.command) ? undefined : await treeOf($, repo.root).catch(() => undefined)
+    const ran = await next(e)
+    if (ran.deny !== undefined) return ran
+    if (before !== undefined) {
+      const after = await treeOf($, repo.root).catch(() => undefined)
+      if (after !== undefined) touches.push(...(await changedBetween($, repo.root, before, after).catch(() => [])))
+    }
+    if (ran.isError !== true && isCheck(repo.config, e.command)) {
+      lastPassAt = touches.length
+      passAt.set(e.command.trim(), touches.length)
     }
     return ran
   })

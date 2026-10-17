@@ -50,6 +50,11 @@ export function parseConfig(text: string): Config | ConfigError {
 export const isCheck = (config: Config, command: string): boolean =>
   config.checks.some(pattern => pattern.test(command))
 
+const HEAD_MOVE = /^\s*git\s+(?:checkout|switch|merge|pull|rebase|reset|fetch)\b[^;&|]*$/
+
+// A lone HEAD-moving git command changes files the session did not author; a chained one counts in full.
+export const isHeadMove = (command: string): boolean => HEAD_MOVE.test(command)
+
 const guardedFiles = (config: Config, changed: readonly string[]): string[] =>
   config.paths.length === 0
     ? [...changed]
