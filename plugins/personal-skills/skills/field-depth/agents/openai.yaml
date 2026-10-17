@@ -1,0 +1,7 @@
+interface:
+  display_name: "Field Depth"
+  short_description: "Do the work a field-leading expert would"
+  default_prompt: "Use $field-depth to pick Speed, Altitude, Depth, or Range, run the Depth opener, and do the deeper version of this task."
+
+policy:
+  allow_implicit_invocation: false
