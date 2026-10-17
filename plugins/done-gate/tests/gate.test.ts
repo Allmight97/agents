@@ -1,6 +1,6 @@
 // Run with: claude plugin test plugins/done-gate
 import { describe, expect, test } from 'claude-code/testing'
-import { decide, decideResolved, isCheck, parseConfig } from '../hooks/gate.ts'
+import { decide, decideResolved, isCheck, isHeadMove, parseConfig } from '../hooks/gate.ts'
 import type { Config } from '../hooks/gate.ts'
 
 const config = (over: object = {}): Config => {
@@ -35,6 +35,15 @@ describe('isCheck', () => {
   test('matches a configured command and not another', () => {
     expect(isCheck(config(), 'bash scripts/verify.sh engine')).toBe(true)
     expect(isCheck(config(), 'echo bash scripts/verify.sh')).toBe(false)
+  })
+})
+
+describe('isHeadMove', () => {
+  test('matches a lone HEAD-moving git command and not a chained one or an edit', () => {
+    expect(isHeadMove('git checkout feature')).toBe(true)
+    expect(isHeadMove('git pull --ff-only')).toBe(true)
+    expect(isHeadMove("git checkout other && sed -i 's/a/b/' x")).toBe(false)
+    expect(isHeadMove('git stash pop')).toBe(false)
   })
 })
 

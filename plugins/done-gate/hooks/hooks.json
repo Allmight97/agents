@@ -1,5 +1,5 @@
 {
-  "description": "done-gate: tool.call on Bash records the working tree that passed a configured check; classic.Stop blocks once while guarded files differ from it",
+  "description": "done-gate: tool.call on Edit, Write and Bash records the files the session changes and the configured checks that pass; classic.Stop blocks once while a changed guarded file has no later pass",
   "modules": [
     "./done-gate.ts"
   ]
