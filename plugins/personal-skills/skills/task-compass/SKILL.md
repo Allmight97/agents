@@ -77,6 +77,8 @@ When a later message or discovered fact introduces more work:
 - `grill-me` owns explicit pressure-testing and dependency-safe decision
   interviews. Task Compass should reduce questions and establish the next
   executable direction.
+- `field-depth` owns the ambition type and the Depth opener once the current
+  task is in view. Task Compass decides what the current task is.
 - `wayfinder` owns durable roadmaps for large or materially foggy work. Task
   Compass does not create issues or planning artifacts by itself.
 - `whittle` owns simplifying an implementation. Task Compass decides what the

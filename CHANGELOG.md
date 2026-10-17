@@ -6,6 +6,12 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+### Added
+
+- `field-depth`, a shared skill: pick Speed, Altitude, Depth, or Range
+  (default Depth), run the four-line Depth opener before acting, and do the
+  deeper version of the task, not a bigger one.
+
 ### Changed
 
 - `scripts/refresh_harnesses.py` updates and verifies every plugin installed
