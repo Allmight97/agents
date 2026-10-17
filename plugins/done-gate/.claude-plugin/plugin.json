@@ -1,6 +1,6 @@
 {
   "name": "done-gate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Blocks Claude from ending a turn while code under guarded paths that this session changed has not passed the repository's check command since. It counts files named by Edit and Write and files a Bash command changes; branch switches and other agents' edits do not count. Blocks once, then lets the turn end with a toast. Inactive without .claude/done-gate.json. Needs function hooks (early access).",
   "author": {
     "name": "JStar",

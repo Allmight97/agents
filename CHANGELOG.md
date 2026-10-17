@@ -4,6 +4,16 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [0.35.1] - 2026-10-17
+
+### Fixed
+
+- `done-gate` 0.1.1 counts only the files the session itself changed: each
+  file an Edit or Write names, and each file a Bash command changes. A lone
+  `git checkout`, `switch`, `merge`, `pull`, `rebase`, `reset` or `fetch`
+  counts nothing, so branch switches and other agents' edits in the same
+  checkout no longer demand proof. The `resolve` stdin shape is unchanged.
+
 ## [0.35.0] - 2026-10-17
 
 ### Added
