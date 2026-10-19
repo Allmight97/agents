@@ -4,6 +4,15 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [Unreleased]
+
+### Added
+
+- `ratchet-files`, a shared skill copied from `dzhng/skills` (MIT): ratchet
+  source files toward an 8,000-token budget (bytes / 4) so they can shrink
+  but not grow until they fit, with `scripts/check-file-size.mjs` as the
+  check.
+
 ## [0.35.1] - 2026-10-17
 
 ### Fixed
