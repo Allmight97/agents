@@ -6,6 +6,8 @@ This skill copies substantial portions of `ratchet-files` from
 - Upstream path: `skills/engineering/ratchet-files` in [`dzhng/skills`](https://github.com/dzhng/skills).
 - Last reviewed upstream commit: `29fb983ca1f203f582ae3cd5ad0e58673796915b`.
 - Upstream license: [`LICENSE`](https://github.com/dzhng/skills/blob/main/LICENSE) (MIT).
+- Packaging tweak: the `description` is quoted so this repository's YAML
+  validator accepts the colon; the wording is unchanged.
 
 ## MIT License
 
