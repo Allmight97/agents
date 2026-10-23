@@ -6,6 +6,8 @@ unchanged surfaces, or commit-by-commit narration.
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-10-22
+
 ### Added
 
 - `ratchet-files`, a shared skill copied from `dzhng/skills` (MIT): ratchet
