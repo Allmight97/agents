@@ -158,9 +158,16 @@ def claude_plugins(exe: str) -> list[dict[str, Any]]:
     return payload if isinstance(payload, list) else payload.get("installed", [])
 
 
-def repo_version(plugin_id: str) -> str:
-    name = plugin_id.split("@")[0]
-    return release_metadata.load_json(ROOT / "plugins" / name / ".claude-plugin" / "plugin.json")["version"]
+def repo_version(plugin_id: str) -> str | None:
+    """The plugin's version in this repo, or None when an installed plugin was removed from it."""
+    manifest = ROOT / "plugins" / plugin_id.split("@")[0] / ".claude-plugin" / "plugin.json"
+    return release_metadata.load_json(manifest)["version"] if manifest.exists() else None
+
+
+def stale_line(plugin_id: str, actual: str | None, expected: str | None) -> str:
+    if expected is None:
+        return f"{plugin_id} is no longer in this repo; run: claude plugin uninstall {plugin_id}"
+    return f"{plugin_id} is {actual!r}, expected {expected}"
 
 
 def claude_cli(refresh: bool) -> str:
@@ -175,10 +182,10 @@ def claude_cli(refresh: bool) -> str:
     if refresh:
         run(exe, "plugin", "marketplace", "update", "personal")
         for plugin_id, version in installed.items():
-            if version != expected[plugin_id]:
+            if expected[plugin_id] not in (None, version):
                 run(exe, "plugin", "update", plugin_id)
     actual = {p["id"]: p.get("version") for p in claude_plugins(exe)}
-    stale = [f"{i} is {actual.get(i)!r}, expected {v}" for i, v in expected.items() if actual.get(i) != v]
+    stale = [stale_line(i, actual.get(i), v) for i, v in expected.items() if actual.get(i) != v]
     if stale:
         raise HarnessError("Claude Code CLI: " + "; ".join(stale))
     current = ", ".join(f"{i.split('@')[0]} {v}" for i, v in sorted(expected.items()))

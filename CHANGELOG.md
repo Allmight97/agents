@@ -20,6 +20,12 @@ unchanged surfaces, or commit-by-commit narration.
 - `audit-human-era` runs its Codex cross-check through `codex-review` when the
   plugin is installed.
 
+### Fixed
+
+- `scripts/refresh_harnesses.py` reports an installed `@personal` Claude plugin
+  that the repo no longer has, with its `claude plugin uninstall` command,
+  instead of failing the Claude CLI check with a missing-file error.
+
 ## [0.35.1] - 2026-10-17
 
 ### Fixed
