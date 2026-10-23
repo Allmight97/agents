@@ -46,6 +46,12 @@
       "description": "Claude Code and Codex hook: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, GitHub MCP issue writes), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
       "source": "./plugins/issue-hygiene-reminder",
       "category": "development"
+    },
+    {
+      "name": "codex-review",
+      "description": "Run an adversarial Codex review from Claude Code, Cursor, or Grok Build through one launcher: the repository stays read-only, heredocs, git and gh work, and the run is watched for timeout, stall, and an expired login. Not for Codex itself.",
+      "source": "./plugins/codex-review",
+      "category": "development"
     }
   ]
 }

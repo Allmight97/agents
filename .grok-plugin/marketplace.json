@@ -40,6 +40,15 @@
         "type": "local",
         "path": "./plugins/native-browser-bridge"
       }
+    },
+    {
+      "name": "codex-review",
+      "description": "Run an adversarial Codex review from Claude Code, Cursor, or Grok Build through one launcher: the repository stays read-only, heredocs, git and gh work, and the run is watched for timeout, stall, and an expired login. Not for Codex itself.",
+      "category": "development",
+      "source": {
+        "type": "local",
+        "path": "./plugins/codex-review"
+      }
     }
   ]
 }

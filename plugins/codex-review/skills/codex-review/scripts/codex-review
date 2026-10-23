@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+# codex-review: run one adversarial Codex review of a repository and wait for it.
+# Usage and exit codes: see usage(). Plain bash 3.2: Cursor and Grok run it under /bin/bash.
+set -u
+
+usage() {
+  cat <<'EOF'
+codex-review [options] PROMPT_FILE | -
+
+Runs `codex exec` as a reviewer that can read the repository but not write it.
+Prints phase lines, a 10-minute heartbeat, and the result path. Run it in the
+background (Claude: run_in_background) and read the result when it exits.
+
+  --repo DIR        repository to review (default: git top level of the current folder)
+  --out FILE        where the final review goes (default: <run folder>/review.md)
+  --timeout TIME    stop the run after TIME (default 60m; plain numbers are minutes, 90s is seconds)
+  --stall TIME      stop the run when its log is silent for TIME (default 20m)
+  --effort LEVEL    model_reasoning_effort (default xhigh)
+  --model NAME      Codex model (default: the Codex config's model)
+
+Exit: 0 done, 1 codex finished without a review, 2 usage, 3 setup (codex missing
+or not logged in), 124 timeout, 125 stalled, 126 login expired during the run,
+other: codex's own exit code.
+EOF
+}
+
+repo=""; out=""; timeout=60m; stall=20m; effort=xhigh; model=""; prompt_src=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo|--out|--timeout|--stall|--effort|--model)
+      [ $# -ge 2 ] || { echo "codex-review: $1 needs a value" >&2; exit 2; } ;;
+  esac
+  case "$1" in
+    --repo) repo=$2; shift 2 ;;
+    --out) out=$2; shift 2 ;;
+    --timeout) timeout=$2; shift 2 ;;
+    --stall) stall=$2; shift 2 ;;
+    --effort) effort=$2; shift 2 ;;
+    --model) model=$2; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    -*) [ "$1" = - ] && { prompt_src=-; shift; continue; }; echo "codex-review: unknown option $1" >&2; usage >&2; exit 2 ;;
+    *) prompt_src=$1; shift ;;
+  esac
+done
+
+say() { echo "[codex-review] $*"; }
+fail() { say "$2"; exit "$1"; }
+
+[ -n "$prompt_src" ] || { usage >&2; exit 2; }
+seconds() {
+  case "$1" in
+    *[!0-9sm]* | "" | [sm]* | *[sm]?*) return 1 ;;
+    *s) echo "${1%s}" ;;
+    *m) echo $(( ${1%m} * 60 )) ;;
+    *) echo $(( $1 * 60 )) ;;
+  esac
+}
+timeout_s=$(seconds "$timeout") || fail 2 "--timeout takes a time such as 60m or 90s"
+stall_s=$(seconds "$stall") || fail 2 "--stall takes a time such as 15m or 90s"
+if [ "$prompt_src" = - ]; then prompt=$(cat); else
+  [ -f "$prompt_src" ] || fail 2 "no prompt file: $prompt_src"
+  prompt=$(cat "$prompt_src")
+fi
+[ -n "$prompt" ] || fail 2 "the prompt is empty"
+[ -n "$repo" ] || repo=$(git rev-parse --show-toplevel 2>/dev/null) || fail 2 "not in a git repository; pass --repo"
+[ -d "$repo" ] || fail 2 "no such repository: $repo"
+repo=$(cd "$repo" && pwd -P)
+under() { case "$1/" in "$2"/*) return 0 ;; *) return 1 ;; esac; }
+# workspace-write lets the reviewer write the temp folders, so a repository there would not be read-only.
+for root in "$(cd "${TMPDIR:-/tmp}" && pwd -P)" "$(cd /tmp && pwd -P)"; do
+  under "$repo" "$root" && fail 2 "the repository is under $root, which the reviewer can write; review a checkout elsewhere"
+done
+if [ -n "$out" ]; then
+  out_dir=$(cd "$(dirname "$out")" 2>/dev/null && pwd -P) || fail 2 "no folder for --out: $out"
+  under "$out_dir" "$repo" && fail 2 "--out must be outside the repository"
+  out="$out_dir/$(basename "$out")"
+fi
+
+command -v codex >/dev/null || fail 3 "codex is not on PATH"
+codex login status </dev/null >/dev/null 2>&1 || fail 3 "codex has no login: run codex login"
+
+run_dir=$(mktemp -d "${TMPDIR:-/tmp}/codex-review.XXXXXX") || fail 3 "cannot create a run folder"
+run_dir=$(cd "$run_dir" && pwd -P)
+log="$run_dir/run.log"; request="$run_dir/request.md"
+[ -n "$out" ] || out="$run_dir/review.md"
+
+# The reviewer's working folder is the run folder: workspace-write lets it write
+# only there and in the temp folders, so heredocs, caches and gh work while the
+# repository stays read-only. Its AGENTS.md is not auto-loaded from there.
+cat >"$request" <<EOF
+You are reviewing the repository at $repo. Read its AGENTS.md, and the nested AGENTS.md files for the paths you review, before you judge them.
+You can read anything; you can write only in your working folder ($run_dir) and the temp folders. Do not edit the repository, and make no GitHub or other remote writes.
+The shell supports heredocs, git and gh (network is on).
+
+$prompt
+EOF
+set -- exec -C "$run_dir" -s workspace-write -c sandbox_workspace_write.network_access=true \
+  -c 'sandbox_workspace_write.writable_roots=[]' -c "model_reasoning_effort=$effort" \
+  --skip-git-repo-check -o "$out"
+[ -n "$model" ] && set -- "$@" -m "$model"
+# Job control gives codex its own process group, so a stop reaches its shells too.
+set -m
+UV_CACHE_DIR="$run_dir/uv-cache" codex "$@" - <"$request" >"$log" 2>&1 &
+pid=$!
+set +m
+stop() {
+  kill -TERM -- "-$pid" 2>/dev/null
+  for _ in 1 2 3 4 5; do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+  kill -KILL -- "-$pid" 2>/dev/null
+  wait "$pid" 2>/dev/null
+}
+trap 'stop; say "stopped: interrupted"; exit 130' INT TERM HUP
+say "started: pid $pid, repo $repo, effort $effort"
+say "log: $log"
+
+start=$(date +%s); last_change=$start; last_size=0; beats=0; status=""
+auth_error='^[0-9T:.-]*Z ERROR codex_login::'
+while kill -0 "$pid" 2>/dev/null; do
+  sleep 2
+  now=$(date +%s); size=$(wc -c <"$log" | tr -d ' ')
+  if [ "$size" != "$last_size" ]; then
+    [ "$last_size" = 0 ] && say "first output after $(( now - start ))s"
+    last_size=$size; last_change=$now
+  fi
+  if grep -qE "$auth_error" "$log"; then status=126; break; fi
+  if [ $(( now - start )) -ge "$timeout_s" ]; then status=124; break; fi
+  if [ $(( now - last_change )) -ge "$stall_s" ]; then status=125; break; fi
+  if [ $(( (now - start) / 600 )) -gt "$beats" ]; then
+    beats=$(( (now - start) / 600 ))
+    say "heartbeat $(( (now - start) / 60 ))m: $(ps -o %cpu=,rss= -p "$pid" | awk '{printf "cpu %s%%, rss %d MB", $1, $2 / 1024}'), log $(wc -l <"$log" | tr -d ' ') lines"
+  fi
+done
+trap - INT TERM HUP
+
+if [ -n "$status" ]; then
+  stop
+  case $status in
+    124) say "stopped: no result after $timeout" ;;
+    125) say "stopped: log silent for $stall" ;;
+    126) say "stopped: the Codex login expired; run codex login, then retry" ;;
+  esac
+  say "log: $log"
+  exit "$status"
+fi
+wait "$pid"; status=$?
+elapsed=$(( ($(date +%s) - start) / 60 ))
+if [ "$status" -ne 0 ] || [ ! -s "$out" ]; then
+  say "failed: codex exited $status after ${elapsed}m with no review; see the log"
+  say "log: $log"
+  [ "$status" -ne 0 ] && exit "$status"
+  exit 1
+fi
+say "finished after ${elapsed}m"
+say "review: $out"

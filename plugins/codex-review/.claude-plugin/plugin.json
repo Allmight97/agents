@@ -1,0 +1,15 @@
+{
+  "name": "codex-review",
+  "version": "0.1.0",
+  "description": "Run an adversarial Codex review from Claude Code, Cursor, or Grok Build through one launcher: the repository stays read-only, heredocs, git and gh work, and the run is watched for timeout, stall, and an expired login. Not for Codex itself.",
+  "author": {
+    "name": "Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "keywords": [
+    "codex",
+    "review",
+    "second-opinion"
+  ]
+}

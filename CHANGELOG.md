@@ -12,6 +12,23 @@ unchanged surfaces, or commit-by-commit narration.
   source files toward an 8,000-token budget (bytes / 4) so they can shrink
   but not grow until they fit, with `scripts/check-file-size.mjs` as the
   check.
+- `codex-review` 0.1.0, a plugin for Claude Code, Cursor, and Grok Build (not
+  Codex): one skill and launcher script for an adversarial Codex review. The
+  reviewer runs in `workspace-write` from a scratch folder with network on, so
+  the repository stays read-only while heredocs, git, and `gh` work. The script
+  closes stdin, checks `codex login status`, prints a 10-minute heartbeat, and
+  stops the run on a timeout, a silent log, or an expired login.
+
+### Changed
+
+- `audit-human-era` runs its Codex cross-check through `codex-review` when the
+  plugin is installed.
+
+### Fixed
+
+- `scripts/refresh_harnesses.py` reports an installed `@personal` Claude plugin
+  that the repo no longer has, with its `claude plugin uninstall` command,
+  instead of failing the Claude CLI check with a missing-file error.
 
 ## [0.35.1] - 2026-10-17
 
