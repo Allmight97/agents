@@ -3,7 +3,10 @@
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
 script="$here/../skills/codex-review/scripts/codex-review"
-work=$(mktemp -d "${TMPDIR:-/tmp}/codex-review-test.XXXXXX")
+# The launcher refuses a repository under /tmp (the reviewer can write there), so
+# the fixture lives in the user's cache folder; the launcher gets $work/tmp as TMPDIR.
+mkdir -p "$HOME/.cache"
+work=$(mktemp -d "$HOME/.cache/codex-review-test.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$work/bin" "$work/repo" "$work/tmp"
 git -C "$work/repo" init -q
