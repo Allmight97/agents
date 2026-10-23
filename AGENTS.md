@@ -75,6 +75,10 @@ that call: `whittle` (invoked by `pre-pr-gut-check`) and
 
 ## Validation
 
+Keep test and process infrastructure to the essentials below. Do not add
+required checks, rulesets, or review steps, and do not report their absence as
+a gap: `main` has no required check on purpose.
+
 Before release, run the repository commands documented in `README.md`, inspect
 the final diff, and verify:
 
