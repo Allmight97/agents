@@ -8,6 +8,10 @@ unchanged surfaces, or commit-by-commit narration.
 
 ### Added
 
+- `ratchet-files`, a shared skill copied from `dzhng/skills` (MIT): ratchet
+  source files toward an 8,000-token budget (bytes / 4) so they can shrink
+  but not grow until they fit, with `scripts/check-file-size.mjs` as the
+  check.
 - `codex-review` 0.1.0, a plugin for Claude Code, Cursor, and Grok Build (not
   Codex): one skill and launcher script for an adversarial Codex review. The
   reviewer runs in `workspace-write` from a scratch folder with network on, so

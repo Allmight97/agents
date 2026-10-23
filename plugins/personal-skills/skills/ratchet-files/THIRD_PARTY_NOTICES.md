@@ -1,0 +1,32 @@
+# Third-Party Notices
+
+This skill copies substantial portions of `ratchet-files` from
+[`dzhng/skills`](https://github.com/dzhng/skills/tree/29fb983ca1f203f582ae3cd5ad0e58673796915b/skills/engineering/ratchet-files).
+
+- Upstream path: `skills/engineering/ratchet-files` in [`dzhng/skills`](https://github.com/dzhng/skills).
+- Last reviewed upstream commit: `29fb983ca1f203f582ae3cd5ad0e58673796915b`.
+- Upstream license: [`LICENSE`](https://github.com/dzhng/skills/blob/main/LICENSE) (MIT).
+- Packaging tweak: the `description` is quoted so this repository's YAML
+  validator accepts the colon; the wording is unchanged.
+
+## MIT License
+
+Copyright (c) 2026 David Zhang
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

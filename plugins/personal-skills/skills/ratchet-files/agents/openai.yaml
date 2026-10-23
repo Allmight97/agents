@@ -1,0 +1,7 @@
+interface:
+  display_name: "Ratchet Files"
+  short_description: "Ratchet source files down to an agent-readable size"
+  default_prompt: "Use $ratchet-files to find and split oversized source files, or to set up the pre-commit size ratchet."
+
+policy:
+  allow_implicit_invocation: true
