@@ -4,6 +4,22 @@ This file records released behavior, interface, availability, and ownership
 changes across the repository. It does not preserve intermediate churn,
 unchanged surfaces, or commit-by-commit narration.
 
+## [Unreleased]
+
+### Added
+
+- `codex-review` 0.1.0, a plugin for Claude Code, Cursor, and Grok Build (not
+  Codex): one skill and launcher script for an adversarial Codex review. The
+  reviewer runs in `workspace-write` from a scratch folder with network on, so
+  the repository stays read-only while heredocs, git, and `gh` work. The script
+  closes stdin, checks `codex login status`, prints a 10-minute heartbeat, and
+  stops the run on a timeout, a silent log, or an expired login.
+
+### Changed
+
+- `audit-human-era` runs its Codex cross-check through `codex-review` when the
+  plugin is installed.
+
 ## [0.35.1] - 2026-10-17
 
 ### Fixed

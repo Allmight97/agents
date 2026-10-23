@@ -11,13 +11,15 @@ authoring checkout.
 
 - `.claude-plugin/marketplace.json`: Claude catalog (`personal-skills`,
   `complexity-lens`, `session-meter`, `nested-agents-md`, `done-gate`, `explore-model`,
-  `issue-hygiene-reminder`).
+  `issue-hygiene-reminder`, `codex-review`).
 - `.agents/plugins/marketplace.json`: Codex catalog (`personal-skills`,
   `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`,
   `issue-hygiene-reminder`).
-- `.cursor-plugin/marketplace.json`: Cursor catalog (`personal-skills`).
+- `.cursor-plugin/marketplace.json`: Cursor catalog (`personal-skills`,
+  `codex-review`).
 - `.grok-plugin/marketplace.json`: Grok Build catalog (`personal-skills`,
-  `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`).
+  `build-apple-apps`, `m365-tenant-ops`, `native-browser-bridge`,
+  `codex-review`).
 - `plugins/personal-skills/`: the shared skill tree (`skills/`) with its
   `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.grok-plugin`
   manifests.
@@ -30,6 +32,9 @@ authoring checkout.
 - `plugins/issue-hygiene-reminder/`: a command-hook plugin for Claude Code and
   Codex that reminds the model of the `issue-hygiene` rules before a GitHub
   issue write.
+- `plugins/codex-review/`: the Codex reviewer launcher for harnesses that call
+  Codex (Claude Code, Cursor, Grok Build). Codex's catalog leaves it out:
+  Codex does not review through itself.
 - `plugins/build-apple-apps/`, `plugins/m365-tenant-ops/`,
   `plugins/native-browser-bridge/`: Codex-native plugins, also listed for Grok.
 - `mcp/README.md`: local MCP notes.
@@ -71,6 +76,13 @@ issue-hygiene-reminder@personal`, then trust its hook under `/hooks`):
 
 ```bash
 claude plugin install issue-hygiene-reminder@personal
+```
+
+`codex-review` is a skill plus launcher script for harnesses that call Codex as
+a reviewer. It lists in the Claude, Cursor, and Grok catalogs, not Codex's:
+
+```bash
+claude plugin install codex-review@personal
 ```
 
 They are Claude-only. Codex, Cursor, and Grok auto-discover a plugin's
@@ -223,8 +235,8 @@ Name the source `personal` so the qualifier matches Codex and Claude
 source name, keep that qualifier or rename the `[[marketplace.sources]]` entry
 in `~/.grok/config.toml`.
 
-The Grok catalog exposes four plugins: `personal-skills`, `build-apple-apps`,
-`native-browser-bridge`, and `m365-tenant-ops`, each a local folder
+The Grok catalog exposes five plugins: `personal-skills`, `build-apple-apps`,
+`native-browser-bridge`, `m365-tenant-ops`, and `codex-review`, each a local folder
 (`./plugins/<name>`) in the catalog checkout. Grok rejects the marketplace root
 itself as a plugin path, so the shared skills must live in their own folder.
 After install, enable a plugin if `grok plugin list` shows it disabled:

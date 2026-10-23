@@ -58,6 +58,7 @@ End with what you did not check.
 Claude and Codex audit independently. Then each fact-checks the other's
 findings against sources and marks each `confirmed`, `refuted`, or
 `unverifiable`. Different models catch different things; the owner keeps Codex
-as a second opinion. Run Codex with stdin closed
-(`codex exec ... </dev/null`). Merge into one report. If only one model is
+as a second opinion. From Claude Code, Cursor, or Grok Build, run Codex
+through the `codex-review` skill when it is installed; otherwise run
+`codex exec ... </dev/null` (stdin closed). Merge into one report. If only one model is
 available, say so at the top of the report.
