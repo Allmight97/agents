@@ -11,10 +11,16 @@ Install through claude.ai, so one install reaches every surface:
 1. On claude.ai, open **Customize** → **Plugins** → **Add** → **Add
    marketplace**, and enter `Allmight97/agents`.
 2. Turn on **Sync automatically** for the marketplace.
-3. Install the plugins you want.
+3. Search the Plugins page for each plugin by name (for example `Personal
+   skills`), open it, and select **Add**. An added marketplace lists its plugins
+   nowhere else.
 
 Installs attach to your account. Chat and Cowork use them directly; Claude Code
 syncs them at each start as `<plugin>@synced`.
+
+The mods and `issue-hygiene-reminder` are installed from the Claude Code
+command line today: `claude plugin marketplace add Allmight97/agents`, then
+`claude plugin install <plugin>@personal`.
 
 Install each plugin one way only. If the same plugin is also installed from the
 Claude Code command line, Claude Code loads that copy and skips the synced one.
