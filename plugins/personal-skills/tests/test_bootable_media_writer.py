@@ -3,6 +3,7 @@ import importlib.util
 import tempfile
 import unittest
 import os
+import sys
 import fcntl
 import bz2
 import hashlib
@@ -54,6 +55,7 @@ class MediaWriterTests(unittest.TestCase):
         with self.assertRaises(media_writer.MediaError):
             media_writer.validate_plan(plan)
 
+    @unittest.skipUnless(sys.platform == "darwin", "needs macOS /usr/libexec/authopen")
     def test_authopen_returns_bounded_descriptor(self):
         with tempfile.NamedTemporaryFile() as target:
             target.write(b"descriptor-test")
@@ -64,6 +66,7 @@ class MediaWriterTests(unittest.TestCase):
             finally:
                 os.close(fd)
 
+    @unittest.skipUnless(sys.platform == "darwin", "needs macOS /usr/libexec/authopen")
     def test_authopen_writable_descriptor_is_readwrite_and_seekable(self):
         with tempfile.NamedTemporaryFile() as target:
             fd = media_writer.authorized_fd(target.name, writable=True)
@@ -143,6 +146,7 @@ class MediaWriterTests(unittest.TestCase):
             self.assertEqual(persisted["state"]["auth_request_count"], 1)
             self.assertEqual(persisted["state"]["phase"], "written")
 
+    @unittest.skipUnless(sys.platform == "darwin", "needs macOS /usr/libexec/authopen")
     def test_combined_write_and_verify_uses_one_authorized_descriptor(self):
         payload = b"one authorization" * 100
         with tempfile.TemporaryDirectory() as directory:
