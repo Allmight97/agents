@@ -1,0 +1,72 @@
+---
+name: diagnose
+description: "Diagnose and fix a reported bug, failing or flaky test, or performance regression by reproducing it and testing the cause. Use for debugging requests."
+---
+
+# Diagnose
+
+Establish what fails, find its owning cause, and prove the correction against
+that behavior. Scale the investigation to the uncertainty: a clear local defect
+does not need the same process as an intermittent production failure.
+
+## Establish The Signal
+
+Redact secrets and personal data from any output you paste or quote; write
+`<REDACTED>` in their place.
+
+Read the relevant owner guidance and enough code, logs, and recent changes to
+identify the actual path. Prefer a focused failing test, command, captured
+trace, browser interaction, bisect over a known good and bad state, or
+differential run of two versions or configurations that reproduces the user's
+symptom. Make it fast and repeatable where possible; minimize only while doing
+so helps isolate the cause. Preserve the original scenario for final verification.
+
+When a known-good recipe fails, diff each of its steps against the live setup
+and capture the first error before replacing any component.
+
+For intermittent failures, record attempts and failure frequency. Choose a
+sample size that can distinguish the proposed fix; one passing run is weak
+evidence. Stress only an environment where that load is authorized.
+
+If reproduction is unavailable, continue with evidence from code, logs, traces,
+and history. Label hypotheses and the missing runtime proof. Ask for the
+specific access or artifact needed when it blocks further progress. Production
+instrumentation and access changes require their own authorization.
+
+Use [the human-assisted loop template](scripts/hitl-loop.template.sh) when the
+trigger requires manual interaction and a repeatable capture would help. Keep
+captured content to what the diagnosis needs.
+
+## Test The Cause
+
+State the leading explanation and its falsifiable prediction. Consider credible
+alternatives when evidence is ambiguous; a fixed hypothesis count adds no proof.
+Choose the next inspection or probe that distinguishes them and update the
+explanation when evidence contradicts it. When several fixes have failed, write
+down the premise they all share and test that premise before trying another.
+
+Prefer a debugger, focused logs, or a minimal experiment. For performance,
+measure the relevant scenario before changing it, and find what limits the
+measurement (the code, the harness, the machine, a cache, timer resolution)
+before you trust the number; preserve workload and configuration for the
+comparison. Tag all temporary instrumentation with one
+unique prefix, such as `[DIAG-x7k2]`.
+
+## Fix And Verify
+
+Fix the owning cause and affected sibling paths within scope. When a useful
+regression test can exercise the real failure, make it fail before the fix and
+pass afterward. If you forced the failure by editing code or a fixture, diff
+against a clean copy to prove the edit took before you trust the red. Choose the lowest test tier that reaches the bug; an assertion
+that bypasses the failed handoff cannot prove it.
+
+Recheck the original scenario and run the owning project's required checks.
+Grep for the instrumentation prefix; it must return nothing before you finish.
+Remove task-owned harnesses that no longer earn keep. When you commit the fix,
+state the confirmed cause in the commit message. If runtime proof remains
+unavailable, report what the code and checks establish and what remains
+unverified rather than claiming the bug reproduced or was conclusively fixed.
+
+Lead the result with the cause, correction, and evidence. Recommend broader
+architecture work only when the investigation exposed a concrete remaining
+problem; use `improve-codebase-architecture` when that scan is requested.

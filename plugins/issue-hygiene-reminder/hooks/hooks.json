@@ -1,0 +1,17 @@
+{
+  "description": "issue-hygiene-reminder: before a GitHub issue write (gh issue create/edit/close/comment, gh api on issues, or a GitHub MCP issue write), adds a one-paragraph reminder of the issue-hygiene rules. Never blocks.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$|^mcp__.*issue.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/remind.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

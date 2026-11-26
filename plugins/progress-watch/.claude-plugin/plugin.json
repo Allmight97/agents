@@ -1,0 +1,19 @@
+{
+  "name": "progress-watch",
+  "description": "Shows what background Bash jobs and subagents are doing, in a row above the prompt and a pane: phases, errors, time since last activity, and how each ended. Nobody starts it, and it never starts a conversation turn. Can also follow extra log files and new commits on a git branch. /progress and a tool for the model. Needs function hooks (early access).",
+  "author": {
+    "name": "Allmight97",
+    "url": "https://github.com/Allmight97"
+  },
+  "homepage": "https://github.com/Allmight97/agents",
+  "repository": "https://github.com/Allmight97/agents",
+  "license": "MIT",
+  "keywords": [
+    "mod",
+    "function-hooks",
+    "observability",
+    "background-jobs",
+    "rate-limits"
+  ],
+  "types": "./types/index.d.ts"
+}

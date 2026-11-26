@@ -1,0 +1,154 @@
+import { describe, expect, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
+import type { On } from 'claude-code'
+
+const ROW = {
+  file: 'src/app.ts',
+  code: 120,
+  complexity: 80,
+  density: 66.7,
+  churn: 4,
+  over_threshold_fns: 2,
+  per_function_source: 'biome',
+  score: 8,
+  flags: [],
+}
+
+type Runs = string[][]
+
+function fakeEngine(on: On, rows: object[] | object[][], runs: Runs, exitCode = 0) {
+  let rankCalls = 0
+  on('process.run', (_$, e) => {
+    const argv = (e as unknown as { argv: string[] }).argv
+    runs.push(argv)
+    const isRank = argv.some(a => a.endsWith('complexity_rank.py'))
+    const sequence = Array.isArray(rows[0]) ? (rows as object[][]) : [rows as object[]]
+    const out = isRank ? sequence[Math.min(rankCalls++, sequence.length - 1)] : undefined
+    return { value: { exitCode: isRank ? exitCode : 0, stdout: isRank ? JSON.stringify(out) : 'scc 3.0', stderr: '' } } as never
+  })
+  on('session.start', (_$, e) => ({ cwd: e.cwd }) as never)
+  on('tool.call', () => ({ result: { text: 'ok' } }) as never)
+  on('prompt.submit', (_$, e) => e as never)
+  on('ui.toast', () => ({ value: undefined }))
+  on('ui.render', ($, e) => {
+    const { Text } = $.ui.resolve(e)
+    return h(Text, { key: 'below' }, 'other mod band') as never
+  })
+}
+
+const edit = ($: Engine, tool: 'Edit' | 'Read' = 'Edit') =>
+  $.tool.call({ tool, file_path: '/repo/src/app.ts' } as never)
+
+const read = async ($: Engine, agentId?: string) =>
+  ((await $.tool.call({ tool: 'Read', file_path: '/repo/src/app.ts', ...(agentId ? { agentId } : {}) } as never)) as { context?: string[] }).context
+
+const start = ($: Engine) => $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true } as never)
+
+describe('complexity-lens', () => {
+  test('an Edit of a file with functions over the limit adds a context line for the model', async ($, on) => {
+    const runs: Runs = []
+    fakeEngine(on, [ROW], runs)
+    await start($)
+    const result = (await edit($)) as { context?: string[] }
+    expect(result.context?.[0]).toContain('src/app.ts has 2 function(s) over the per-function limit (cognitive 20, Biome)')
+    expect(runs.some(argv => argv.includes('--json') && argv.includes('/repo/src/app.ts'))).toBe(true)
+  })
+
+  test('a file with no function over the limit and no hotspot score adds nothing', async ($, on) => {
+    fakeEngine(on, [{ ...ROW, over_threshold_fns: 0, score: 0 }], [])
+    await start($)
+    const result = (await edit($)) as { context?: string[] }
+    expect(result.context).toBeUndefined()
+  })
+
+  test('a Read of a file with a function over the limit tells the model', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    expect((await read($))?.[0]).toContain('src/app.ts has 2 function(s) over the per-function limit')
+  })
+
+  test('a repeated Read of the same file in one message adds nothing', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    await read($)
+    expect(await read($)).toBeUndefined()
+  })
+
+  test('a new message tells the model again', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    await read($)
+    await $.prompt.submit({ text: 'next task' } as never)
+    expect((await read($))?.[0]).toContain('over the per-function limit')
+  })
+
+  test('a subagent is told even when the main loop was told already', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    await read($)
+    expect((await read($, 'agent-1'))?.[0]).toContain('over the per-function limit')
+    expect(await read($, 'agent-1')).toBeUndefined()
+  })
+
+  test('a Read after an Edit in the same message adds nothing, and every Edit still reports', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    expect(((await edit($)) as { context?: string[] }).context).toHaveLength(1)
+    expect(await read($)).toBeUndefined()
+    expect(((await edit($)) as { context?: string[] }).context).toHaveLength(1)
+  })
+
+  test('a Read of a file with no function over the limit adds nothing, whatever its hotspot score', async ($, on) => {
+    fakeEngine(on, [{ ...ROW, over_threshold_fns: null, per_function_source: null, score: 40, flags: ['scc-only'] }], [])
+    await start($)
+    expect(await read($)).toBeUndefined()
+  })
+
+  test('an Edit outside git of a file with no function over the limit adds nothing', async ($, on) => {
+    fakeEngine(on, [{ ...ROW, over_threshold_fns: 0, churn: null, score: null, flags: ['no-git'] }], [])
+    await start($)
+    const result = (await edit($)) as { context?: string[] }
+    expect(result.context).toBeUndefined()
+  })
+
+  test('the band draws what the layers beneath draw plus its own rows', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    await edit($)
+    const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
+    expect(await ui.find({ type: 'Text', text: 'other mod band' })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: 'src/app.ts' })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: '2 over limit' })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /complexity 80 · 67 per 100 lines · changed 4× · score 8/ })).toBeDefined()
+    await ui.unmount()
+  })
+
+  test('a function added over the limit during this request shows how many were added', async ($, on) => {
+    fakeEngine(on, [[ROW], [{ ...ROW, over_threshold_fns: 3, score: 12 }]], [])
+    await start($)
+    await edit($, 'Read')
+    const result = (await edit($)) as { context?: string[] }
+    expect(result.context?.[0]).toContain('(was 2 at the start of this request)')
+    const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
+    expect(await ui.find({ type: 'Text', text: '3 over limit (+1)' })).toBeDefined()
+    await ui.unmount()
+  })
+
+  test('a new message clears the rows', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    await edit($)
+    await $.prompt.submit({ text: 'next task' } as never)
+    const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
+    expect(await ui.findAll({ type: 'Text' })).toHaveLength(1)
+    await ui.unmount()
+  })
+
+  test('with nothing measured the band is exactly what the layers beneath draw', async ($, on) => {
+    fakeEngine(on, [ROW], [])
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'complexity-lens', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 100 } as never })
+    expect(await ui.findAll({ type: 'Text' })).toHaveLength(1)
+    await ui.unmount()
+  })
+})

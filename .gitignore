@@ -1,0 +1,33 @@
+.DS_Store
+
+# Local secrets and machine-specific executables.
+/env/
+/bin/
+.env
+.env.*
+!.env.example
+
+# Runtime/cache artifacts.
+*.log
+*.tmp
+*.bak
+*.sqlite
+*.sqlite-*
+*.db
+.cache/
+cache/
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.wrangler/
+.dev.vars
+
+# Private key material.
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Written by Claude Code when it loads a mod folder; extends its ignored .claude-plugin/types/.
+plugins/*/tsconfig.json

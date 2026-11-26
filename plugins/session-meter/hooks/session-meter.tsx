@@ -1,0 +1,534 @@
+/**
+ * session-meter — Claude Mod (EARLY ACCESS)
+ *
+ * A session meter for Claude Code: prompt cache, context window, plan limits
+ * and subagent usage. Every main-loop request reports how many prompt tokens the cache served (`cache_read_input_tokens`), wrote
+ * (`cache_creation_input_tokens`) and sent uncached (`input_tokens`); this mod
+ * keeps those per request and per turn, counts down to the moment the cache
+ * lapses, and says what to do about it: keep going, /compact or /clear.
+ *
+ *   - `turn.step` reads each main-loop request's usage (subagents have their
+ *     own prefixes and are left out)
+ *   - `session.measure` reads the context fill and the plan's rate-limit
+ *     windows (five-hour, weekly), and submits one prompt when a window
+ *     crosses 90%, so a long run can pause before the limit
+ *   - `agent.spawn` names each subagent; `turn.complete` adds each subagent
+ *     turn's tokens to its row
+ *   - `$.clock.every(1000)` redraws the countdown, and only while its text
+ *     changes: an idle, expired session costs nothing
+ *   - one compact line above the prompt (the AbovePrompt component; it keeps what other
+ *     band mods draw), an optional status
+ *     line entry, and `/meter`, a pane with context, limits, one row per turn and one
+ *     per subagent
+ *
+ * The lifetime is counted from the start of the request that last wrote or read
+ * the cache, as Anthropic documents it. Which lifetime Claude Code asked for
+ * follows its documented rules (see decideTtl in ./cache.ts): FORCE_PROMPT_CACHING_5M,
+ * CLAUDE_CODE_PROMPT_CACHE_TTL, the promptCacheTtl setting, ENABLE_PROMPT_CACHING_1H,
+ * then the account (1 hour on a Claude subscription, 5 minutes otherwise). The
+ * API names the TTL of a write but the mod API passes on only the token counts,
+ * so the mod also watches the gaps between requests (a hit after more than 5
+ * minutes proves 1 hour; see observeTtl). `ttl: "5m" | "1h"` pins it.
+ *
+ * Needs CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 (Claude Code >= 2.1.259).
+ *
+ * Options (pluginConfigs["session-meter@personal"].options):
+ *   ttl: "auto" | "5m" | "1h"   cache lifetime (default auto)
+ *   warnSeconds: number         countdown threshold for the warning (default 60)
+ *   compactAtTokens: number     prompt size that makes an expired cache suggest /compact (default 100000)
+ *   band: boolean               row above the prompt (default true)
+ *   status: boolean             entry under the prompt (default false)
+ *   toast: boolean              toasts near expiry: at warnSeconds, then 10, 3, 2 and 1 s (default true)
+ */
+import type { EngineInterface, Register } from 'claude-code'
+import {
+  advise,
+  COUNTDOWN_MARKS,
+  byTurn,
+  fit,
+  fmtClock,
+  fmtTokens,
+  hitRatio,
+  isCachingDisabled,
+  accountOf,
+  decideTtl,
+  forgetObserved,
+  lifetimeSource,
+  observe,
+  reconfigure,
+  startLifetime,
+  lifeColor,
+  lifeRatio,
+  nextToastMark,
+  positive,
+  promptTokens,
+  remainingMs,
+  rowRatio,
+  ratioColor,
+  segments,
+} from './cache.ts'
+import type { Account, Advice, CacheEnv, Lifetime, Sample } from './cache.ts'
+import { addTurn, fmtReset, fmtResetShort, limitLabel, limitsToWake, planLimits, share, stepTokens, usageColor, wakeText } from './usage.ts'
+import { bandLine, inkHex, terminalRuns, WEEK_BAR, weekAlt, weekBarSvg, weekPace } from './band.ts'
+import type { BandModel } from './band.ts'
+import type { AgentTally, Alerted, Limit, Tokens } from './usage.ts'
+
+const PANE = 'meter'
+const COMMAND = 'meter'
+const KEEP = 200
+// below this a lapsed cache costs too little to interrupt anyone about
+const TOAST_MIN_TOKENS = 20_000
+
+let samples: Sample[] = []
+let lifetime: Lifetime = { kind: 'configured', ttl: '5m', source: 'default' }
+let setting: unknown
+let account: Account = 'other'
+let env: CacheEnv = {}
+let timer: { cancel: () => void } | undefined
+let lastKey = ''
+let toastedFor = 0
+let toastLevel = Infinity
+let isPaneOpen = false
+let context: { tokens?: number; window: number; percent?: number } | undefined
+let limits: Limit[] = []
+let mainTokens: Tokens = { input: 0, output: 0 }
+let agents = new Map<string, AgentTally>()
+const agentLabels = new Map<string, string>()
+
+// a session start and a /clear both begin a new conversation with a new cache
+function startConversation() {
+  samples = []
+  lastKey = ''
+  toastedFor = 0
+  mainTokens = { input: 0, output: 0 }
+  agents = new Map()
+  agentLabels.clear()
+}
+
+const ALERTED = 'planLimitAlerts'
+
+type Policy = { warnMs: number; compactAtTokens: number }
+
+function current(policy: Policy, now: number) {
+  const last = samples[samples.length - 1]
+  const prev = samples[samples.length - 2]
+  const disabled = last ? isCachingDisabled(last.model, env) : isCachingDisabled('', env)
+  const advice: Advice = advise(last, prev, { ttl: lifetime.ttl, ...policy }, now, disabled)
+  const left = last ? remainingMs(last, lifetime.ttl, now) : 0
+  return { last, advice, left }
+}
+
+const COLOR: Record<Advice['kind'], string | undefined> = {
+  warm: 'green',
+  soon: 'yellow',
+  expired: 'red',
+  miss: 'red',
+  off: undefined,
+  cold: undefined,
+  uncached: undefined,
+}
+
+const fiveHourReset = (now: number) => fmtResetShort(limits.find(l => l.kind === 'five_hour')?.resetsAt, now)
+
+function shortLine(policy: Policy, now: number): string {
+  const { last, advice, left } = current(policy, now)
+  if (!last || advice.kind === 'off') return `cache: ${advice.text}`
+  const clock = left > 0 ? ` · ${fmtClock(left)}` : ''
+  return `cache ${Math.round(hitRatio(last) * 100)}%${clock}`
+}
+
+// the promptCacheTtl setting, from the settings files that can carry it (local over project over user)
+async function readSetting($: EngineInterface): Promise<unknown> {
+  const home = await $.env.get('HOME').catch(() => undefined)
+  const cwd = await $.session.cwd().catch(() => undefined)
+  const files = [cwd && `${cwd}/.claude/settings.local.json`, cwd && `${cwd}/.claude/settings.json`, home && `${home}/.claude/settings.json`]
+  for (const file of files) {
+    if (!file) continue
+    try {
+      const value = JSON.parse(await $.fs.read(file)).promptCacheTtl
+      if (value === '5m' || value === '1h') return value
+    } catch {
+      // missing or unreadable: the next file
+    }
+  }
+  return undefined
+}
+
+export const register: Register = (on, options) => {
+  const policy: Policy = {
+    warnMs: positive(options.warnSeconds, 60) * 1000,
+    compactAtTokens: positive(options.compactAtTokens, 100_000),
+  }
+  const showBand = options.band !== false
+  const showStatus = options.status === true
+  const wantToast = options.toast !== false
+
+  on('session.start', async ($, e, next) => {
+    const r = await next(e)
+    startConversation()
+    const measured = await $.session.usage().catch(() => undefined)
+    context = measured?.context
+    limits = measured?.rateLimits ?? []
+    const none = () => undefined
+    env = {
+      enable1h: await $.env.get('ENABLE_PROMPT_CACHING_1H').catch(none),
+      force5m: await $.env.get('FORCE_PROMPT_CACHING_5M').catch(none),
+      ttlVar: await $.env.get('CLAUDE_CODE_PROMPT_CACHE_TTL').catch(none),
+      disableAll: await $.env.get('DISABLE_PROMPT_CACHING').catch(none),
+      disableHaiku: await $.env.get('DISABLE_PROMPT_CACHING_HAIKU').catch(none),
+      disableSonnet: await $.env.get('DISABLE_PROMPT_CACHING_SONNET').catch(none),
+      disableOpus: await $.env.get('DISABLE_PROMPT_CACHING_OPUS').catch(none),
+    }
+    setting = await readSetting($)
+    account = accountOf(limits)
+    lifetime = startLifetime(options.ttl, env, setting, account)
+
+    await $.command
+      .register({
+        name: COMMAND,
+        description: 'Context, plan limits, prompt cache per turn and subagent usage (stop closes)',
+        argumentHint: '[stop]',
+        immediate: true,
+      })
+      .catch(err => $.ui.log(`session-meter: /${COMMAND} not registered: ${err}`))
+    $.ui.log(`session-meter loaded: ${lifetime.ttl} cache (${lifetimeSource(lifetime)}), /${COMMAND} opens the pane`, { to: 'debug' })
+
+    timer?.cancel()
+    timer = $.clock.every(1000, () => {
+      const now = Date.now()
+      const { last, advice, left } = current(policy, now)
+      const key = `${advice.kind}|${advice.text}|${left > 0 ? fmtClock(left) : ''}|${fiveHourReset(now)}`
+      if (key !== lastKey) {
+        lastKey = key
+        if (showStatus) $.ui.status(shortLine(policy, now))
+        $.ui.invalidate('ui.render')
+      }
+      if (wantToast && last && left > 0 && promptTokens(last) >= TOAST_MIN_TOKENS) {
+        if (toastedFor !== last.startedAt) {
+          toastedFor = last.startedAt
+          toastLevel = Infinity
+        }
+        // the first toast comes at warnSeconds, then 10, 3, 2 and 1 seconds; a late tick skips to the newest one
+        const secs = Math.ceil(left / 1000)
+        const mark = nextToastMark(secs, policy.warnMs / 1000, toastLevel)
+        if (mark !== undefined) {
+          toastLevel = mark
+          const tail = secs <= COUNTDOWN_MARKS[0] ? 'send a message now' : `send a message to keep ${fmtTokens(promptTokens(last))} tokens warm`
+          $.ui.toast(`cache expires in ${secs >= 60 ? fmtClock(left) : `${secs}s`}: ${tail}`)
+        }
+      }
+    })
+    return r
+  })
+
+  on('session.end', async ($, e, next) => {
+    // /clear starts a new conversation in the same process: its cache is a new one
+    if (e.reason === 'clear') {
+      startConversation()
+      lifetime = forgetObserved(lifetime)
+      $.ui.invalidate('ui.render')
+      return next(e)
+    }
+    timer?.cancel()
+    timer = undefined
+    return next(e)
+  })
+
+  // each main-loop request: what the cache did with it
+  on('turn.step', async function* ($, e, next) {
+    if (e.agentId) return yield* next(e)
+    const startedAt = Date.now()
+    const r = yield* next(e)
+    if (r.usage) {
+      const sample: Sample = {
+        turnId: e.turnId,
+        index: e.index,
+        model: r.usage.model || e.model,
+        startedAt,
+        read: r.usage.cache_read_input_tokens,
+        write: r.usage.cache_creation_input_tokens,
+        fresh: r.usage.input_tokens,
+        output: r.usage.output_tokens,
+      }
+      samples.push(sample)
+      if (samples.length > KEEP) samples = samples.slice(-KEEP)
+      const step = stepTokens(r.usage)
+      mainTokens = { input: mainTokens.input + step.input, output: mainTokens.output + step.output }
+      // the account can change under a session: a subscription running out of plan usage moves to usage credits
+      account = accountOf(limits)
+      const before = lifetime
+      lifetime = observe(reconfigure(lifetime, decideTtl(options.ttl, env, setting, account)), samples[samples.length - 2], sample)
+      if (lifetime.kind === 'observed' && (before.kind !== 'observed' || before.ttl !== lifetime.ttl)) {
+        $.ui.log(`session-meter: cache lifetime is ${lifetime.ttl} (${lifetimeSource(lifetime)})`, { to: 'debug' })
+      }
+      lastKey = ''
+      if (showStatus) $.ui.status(shortLine(policy, Date.now()))
+      $.ui.invalidate('ui.render')
+    }
+    return r
+  })
+
+  on('session.measure', async ($, e, next) => {
+    context = e.context
+    limits = e.rateLimits
+    const held = ((await $.store.get(ALERTED).catch(() => undefined)) ?? {}) as Alerted
+    const crossed = limitsToWake(limits, held)
+    if (crossed.wake.length > 0) {
+      await $.store.set(ALERTED, crossed.alerted).catch(err => $.ui.log(`session-meter: plan-limit memory not saved: ${err}`))
+      void $.prompt.submit({ text: wakeText(crossed.wake, Date.now()) }).catch(err => $.ui.log(`session-meter: plan-limit wake failed: ${err}`))
+    }
+    $.ui.invalidate('ui.render')
+    return next(e)
+  })
+
+  on('agent.spawn', async ($, e, next) => {
+    const r = await next(e)
+    if (r.agentId) agentLabels.set(r.agentId, `${e.subagentType}: ${e.description}`)
+    return r
+  })
+
+  on('turn.complete', async ($, e, next) => {
+    if (e.agentId && e.usage) {
+      agents.set(e.agentId, addTurn(agents.get(e.agentId), e.agentId, agentLabels.get(e.agentId) ?? e.agentId, e.usage))
+      if (isPaneOpen) $.ui.invalidate('ui.render')
+    }
+    return next(e)
+  })
+
+  on('command.run', { command: COMMAND }, async ($, e) => {
+    if (e.args.trim().toLowerCase() === 'stop') {
+      await $.ui.close({ id: PANE }).catch(() => undefined)
+      isPaneOpen = false
+      return { text: 'session meter closed' }
+    }
+    isPaneOpen = true
+    await $.ui.open({ id: PANE, title: 'session meter', focus: true })
+    $.ui.invalidate('ui.render')
+    const { advice } = current(policy, Date.now())
+    return { text: `${lifetime.ttl} cache (${lifetimeSource(lifetime)}) · ${advice.text} · /${COMMAND} stop closes` }
+  })
+
+  on('ui.close', async ($, e, next) => {
+    if (e.id !== PANE) return next(e)
+    isPaneOpen = false
+    return next(e)
+  })
+
+  on('ui.press', async ($, e, next) => {
+    if (e.plugin !== $.plugin.name || e.requestId !== PANE) return next(e)
+    if (e.element === 'close') await $.ui.close({ id: PANE }).catch(() => undefined)
+    return next(e)
+  })
+
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    if (!showBand || e.props.hasSurvey || isPaneOpen) return next(e)
+    const now = Date.now()
+    const { last, advice, left } = current(policy, now)
+    if (!last && advice.kind !== 'off') return next(e)
+    const ui = $.ui.resolve(e)
+    const { Box, Text } = ui
+    const columns = e.props.bodyColumns
+
+    const counting = !!last && advice.kind !== 'uncached' && advice.kind !== 'off'
+    const fiveHour = limits.find(l => l.kind === 'five_hour')
+    const week = limits.find(l => l.kind === 'seven_day')
+    const model: BandModel = {
+      fiveHour: fiveHour && { pct: Math.round(fiveHour.percentUsed), reset: fiveHourReset(now) },
+      week: week && { pct: Math.round(week.percentUsed), pace: weekPace(week.resetsAt, now) },
+      ctx: context?.percent === undefined ? undefined : Math.round(context.percent),
+      cache: last && {
+        hit: Math.round(hitRatio(last) * 100),
+        clock: counting ? fmtClock(left) : undefined,
+        clockColor: left > 0 ? lifeColor(left, lifetime.ttl, policy.warnMs) : 'red',
+      },
+      advice: advice.kind === 'warm' ? undefined : last ? advice.short : `cache: ${advice.text}`,
+    }
+
+    const line = bandLine(model)
+    if (e.surface !== 'terminal' && 'Svg' in ui) {
+      return (
+        <Box key="row" flexDirection="row" columnGap={1} alignItems="center">
+          {line.map((item, i) =>
+            item.kind === 'weekBar' ? (
+              <ui.Svg key={`i${i}`} source={weekBarSvg(item)} alt={weekAlt(item)} width={WEEK_BAR.width} height={WEEK_BAR.height} />
+            ) : (
+              <Text key={`i${i}`} color={inkHex(item.ink)} bold={item.bold}>
+                {item.text}
+              </Text>
+            ),
+          )}
+        </Box>
+      )
+    }
+    return (
+      <Box key="row" flexDirection="row">
+        {terminalRuns(line, columns).map((run, i) => (
+          <Text key={`r${i}`} color={run.color} bold={run.bold}>
+            {run.text}
+          </Text>
+        ))}
+      </Box>
+    )
+  })
+
+  on('ui.render', { component: 'Pane' }, async ($, e, next) => {
+    if (e.requestId !== PANE) return next(e)
+    const { Box, Text, Button } = $.ui.resolve(e)
+    const width = Math.max(30, e.props.bodyColumns - 1)
+    // HTML collapses runs of spaces and trims a text's ends; a no-break space keeps them
+    const sp = (t: string) => (e.surface === 'terminal' ? t : t.replace(/ /g, ' '))
+    const now = Date.now()
+    const { last, advice, left } = current(policy, now)
+    const all = byTurn(samples)
+    const counting = !!last && advice.kind !== 'uncached' && advice.kind !== 'off'
+    // the countdown goes green, then yellow, then red as the cache runs out
+    const clockColor = counting ? lifeColor(left, lifetime.ttl, policy.warnMs) : undefined
+    const stateColor = advice.kind === 'expired' || advice.kind === 'miss' ? 'red' : (clockColor ?? COLOR[advice.kind])
+    // solid bars are filled Boxes, not block characters, so HTML draws no seams between cells
+    const solid = (key: string, parts: [number, string | undefined][]) => (
+      <Box key={key} flexDirection="row" height={1} flexShrink={0}>
+        {parts.map(([w, c], i) => (w > 0 ? <Box key={`${key}:${i}`} width={w} height={1} flexShrink={0} backgroundColor={c} /> : null))}
+      </Box>
+    )
+    const cell = (key: string, w: number, text: string, c?: string, bold = false) => (
+      <Box key={key} width={w} flexShrink={0} justifyContent="flex-end">
+        <Text color={c} bold={bold} dimColor={!c}>{sp(text)}</Text>
+      </Box>
+    )
+
+    const barW = Math.min(width, 40)
+    const life = lifeRatio(left, lifetime.ttl)
+    const lifeFilled = Math.round(life * barW)
+    const [sr, sw, sn] = last ? segments(last.read, last.write, last.fresh, barW) : [0, 0, 0]
+    const rows = all.slice(-Math.max(3, (e.viewport?.rows ?? 24) - 16))
+    const meters = [
+      ...(context?.percent === undefined
+        ? []
+        : [{ key: 'ctx', label: 'context', pct: context.percent, note: `${fmtTokens(context.tokens ?? 0)} / ${fmtTokens(context.window)}` }]),
+      ...planLimits(limits).map(l => {
+        const reset = fmtReset(l.resetsAt, now)
+        return { key: l.kind, label: limitLabel(l.kind), pct: l.percentUsed, note: reset ? `resets in ${reset}` : '' }
+      }),
+    ]
+    const agentRows = [...agents.values()].sort((a, b) => b.input + b.output - (a.input + a.output))
+    const total: Tokens = agentRows.reduce((t, a) => ({ input: t.input + a.input, output: t.output + a.output }), mainTokens)
+    const icon = advice.kind === 'warm' ? '●' : advice.kind === 'soon' ? '▲' : advice.kind === 'expired' || advice.kind === 'miss' ? '✖' : '○'
+
+    return (
+      <Box flexDirection="column">
+        <Box key="title" flexDirection="row" columnGap={1}>
+          <Text bold color="cyan">{sp('⚡ SESSION METER')}</Text>
+          <Text dimColor>{sp(`· ${lifetime.ttl} lifetime (${lifetimeSource(lifetime)})`)}</Text>
+        </Box>
+
+        <Box key="usage" flexDirection="column" marginTop={1}>
+          <Text bold color="cyan">{sp('CONTEXT AND PLAN LIMITS')}</Text>
+          {meters.length === 0 ? <Text dimColor>{sp('no reading yet')}</Text> : null}
+          {meters.map(m => {
+            const filled = Math.round((Math.min(100, m.pct) / 100) * barW)
+            return (
+              <Box key={`m:${m.key}`} flexDirection="row" columnGap={1}>
+                {cell(`m:label:${m.key}`, 7, m.label, 'cyan', true)}
+                {solid(`m:bar:${m.key}`, [[filled, usageColor(m.pct)], [barW - filled, 'gray']])}
+                <Text bold color={usageColor(m.pct)}>{sp(`${Math.round(m.pct)}%`)}</Text>
+                <Text dimColor>{sp(m.note)}</Text>
+              </Box>
+            )
+          })}
+        </Box>
+
+        <Box key="cachehead" marginTop={1}>
+          <Text bold color="cyan">{sp('PROMPT CACHE')}</Text>
+        </Box>
+
+        <Box key="clock" flexDirection="column" marginTop={1}>
+          <Text bold color={clockColor}>{sp(counting ? `⏱ ${left > 0 ? fmtClock(left) : '0:00'}` : '⏱ --:--')}</Text>
+          {counting ? (
+            <Box flexDirection="row" columnGap={1}>
+              {solid('life', [[lifeFilled, clockColor], [barW - lifeFilled, 'gray']])}
+              <Text dimColor>{sp(`${Math.round(life * 100)}%`)}</Text>
+            </Box>
+          ) : null}
+        </Box>
+
+        <Box key="advice" marginTop={1} flexDirection="column">
+          <Text bold color={stateColor}>{sp(`${icon} ${advice.text}`)}</Text>
+          {last ? <Text dimColor>{sp(fit(`${last.model} · prompt ${fmtTokens(promptTokens(last))} tokens`, width))}</Text> : null}
+        </Box>
+
+        {last ? (
+          <Box key="stack" flexDirection="column" marginTop={1}>
+            <Box flexDirection="row" columnGap={1}>
+              {solid('stack', [[sr, 'green'], [sw, 'yellow'], [sn, 'cyan']])}
+              <Text bold color={ratioColor(Math.round(hitRatio(last) * 100))}>{sp(`${Math.round(hitRatio(last) * 100)}% hit`)}</Text>
+            </Box>
+            <Box flexDirection="row" columnGap={2}>
+              <Text color="green">{sp(`■ read ${fmtTokens(last.read)}`)}</Text>
+              <Text color="yellow">{sp(`■ wrote ${fmtTokens(last.write)}`)}</Text>
+              <Text color="cyan">{sp(`■ new ${fmtTokens(last.fresh)}`)}</Text>
+            </Box>
+          </Box>
+        ) : null}
+
+        <Box key="table" flexDirection="column" marginTop={1}>
+          <Box key="head" flexDirection="row" columnGap={1}>
+            {cell('h:turn', 4, 'turn', 'cyan', true)}
+            {cell('h:steps', 5, 'steps', 'cyan', true)}
+            {cell('h:read', 6, 'read', 'green', true)}
+            {cell('h:wrote', 6, 'wrote', 'yellow', true)}
+            {cell('h:new', 5, 'new', 'cyan', true)}
+            {cell('h:hit', 4, 'hit', 'magenta', true)}
+          </Box>
+          {rows.length === 0 ? <Text dimColor>{sp('no requests yet')}</Text> : null}
+          {rows.map((row, i) => {
+            const n = all.length - rows.length + i + 1
+            const pct = Math.round(rowRatio(row) * 100)
+            return (
+              <Box key={`t:${row.turnId}`} flexDirection="row" columnGap={1}>
+                {cell(`c:turn:${row.turnId}`, 4, String(n))}
+                {cell(`c:steps:${row.turnId}`, 5, String(row.steps))}
+                {cell(`c:read:${row.turnId}`, 6, fmtTokens(row.read), 'green')}
+                {cell(`c:wrote:${row.turnId}`, 6, fmtTokens(row.write), 'yellow')}
+                {cell(`c:new:${row.turnId}`, 5, fmtTokens(row.fresh), 'cyan')}
+                {cell(`c:hit:${row.turnId}`, 4, `${pct}%`, ratioColor(pct), true)}
+              </Box>
+            )
+          })}
+        </Box>
+
+        <Box key="agents" flexDirection="column" marginTop={1}>
+          <Text bold color="cyan">{sp('SUBAGENTS')}</Text>
+          <Text dimColor>{sp(fit(`main loop ${fmtTokens(mainTokens.input)} in · ${fmtTokens(mainTokens.output)} out · ${share(mainTokens, total)}% of session tokens`, width))}</Text>
+          {agentRows.length === 0 ? <Text dimColor>{sp('none this session')}</Text> : null}
+          {agentRows.length > 0 ? (
+            <Box key="ahead" flexDirection="row" columnGap={1}>
+              {cell('ah:turns', 5, 'turns', 'cyan', true)}
+              {cell('ah:in', 6, 'in', 'green', true)}
+              {cell('ah:out', 6, 'out', 'yellow', true)}
+              {cell('ah:share', 5, 'share', 'magenta', true)}
+              <Text bold color="cyan">{sp('agent')}</Text>
+            </Box>
+          ) : null}
+          {agentRows.map(a => (
+            <Box key={`a:${a.id}`} flexDirection="row" columnGap={1}>
+              {cell(`a:turns:${a.id}`, 5, String(a.turns))}
+              {cell(`a:in:${a.id}`, 6, fmtTokens(a.input), 'green')}
+              {cell(`a:out:${a.id}`, 6, fmtTokens(a.output), 'yellow')}
+              {cell(`a:share:${a.id}`, 5, `${share(a, total)}%`, 'magenta', true)}
+              <Text dimColor wrap="truncate-end">{sp(fit(a.label, Math.max(10, width - 28)))}</Text>
+            </Box>
+          ))}
+        </Box>
+
+        <Box key="foot" marginTop={1} flexDirection="column">
+          <Button key="close" label="close" onPress={() => {}} />
+          <Box key="legend" marginTop={1} flexDirection="column">
+            <Text color="green">{sp('■ read: served by the cache')}</Text>
+            <Text color="yellow">{sp('■ wrote: new cache entry')}</Text>
+            <Text color="cyan">{sp('■ new: sent uncached')}</Text>
+          </Box>
+        </Box>
+      </Box>
+    )
+  })
+}
