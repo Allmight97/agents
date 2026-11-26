@@ -1,5 +1,6 @@
 {
   "name": "codex-review",
+  "version": "1.0.0",
   "description": "Run an adversarial Codex review from Claude Code through one launcher: the repository stays read-only, heredocs, git and gh work, and the run is watched for timeout, stall, and an expired login. Not for Codex itself.",
   "author": {
     "name": "Allmight97",
