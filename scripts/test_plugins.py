@@ -4,6 +4,7 @@
 - A mod (`hooks/hooks.json`) with a `*.test.ts` or `*.test.tsx` file:
   `claude plugin validate` and `claude plugin test`.
 - A `*.test.sh` file: `sh`.
+- A `test_*.py` file: `python3`.
 - A `package.json` with a `test` script: `npm ci` when `node_modules` is
   missing, then `npm test`.
 """
@@ -27,6 +28,7 @@ def commands(plugin: Path) -> list[tuple[list[str], Path]]:
     if (plugin / "hooks" / "hooks.json").exists() and tests_in(plugin, "*.test.ts", "*.test.tsx"):
         found += [(["claude", "plugin", "validate", str(plugin)], ROOT), (["claude", "plugin", "test", str(plugin)], ROOT)]
     found += [(["sh", str(test)], ROOT) for test in tests_in(plugin, "*.test.sh")]
+    found += [(["python3", str(test)], ROOT) for test in tests_in(plugin, "test_*.py")]
     package = plugin / "package.json"
     if package.exists() and "test" in json.loads(package.read_text()).get("scripts", {}):
         if not (plugin / "node_modules").exists():

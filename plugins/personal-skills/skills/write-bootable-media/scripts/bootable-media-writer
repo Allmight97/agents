@@ -1,0 +1,959 @@
+#!/usr/bin/env python3
+"""Identity-bound macOS bootable-media writer using native device tools."""
+
+from __future__ import annotations
+
+import argparse
+import array
+import bz2
+import errno
+import fcntl
+import gzip
+import hashlib
+import json
+import lzma
+import os
+import plistlib
+import re
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import zipfile
+from contextlib import contextmanager
+from pathlib import Path
+import stat
+from typing import BinaryIO
+
+
+class MediaError(RuntimeError):
+    pass
+
+
+def fail(code: str, detail: str):
+    raise MediaError(f"{code}: {detail}")
+
+
+def command(*args: str, capture: bool = True):
+    return subprocess.run(args, check=True, capture_output=capture)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        while chunk := source.read(8 * 1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def parse_usb_registry(raw: bytes) -> dict[str, dict[str, str]]:
+    try:
+        roots = plistlib.loads(raw)
+    except plistlib.InvalidFileException:
+        fail("INSPECTION_FAILED", "ioreg returned an invalid property list")
+    if not isinstance(roots, list):
+        fail("INSPECTION_FAILED", "ioreg property-list root is not an array")
+    entries: dict[str, dict[str, str]] = {}
+
+    def walk(node: object) -> None:
+        if not isinstance(node, dict):
+            return
+        location_id = node.get("locationID")
+        serial = node.get("kUSBSerialNumberString") or node.get("USB Serial Number")
+        product = node.get("USB Product Name") or node.get("kUSBProductString")
+        session = node.get("sessionID")
+        registry_id = node.get("IORegistryEntryID")
+        if all(value is not None for value in (location_id, serial, product, session, registry_id)):
+            location = f"{int(location_id):08x}"
+            identity = {
+                "serial": str(serial),
+                "product": str(product),
+                "location": location,
+                "registry_entry_id": f"0x{int(registry_id):x}",
+                "session_id": str(session),
+            }
+            existing = entries.get(location)
+            if existing is not None and existing != identity:
+                fail("IDENTITY_AMBIGUOUS", f"multiple USB entries claim location {location}")
+            entries[location] = identity
+        for child in node.get("IORegistryEntryChildren", []):
+            walk(child)
+
+    for root in roots:
+        walk(root)
+    return entries
+
+
+def usb_devices() -> dict[str, dict[str, str]]:
+    try:
+        raw = command(
+            "ioreg", "-p", "IOUSB", "-r", "-c", "IOUSBHostDevice", "-l", "-w", "0", "-a"
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        fail("INSPECTION_FAILED", f"ioreg failed with status {exc.returncode}")
+    return parse_usb_registry(raw)
+
+
+def disk_info(device: str) -> dict[str, object]:
+    if not re.fullmatch(r"/dev/disk\d+", device):
+        fail("IDENTITY_INCOMPLETE", "target must be a whole /dev/diskN device")
+    try:
+        info = plistlib.loads(command("diskutil", "info", "-plist", device).stdout)
+    except (subprocess.CalledProcessError, plistlib.InvalidFileException):
+        fail("DEVICE_DISCONNECTED", f"cannot inspect {device}")
+    required = {
+        "Internal": False,
+        "VirtualOrPhysical": "Physical",
+        "RemovableMediaOrExternalDevice": True,
+        "WritableMedia": True,
+        "WholeDisk": True,
+        "BusProtocol": "USB",
+    }
+    for key, expected in required.items():
+        if info.get(key) != expected:
+            fail("NO_ELIGIBLE_DEVICE", f"{device} has {key}={info.get(key)!r}, expected {expected!r}")
+    tree_path = str(info.get("DeviceTreePath", ""))
+    match = re.search(r"@([0-9A-Fa-f]+)$", tree_path)
+    if not match:
+        fail("IDENTITY_INCOMPLETE", f"no stable USB port location for {device}")
+    location = match.group(1).lower()
+    usb = usb_devices().get(location)
+    if not usb or not usb["serial"]:
+        fail("IDENTITY_INCOMPLETE", f"no unambiguous USB serial at port {location}")
+    disk = str(info["DeviceIdentifier"])
+    return {
+        "disk": f"/dev/{disk}",
+        "raw_disk": f"/dev/r{disk}",
+        "model": str(info.get("MediaName", "")),
+        "bytes": int(info["TotalSize"]),
+        "serial": usb["serial"],
+        "transport": str(info["BusProtocol"]),
+        "device_tree_path": tree_path,
+        "port_location": location,
+        "registry_entry_id": usb["registry_entry_id"],
+        "usb_session_id": usb["session_id"],
+    }
+
+
+def external_disks() -> list[str]:
+    try:
+        data = plistlib.loads(command("diskutil", "list", "-plist").stdout)
+    except subprocess.CalledProcessError as exc:
+        fail("INSPECTION_FAILED", f"diskutil list failed with status {exc.returncode}")
+    except plistlib.InvalidFileException:
+        fail("INSPECTION_FAILED", "diskutil returned an invalid property list")
+    return [f"/dev/{disk}" for disk in data.get("WholeDisks", [])]
+
+
+def load_plan(path: Path) -> dict[str, object]:
+    try:
+        return json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        fail("PLAN_INVALID", str(exc))
+
+
+def save_plan(path: Path, plan: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = (json.dumps(plan, indent=2, sort_keys=True) + "\n").encode()
+    fd, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+@contextmanager
+def plan_lock(plan_path: Path):
+    """Exclusively claim a stable sidecar inode for one complete plan mutation."""
+    resolved = plan_path.resolve()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = resolved.with_name(resolved.name + ".lock")
+    flags = os.O_RDWR | os.O_CREAT
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    fd = os.open(lock_path, flags, 0o600)
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            fail("PLAN_LOCK_INVALID", "plan lock is not a regular file")
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            if exc.errno in {errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK}:
+                fail("PLAN_BUSY", "another process is already mutating this plan")
+            raise
+        yield resolved
+    finally:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
+
+
+def canonical_plan_id(plan: dict[str, object]) -> str:
+    reviewed = {
+        "schema_version": plan["schema_version"],
+        "source": plan["source"],
+        "target": plan["target"],
+    }
+    payload = json.dumps(reviewed, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(payload).hexdigest()[:20]
+
+
+def validate_plan(plan: dict[str, object]) -> None:
+    if plan.get("schema_version") not in {1, 2}:
+        fail("PLAN_INVALID", "unsupported schema version")
+    actual = canonical_plan_id(plan)
+    if plan.get("plan_id") != actual:
+        fail("PLAN_TAMPERED", f"reviewed plan digest is {actual}, stored ID is {plan.get('plan_id')}")
+
+
+MAGIC_FORMATS = {
+    b"BZh": "bz2",
+    b"\xfd7zXZ\x00": "xz",
+    b"\x1f\x8b": "gz",
+    b"PK\x03\x04": "zip",
+    b"PK\x05\x06": "zip",
+    b"PK\x07\x08": "zip",
+}
+RAW_SUFFIXES = {".iso": "iso", ".img": "img"}
+MIN_FREE_RESERVE = 512 * 1024 * 1024
+
+
+def detect_format(path: Path) -> str:
+    """Detect image/archive format from magic first, then raw-image suffix."""
+    try:
+        with path.open("rb") as source:
+            header = source.read(8)
+    except OSError as exc:
+        fail("IMAGE_UNSUPPORTED", str(exc))
+    for magic, kind in MAGIC_FORMATS.items():
+        if header.startswith(magic):
+            return kind
+    if path.suffix.lower() in RAW_SUFFIXES:
+        return "raw"
+    fail("IMAGE_UNSUPPORTED", "source is not a recognized ISO/IMG or supported compressed image")
+
+
+def inferred_image_suffix(path: Path, fmt: str) -> str:
+    if fmt == "raw":
+        return path.suffix.lower()
+    if fmt == "zip":
+        return ""
+    stem = path.name
+    while Path(stem).suffix.lower() in {".bz2", ".xz", ".gz"}:
+        stem = Path(stem).stem
+    return Path(stem).suffix.lower()
+
+
+def _copy_stream(
+    source: BinaryIO,
+    destination: BinaryIO | None,
+    *,
+    max_bytes: int | None = None,
+    limit_code: str = "INSUFFICIENT_TARGET_CAPACITY",
+    limit_detail: str = "expanded image is larger than target",
+) -> tuple[str, int]:
+    digest = hashlib.sha256()
+    total = 0
+    while chunk := source.read(8 * 1024 * 1024):
+        if max_bytes is not None and total + len(chunk) > max_bytes:
+            fail(limit_code, limit_detail)
+        if destination is not None:
+            destination.write(chunk)
+        digest.update(chunk)
+        total += len(chunk)
+    return digest.hexdigest(), total
+
+
+def _private_snapshot_dir(parent: Path | None = None, prefix: str = "bootable-media-") -> Path:
+    if parent is not None:
+        parent.mkdir(parents=True, exist_ok=True)
+    directory = Path(tempfile.mkdtemp(prefix=prefix, dir=parent))
+    os.chmod(directory, 0o700)
+    return directory
+
+
+def _make_read_only(path: Path) -> None:
+    path.chmod(0o400)
+
+
+def _source_identity(info: os.stat_result) -> tuple[int, int, int, int]:
+    return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns
+
+
+def _snapshot_file(
+    source: Path,
+    destination: Path,
+    *,
+    expected_stat: os.stat_result | None = None,
+) -> tuple[str, int]:
+    expected = expected_stat or source.stat()
+    with source.open("rb") as original:
+        if _source_identity(os.fstat(original.fileno())) != _source_identity(expected):
+            fail("SOURCE_CHANGED", "image changed after capacity and free-space preflight")
+        with destination.open("wb") as snapshot:
+            digest, total = _copy_stream(
+                original,
+                snapshot,
+                max_bytes=expected.st_size,
+                limit_code="SOURCE_CHANGED",
+                limit_detail="image grew while creating the private snapshot",
+            )
+            snapshot.flush()
+            os.fsync(snapshot.fileno())
+        after_descriptor = os.fstat(original.fileno())
+    after_path = source.stat()
+    if (
+        _source_identity(after_descriptor) != _source_identity(expected)
+        or _source_identity(after_path) != _source_identity(expected)
+    ):
+        fail("SOURCE_CHANGED", "image changed while creating the private snapshot")
+    _make_read_only(destination)
+    return digest, total
+
+
+def _zip_member(path: Path, member: str | None) -> str:
+    with zipfile.ZipFile(path) as archive:
+        candidates = [
+            info.filename
+            for info in archive.infolist()
+            if not info.is_dir() and Path(info.filename).suffix.lower() in RAW_SUFFIXES
+        ]
+    if member is not None:
+        if member not in candidates:
+            fail("ARCHIVE_MEMBER_INVALID", "--archive-member must name one ISO/IMG member")
+        return member
+    if len(candidates) != 1:
+        if not candidates:
+            fail("ARCHIVE_MEMBER_REQUIRED", "ZIP contains no ISO/IMG member")
+        fail("ARCHIVE_AMBIGUOUS", "ZIP contains multiple ISO/IMG members; pass --archive-member")
+    return candidates[0]
+
+
+def _open_expanded_stream(path: Path, fmt: str, member: str | None) -> BinaryIO:
+    if fmt == "bz2":
+        return bz2.open(path, "rb")
+    if fmt == "xz":
+        return lzma.open(path, "rb")
+    if fmt == "gz":
+        return gzip.open(path, "rb")
+    if fmt == "zip":
+        archive = zipfile.ZipFile(path)
+        return _ZipMemberStream(archive, archive.open(member, "r"))
+    return path.open("rb")
+
+
+class _ZipMemberStream:
+    def __init__(self, archive: zipfile.ZipFile, stream: BinaryIO):
+        self.archive = archive
+        self.stream = stream
+
+    def read(self, size: int = -1):
+        return self.stream.read(size)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+        return False
+
+    def close(self):
+        self.stream.close()
+        self.archive.close()
+
+
+def create_snapshots(
+    image: Path,
+    expected_artifact_hash: str | None,
+    archive_member: str | None,
+    *,
+    snapshot_parent: Path | None = None,
+    snapshot_prefix: str = "bootable-media-",
+    max_expanded_bytes: int | None = None,
+) -> dict[str, object]:
+    if not image.is_absolute() or not image.is_file():
+        fail("IMAGE_UNSUPPORTED", "image must be an existing absolute path")
+    fmt = detect_format(image)
+    member = _zip_member(image, archive_member) if fmt == "zip" else None
+    if fmt != "zip" and archive_member:
+        fail("ARCHIVE_MEMBER_INVALID", "--archive-member is valid only for ZIP sources")
+    if fmt not in {"raw", "zip"} and inferred_image_suffix(image, fmt) not in RAW_SUFFIXES:
+        fail("IMAGE_UNSUPPORTED", "compressed source must contain an ISO or IMG image")
+    source_stat = image.stat()
+    source_bytes = source_stat.st_size
+    if max_expanded_bytes is not None and fmt == "raw" and source_bytes > max_expanded_bytes:
+        fail("INSUFFICIENT_TARGET_CAPACITY", "source image is larger than target")
+    if snapshot_parent is not None:
+        snapshot_parent.mkdir(parents=True, exist_ok=True)
+        free_bytes = shutil.disk_usage(snapshot_parent).free
+        if source_bytes + MIN_FREE_RESERVE > free_bytes:
+            fail(
+                "INSUFFICIENT_SNAPSHOT_SPACE",
+                "plan volume lacks space for the private artifact snapshot and safety reserve",
+            )
+    directory = _private_snapshot_dir(snapshot_parent, snapshot_prefix)
+    artifact_path = directory / ("artifact" + image.suffix.lower())
+    try:
+        artifact_hash, artifact_bytes = _snapshot_file(
+            image,
+            artifact_path,
+            expected_stat=source_stat,
+        )
+        if artifact_bytes == 0:
+            fail("IMAGE_UNSUPPORTED", "source image is empty")
+        if expected_artifact_hash and artifact_hash != expected_artifact_hash.lower():
+            fail("SOURCE_HASH_MISMATCH", f"expected {expected_artifact_hash.lower()}, got {artifact_hash}")
+        if fmt == "raw":
+            expanded_path = artifact_path
+            expanded_hash, expanded_bytes = artifact_hash, artifact_bytes
+        else:
+            expanded_path = artifact_path
+            with _open_expanded_stream(artifact_path, fmt, member) as source:
+                expanded_hash, expanded_bytes = _copy_stream(
+                    source,
+                    None,
+                    max_bytes=max_expanded_bytes,
+                )
+            if expanded_bytes == 0:
+                fail("IMAGE_UNSUPPORTED", "expanded image is empty")
+        return {
+            "format": fmt,
+            "image_kind": Path(member).suffix.lower().lstrip(".") if member else (Path(image.name).suffix.lower().lstrip(".") if fmt == "raw" else inferred_image_suffix(image, fmt).lstrip(".")),
+            "archive_member": member,
+            "snapshot_dir": str(directory),
+            "artifact_snapshot_path": str(artifact_path),
+            "snapshot_path": str(expanded_path),
+            "artifact_sha256": artifact_hash,
+            "artifact_bytes": artifact_bytes,
+            "expanded_sha256": expanded_hash,
+            "expanded_bytes": expanded_bytes,
+        }
+    except Exception:
+        shutil.rmtree(directory, ignore_errors=True)
+        raise
+
+
+def snapshot_source(source: dict[str, object]):
+    """Validate the private artifact snapshot and open its planned raw byte stream."""
+    artifact = Path(str(source.get("artifact_snapshot_path", source.get("snapshot_path", ""))))
+    artifact_hash = str(source.get("artifact_sha256", source.get("sha256", "")))
+    artifact_bytes = int(source.get("artifact_bytes", source.get("bytes", 0)))
+    if not artifact.is_file() or artifact.is_symlink():
+        fail("SNAPSHOT_CHANGED", "private artifact snapshot no longer matches the reviewed plan")
+    artifact_digest = sha256_file(artifact)
+    if artifact.stat().st_size != artifact_bytes or artifact_digest != artifact_hash:
+        fail("SNAPSHOT_CHANGED", "private artifact snapshot no longer matches the reviewed plan")
+    return _open_expanded_stream(
+        artifact,
+        str(source.get("format", "raw")),
+        source.get("archive_member"),
+    )
+
+
+def cleanup_snapshots(plan_path: Path, plan: dict[str, object]) -> bool:
+    """Remove only the private snapshot directory owned by this exact plan path."""
+    raw_directory = plan.get("source", {}).get("snapshot_dir")
+    if not raw_directory:
+        return False
+    directory = Path(str(raw_directory))
+    resolved_plan = plan_path.resolve()
+    expected_parent = resolved_plan.parent
+    expected_prefix = resolved_plan.name + ".media-"
+    if (
+        not directory.is_absolute()
+        or directory.parent.resolve() != expected_parent
+        or not directory.name.startswith(expected_prefix)
+        or directory.is_symlink()
+    ):
+        fail("SNAPSHOT_CLEANUP_REFUSED", "snapshot directory is not owned by this plan path")
+    for key in ("artifact_snapshot_path", "snapshot_path"):
+        candidate = Path(str(plan["source"].get(key, "")))
+        if not candidate.is_absolute() or candidate.parent.resolve() != directory.resolve():
+            fail("SNAPSHOT_CLEANUP_REFUSED", f"{key} escapes the plan-owned snapshot directory")
+    if directory.exists():
+        shutil.rmtree(directory)
+        return True
+    return False
+
+
+def authorized_fd(path: str, writable: bool) -> int:
+    parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
+    args = ["/usr/libexec/authopen", "-stdoutpipe"]
+    if writable:
+        args.append("-w")
+    args.append(path)
+    process = subprocess.Popen(args, stdout=child, close_fds=True)
+    child.close()
+    fds = array.array("i")
+    try:
+        _, ancillary, _, _ = parent.recvmsg(1, socket.CMSG_SPACE(fds.itemsize))
+        for level, kind, data in ancillary:
+            if level == socket.SOL_SOCKET and kind == socket.SCM_RIGHTS:
+                fds.frombytes(data[: fds.itemsize])
+        rc = process.wait()
+    finally:
+        parent.close()
+    if rc or not fds:
+        for received in fds:
+            os.close(int(received))
+        fail("PRIVILEGE_UNAVAILABLE", f"authopen failed for {path} with status {rc}")
+    fd = int(fds[0])
+    try:
+        if os.fstat(fd).st_rdev != os.stat(path).st_rdev:
+            os.close(fd)
+            fail("IDENTITY_CHANGED", "authorized descriptor no longer matches the planned raw-device node")
+    except OSError:
+        os.close(fd)
+        fail("DEVICE_DISCONNECTED", "raw device disappeared during authorization")
+    if writable:
+        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+        if flags & os.O_ACCMODE != os.O_RDWR:
+            os.close(fd)
+            fail("PRIVILEGE_UNAVAILABLE", "authorized descriptor is not read/write")
+        try:
+            os.lseek(fd, 0, os.SEEK_SET)
+        except OSError as exc:
+            os.close(fd)
+            fail("DEVICE_UNSUPPORTED", f"authorized raw device is not seekable: {exc}")
+    return fd
+
+
+def checked_identity(plan: dict[str, object]) -> dict[str, object]:
+    validate_plan(plan)
+    expected = plan["target"]
+    actual = disk_info(str(expected["disk"]))
+    if expected != actual:
+        fail("IDENTITY_CHANGED", f"expected {expected}, got {actual}")
+    return actual
+
+
+def initial_state() -> dict[str, object]:
+    return {
+        "phase": "prepared",
+        "written": False,
+        "verified": False,
+        "verified_external": False,
+        "verification_receipt": None,
+        "receipt": None,
+        "auth_request_count": 0,
+        "write": None,
+        "verify": None,
+        "ejected": False,
+        "discarded": False,
+        "snapshot_cleaned": False,
+    }
+
+
+def verification_receipt(plan: dict[str, object]) -> dict[str, object]:
+    source = plan["source"]
+    return {
+        "plan_id": plan["plan_id"],
+        "sha256": source.get("expanded_sha256", source.get("sha256")),
+        "bytes": source.get("expanded_bytes", source.get("bytes")),
+        "target_identity": plan.get("target"),
+    }
+
+
+def durable_receipt(plan: dict[str, object], *, ejected: bool | None = None) -> dict[str, object]:
+    state = plan.get("state", {})
+    source = plan["source"]
+    return {
+        "plan_id": plan["plan_id"],
+        "target_identity": plan["target"],
+        "artifact_sha256": source.get("artifact_sha256", source.get("sha256")),
+        "artifact_bytes": source.get("artifact_bytes", source.get("bytes")),
+        "expanded_sha256": source.get("expanded_sha256", source.get("sha256")),
+        "expanded_bytes": source.get("expanded_bytes", source.get("bytes")),
+        "trust_tier": source.get("trust_tier"),
+        "auth_request_count": state.get("auth_request_count", 0),
+        "write": state.get("write"),
+        "verify": state.get("verify"),
+        "verification_mode": "external" if state.get("verified_external") else "write",
+        "ejected": state.get("ejected", False) if ejected is None else ejected,
+    }
+
+
+def _metric(bytes_done: int, total: int, started: float, digest: str) -> dict[str, object]:
+    elapsed = max(time.monotonic() - started, 0.000001)
+    rate = bytes_done / elapsed
+    return {
+        "bytes": bytes_done,
+        "sha256": digest,
+        "duration_seconds": round(elapsed, 6),
+        "throughput_bytes_per_second": round(rate, 3),
+        "throughput_mib_per_second": round(rate / (1024 * 1024), 3),
+        "eta_seconds": 0.0 if bytes_done >= total else round((total - bytes_done) / rate, 3),
+    }
+
+
+def _progress(phase: str, complete: int, total: int, started: float) -> None:
+    elapsed = max(time.monotonic() - started, 0.000001)
+    rate = complete / elapsed
+    eta = 0.0 if complete >= total else (total - complete) / rate if rate else None
+    eta_text = "n/a" if eta is None else f"{eta:.0f}s"
+    print(f"\r{phase}: {complete}/{total} ({complete / total:.1%}) {rate / (1024 * 1024):.1f} MiB/s ETA {eta_text}", end="", file=sys.stderr, flush=True)
+
+
+def verify_fd(fd: int, plan: dict[str, object], phase: str = "verify") -> tuple[str, dict[str, object]]:
+    try:
+        os.lseek(fd, 0, os.SEEK_SET)
+    except OSError as exc:
+        fail("DEVICE_UNSUPPORTED", f"authorized raw device is not seekable: {exc}")
+    remaining = int(plan["source"].get("expanded_bytes", plan["source"].get("bytes")))
+    total = remaining
+    digest = hashlib.sha256()
+    started = time.monotonic()
+    try:
+        while remaining:
+            chunk = os.read(fd, min(8 * 1024 * 1024, remaining))
+            if not chunk:
+                fail("READBACK_MISMATCH", "short read from target; media is not verified")
+            digest.update(chunk)
+            remaining -= len(chunk)
+            _progress(phase, total - remaining, total, started)
+    except OSError as exc:
+        fail("READBACK_MISMATCH", f"{exc}; media is not verified")
+    print(file=sys.stderr)
+    actual = digest.hexdigest()
+    expected = str(plan["source"].get("expanded_sha256", plan["source"].get("sha256")))
+    metrics = _metric(total, total, started, actual)
+    if actual != expected:
+        fail("READBACK_MISMATCH", f"expected {expected}, got {actual}; media is not bootable")
+    return actual, metrics
+
+
+def cmd_inspect(args: argparse.Namespace) -> None:
+    results = []
+    for device in external_disks():
+        try:
+            item = dict(disk_info(device))
+            item["eligible"] = True
+            results.append(item)
+        except MediaError as exc:
+            try:
+                raw_info = plistlib.loads(command("diskutil", "info", "-plist", device).stdout)
+            except (subprocess.CalledProcessError, plistlib.InvalidFileException):
+                continue
+            if raw_info.get("Internal") is False:
+                results.append({"disk": device, "eligible": False, "reason": str(exc)})
+    if args.json:
+        print(json.dumps(results, indent=2, sort_keys=True))
+    elif not results:
+        print("No external physical disks found.")
+    else:
+        for item in results:
+            print(json.dumps(item, sort_keys=True))
+
+
+def _prepare_locked(args: argparse.Namespace, plan_path: Path) -> None:
+    image = Path(args.image).resolve()
+    if plan_path.exists():
+        fail("PLAN_EXISTS", "choose a new plan path or discard the existing plan")
+    expected = args.sha256.lower() if args.sha256 else None
+    if expected and not re.fullmatch(r"[0-9a-f]{64}", expected):
+        fail("SOURCE_HASH_MISMATCH", "SHA-256 must be 64 hexadecimal characters")
+    if not args.provenance_url.startswith("https://"):
+        fail("IMAGE_KIND_UNPROVEN", "a primary-source HTTPS provenance URL is required")
+    if expected is None and not args.allow_primary_url_only:
+        fail("SOURCE_HASH_REQUIRED", "publisher SHA-256 is required; pass --allow-primary-url-only to opt into URL-only provenance")
+    target = disk_info(args.device)
+    source = None
+    try:
+        source = create_snapshots(
+            image,
+            expected,
+            args.archive_member,
+            snapshot_parent=plan_path.parent,
+            snapshot_prefix=plan_path.name + ".media-",
+            max_expanded_bytes=int(target["bytes"]),
+        )
+        source.update({
+            "path": str(image),
+            "provenance_url": args.provenance_url,
+            "trust_tier": "publisher-sha256" if expected else "primary-url-only",
+            "published_sha256": expected,
+            "sha256": source["expanded_sha256"],
+            "bytes": source["expanded_bytes"],
+            "kind": "vendor-declared-raw-hybrid",
+        })
+        if int(source["expanded_bytes"]) > int(target["bytes"]):
+            fail("INSUFFICIENT_TARGET_CAPACITY", "expanded image is larger than target")
+        plan = {
+            "schema_version": 2,
+            "source": source,
+            "target": target,
+            "state": initial_state(),
+        }
+        plan["plan_id"] = canonical_plan_id(plan)
+        save_plan(plan_path, plan)
+    except Exception:
+        if source is not None:
+            shutil.rmtree(Path(str(source["snapshot_dir"])), ignore_errors=True)
+        raise
+    print(json.dumps(plan, indent=2, sort_keys=True))
+
+
+def cmd_prepare(args: argparse.Namespace) -> None:
+    with plan_lock(Path(args.plan)) as plan_path:
+        _prepare_locked(args, plan_path)
+
+
+def confirm(plan: dict[str, object], supplied: str) -> None:
+    validate_plan(plan)
+    if supplied != plan["plan_id"]:
+        fail("CONFIRMATION_MISMATCH", "--confirm-plan must match the reviewed plan ID")
+
+
+def require_phase(plan: dict[str, object], *allowed: str) -> str:
+    phase = str(plan.get("state", {}).get("phase", ""))
+    if phase not in allowed:
+        fail("PLAN_ALREADY_USED", f"plan phase is {phase or 'missing'}, expected one of {', '.join(allowed)}")
+    return phase
+
+
+def _mark_auth_request(plan_path: Path, plan: dict[str, object], phase: str) -> None:
+    plan["state"]["auth_request_count"] = int(plan["state"].get("auth_request_count", 0)) + 1
+    plan["state"]["phase"] = phase
+    save_plan(plan_path, plan)
+
+
+def _write_plan_locked(plan_path: Path, supplied: str, verify_after_write: bool = False) -> dict[str, object]:
+    plan = load_plan(plan_path)
+    confirm(plan, supplied)
+    require_phase(plan, "prepared")
+    snapshot = snapshot_source(plan["source"])
+    try:
+        target = checked_identity(plan)
+        try:
+            command("diskutil", "unmountDisk", str(target["disk"]), capture=False)
+        except subprocess.CalledProcessError:
+            fail("UNMOUNT_FAILED", str(target["disk"]))
+        checked_identity(plan)
+        if verify_after_write:
+            detail = "write and same-descriptor readback verification"
+        else:
+            detail = "this staged write"
+        print(f"Requesting one macOS authorization for read/write access to {target['raw_disk']} for {detail}.", file=sys.stderr)
+        _mark_auth_request(plan_path, plan, "authorizing_write")
+        fd = authorized_fd(str(target["raw_disk"]), writable=True)
+        written = 0
+        total = int(plan["source"].get("expanded_bytes", plan["source"].get("bytes")))
+        started = time.monotonic()
+        digest = hashlib.sha256()
+        try:
+            checked_identity(plan)
+            while chunk := snapshot.read(8 * 1024 * 1024):
+                if written + len(chunk) > total:
+                    fail("SNAPSHOT_CHANGED", "prepared stream exceeded its reviewed byte count; target state is unknown")
+                view = memoryview(chunk)
+                digest.update(chunk)
+                while view:
+                    count = os.write(fd, view)
+                    if count <= 0:
+                        fail("WRITE_FAILED", "short write; target may be partially overwritten")
+                    written += count
+                    view = view[count:]
+                _progress("write", written, total, started)
+            os.fsync(fd)
+            print(file=sys.stderr)
+            if written != total:
+                fail("WRITE_FAILED", f"wrote {written} of {total} bytes; target state is partial or unknown")
+            expected_digest = str(plan["source"].get("expanded_sha256", plan["source"].get("sha256")))
+            if digest.hexdigest() != expected_digest:
+                fail("SNAPSHOT_CHANGED", "source snapshot changed during write; target state is unknown")
+            plan["state"]["written"] = True
+            plan["state"]["phase"] = "written"
+            plan["state"]["write"] = _metric(written, total, started, digest.hexdigest())
+            save_plan(plan_path, plan)
+            if verify_after_write:
+                print("Write complete; verifying from the same authorized descriptor.", file=sys.stderr)
+                actual, metrics = verify_fd(fd, plan)
+                plan["state"]["verified"] = True
+                plan["state"]["phase"] = "verified"
+                plan["state"]["verification_receipt"] = verification_receipt(plan)
+                plan["state"]["verify"] = metrics
+                plan["state"]["receipt"] = durable_receipt(plan)
+                save_plan(plan_path, plan)
+                print(actual)
+        except OSError as exc:
+            fail("WRITE_FAILED", f"{exc}; target state is partial or unknown")
+        finally:
+            os.close(fd)
+    finally:
+        snapshot.close()
+    return plan
+
+
+def write_plan(plan_path: Path, supplied: str, verify_after_write: bool = False) -> dict[str, object]:
+    with plan_lock(plan_path) as locked_path:
+        return _write_plan_locked(locked_path, supplied, verify_after_write)
+
+
+def _verify_plan_locked(plan_path: Path, external: bool = False) -> dict[str, object]:
+    plan = load_plan(plan_path)
+    require_phase(plan, "prepared" if external else "written")
+    target = checked_identity(plan)
+    try:
+        command("diskutil", "unmountDisk", str(target["disk"]), capture=False)
+    except subprocess.CalledProcessError:
+        fail("UNMOUNT_FAILED", str(target["disk"]))
+    checked_identity(plan)
+    _mark_auth_request(plan_path, plan, "authorizing_compare" if external else "authorizing_verify")
+    fd = authorized_fd(str(target["raw_disk"]), writable=False)
+    try:
+        checked_identity(plan)
+        actual, metrics = verify_fd(fd, plan, phase="compare" if external else "verify")
+    finally:
+        os.close(fd)
+    plan["state"]["verified_external"] = external
+    plan["state"]["verified"] = not external
+    plan["state"]["phase"] = "verified_external" if external else "verified"
+    plan["state"]["verification_receipt"] = verification_receipt(plan)
+    plan["state"]["verify"] = metrics
+    plan["state"]["receipt"] = durable_receipt(plan)
+    save_plan(plan_path, plan)
+    print(actual)
+    return plan
+
+
+def verify_plan(plan_path: Path, external: bool = False) -> dict[str, object]:
+    with plan_lock(plan_path) as locked_path:
+        return _verify_plan_locked(locked_path, external)
+
+
+def run_plan(plan_path: Path, supplied: str) -> None:
+    with plan_lock(plan_path) as locked_path:
+        _write_plan_locked(locked_path, supplied, verify_after_write=True)
+        _eject_plan_locked(locked_path)
+
+
+def _eject_plan_locked(plan_path: Path) -> None:
+    plan = load_plan(plan_path)
+    require_phase(plan, "verified", "verified_external")
+    state = plan.get("state", {})
+    if not (state.get("verified") or state.get("verified_external")):
+        fail("READBACK_REQUIRED", "exact readback verification has not passed")
+    if state.get("verification_receipt") != verification_receipt(plan):
+        fail("READBACK_REQUIRED", "verification receipt does not match the canonical plan")
+    checked_identity(plan)
+    try:
+        command("diskutil", "eject", str(plan["target"]["disk"]), capture=False)
+    except subprocess.CalledProcessError:
+        fail("EJECT_FAILED", str(plan["target"]["disk"]))
+    plan["state"]["ejected"] = True
+    plan["state"]["phase"] = "ejected"
+    plan["state"]["receipt"] = durable_receipt(plan, ejected=True)
+    save_plan(plan_path, plan)
+    plan["state"]["snapshot_cleaned"] = cleanup_snapshots(plan_path, plan)
+    save_plan(plan_path, plan)
+
+
+def eject_plan(plan_path: Path) -> None:
+    with plan_lock(plan_path) as locked_path:
+        _eject_plan_locked(locked_path)
+
+
+def _discard_plan_locked(plan_path: Path) -> None:
+    """Retire a plan and remove its private source snapshots without touching the USB."""
+    plan = load_plan(plan_path)
+    validate_plan(plan)
+    require_phase(
+        plan,
+        "prepared",
+        "authorizing_write",
+        "written",
+        "authorizing_verify",
+        "authorizing_compare",
+        "verified",
+        "verified_external",
+    )
+    plan["state"]["snapshot_cleaned"] = cleanup_snapshots(plan_path, plan)
+    plan["state"]["discarded"] = True
+    plan["state"]["phase"] = "discarded"
+    save_plan(plan_path, plan)
+
+
+def discard_plan(plan_path: Path) -> None:
+    with plan_lock(plan_path) as locked_path:
+        _discard_plan_locked(locked_path)
+
+
+def status_plan(plan_path: Path) -> None:
+    plan = load_plan(plan_path)
+    validate_plan(plan)
+    print(json.dumps({"plan_id": plan["plan_id"], "source": plan["source"], "target": plan["target"], "state": plan.get("state", {})}, indent=2, sort_keys=True))
+
+
+def parser() -> argparse.ArgumentParser:
+    root = argparse.ArgumentParser(description=__doc__)
+    subs = root.add_subparsers(dest="command", required=True)
+    inspect = subs.add_parser("inspect")
+    inspect.add_argument("--json", action="store_true")
+    prepare = subs.add_parser("prepare")
+    prepare.add_argument("--image", required=True)
+    prepare.add_argument("--sha256")
+    prepare.add_argument("--provenance-url", required=True)
+    prepare.add_argument("--allow-primary-url-only", action="store_true")
+    prepare.add_argument("--archive-member")
+    prepare.add_argument("--device", required=True)
+    prepare.add_argument("--plan", required=True)
+    for name in ("write", "run"):
+        item = subs.add_parser(name)
+        item.add_argument("--plan", required=True)
+        item.add_argument("--confirm-plan", required=True)
+    for name in ("verify", "compare"):
+        item = subs.add_parser(name)
+        item.add_argument("--plan", required=True)
+    eject = subs.add_parser("eject")
+    eject.add_argument("--plan", required=True)
+    discard = subs.add_parser("discard")
+    discard.add_argument("--plan", required=True)
+    status = subs.add_parser("status")
+    status.add_argument("--plan", required=True)
+    return root
+
+
+def main() -> int:
+    args = parser().parse_args()
+    try:
+        if args.command == "inspect":
+            cmd_inspect(args)
+        elif args.command == "prepare":
+            cmd_prepare(args)
+        elif args.command == "write":
+            write_plan(Path(args.plan), args.confirm_plan)
+        elif args.command == "verify":
+            verify_plan(Path(args.plan))
+        elif args.command == "compare":
+            verify_plan(Path(args.plan), external=True)
+        elif args.command == "eject":
+            eject_plan(Path(args.plan))
+        elif args.command == "discard":
+            discard_plan(Path(args.plan))
+        elif args.command == "status":
+            status_plan(Path(args.plan))
+        elif args.command == "run":
+            run_plan(Path(args.plan), args.confirm_plan)
+        return 0
+    except (MediaError, KeyError, OSError, EOFError, lzma.LZMAError, zipfile.BadZipFile) as exc:
+        print(exc, file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

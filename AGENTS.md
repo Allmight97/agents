@@ -8,7 +8,10 @@
 - `plugins/personal-skills/skills/` is the shared skill tree. Keep `SKILL.md`
   frontmatter within the
   [Agent Skills specification](https://agentskills.io/specification), because
-  claude.ai rejects other keys; `scripts/validate_skills.py` checks it.
+  claude.ai skill uploads reject other keys. The one exception is
+  `disable-model-invocation: true` for a skill only the owner starts: the
+  claude.ai plugin sync accepted it in the earlier repo, and Claude Code honors
+  it. `scripts/validate_skills.py` checks both.
 - `README.md` owns installation and publishing commands.
 - When changing a skill or repository guidance, use the `writing-for-agents`
   skill.
