@@ -1,0 +1,9 @@
+{
+  "name": "personal-skills",
+  "displayName": "Personal Skills",
+  "description": "Shared personal skills for Claude Desktop, Cowork, and Claude Code.",
+  "author": {
+    "name": "Allmight97"
+  },
+  "license": "MIT AND Apache-2.0"
+}

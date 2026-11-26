@@ -1,0 +1,16 @@
+{
+  "name": "personal",
+  "owner": {
+    "name": "Allmight97"
+  },
+  "metadata": {
+    "description": "Personal Cursor skills."
+  },
+  "plugins": [
+    {
+      "name": "personal-skills",
+      "source": "./plugins/personal-skills",
+      "description": "Shared personal skills for Cursor."
+    }
+  ]
+}
