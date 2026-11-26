@@ -72,6 +72,13 @@ plugins, and a command-line install without one tracks commits.
    arrived, open the marketplace on claude.ai and choose **Check for updates**.
    Claude Code picks up the synced copy at its next start.
 
+3. To record a release, tag a green commit on `main` and publish its notes;
+   nothing in the repo carries a version:
+
+   ```bash
+   gh release create personal-skills-YYYY-MM-DD --target "$(git rev-parse HEAD)" --generate-notes
+   ```
+
 ## Upstream Skill Tracking
 
 Skills adapted from `mattpocock/skills` record the upstream path and last
