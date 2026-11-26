@@ -1,6 +1,5 @@
 {
   "name": "explore-model",
-  "version": "1.0.0",
   "description": "Runs the built-in Explore subagent on a chosen model and effort (default Haiku, medium) whenever the Agent call leaves them out. Keeps Anthropic's Explore prompt and read-only tools; a call that names its own model or effort keeps it. Needs function hooks (early access).",
   "author": {
     "name": "Allmight97",

@@ -1,6 +1,5 @@
 {
   "name": "progress-watch",
-  "version": "1.0.0",
   "description": "Shows what background Bash jobs and subagents are doing, in a row above the prompt and a pane: phases, errors, time since last activity, and how each ended. Nobody starts it, and it never starts a conversation turn. Can also follow extra log files and new commits on a git branch. /progress and a tool for the model. Needs function hooks (early access).",
   "author": {
     "name": "Allmight97",
