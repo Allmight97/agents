@@ -22,6 +22,17 @@ The mods and `issue-hygiene-reminder` are installed from the Claude Code
 command line today: `claude plugin marketplace add Allmight97/agents`, then
 `claude plugin install <plugin>@personal`.
 
+Codex reads the same catalog and refreshes it at each start:
+
+```bash
+codex plugin marketplace add Allmight97/agents
+codex plugin add personal-skills@personal
+```
+
+A skill only the owner starts sets `disable-model-invocation: true` for Claude
+and `agents/openai.yaml` with `policy.allow_implicit_invocation: false` for
+Codex.
+
 Install each plugin one way only. If the same plugin is also installed from the
 Claude Code command line, Claude Code loads that copy and skips the synced one.
 
