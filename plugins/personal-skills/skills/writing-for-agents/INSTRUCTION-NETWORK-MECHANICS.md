@@ -1,7 +1,6 @@
 # Instruction Network Mechanics
 
-Use for repository instructions, global guidance, or deciding where a rule
-belongs. Shared writing guidance lives in [SKILL.md](SKILL.md).
+Shared writing guidance lives in [SKILL.md](SKILL.md).
 
 ## Find the owner
 
@@ -17,8 +16,7 @@ crosses those boundaries; a local correction needs no unrelated subtree census.
 | Reusable task procedure | Skill |
 | Temporary work state | Active issue or requested spec |
 | Durable rationale that changes later decisions | Beside the rule it justifies: owning instructions or the enforcing code |
-| Fact already owned by code or configuration | Write nothing; point to it only when a search would not find it |
-| What the code does or how it is built (a transition list, an interface or file inventory, "X owns Y") | Delete |
+| Fact or behavior the code or configuration shows (a transition list, an interface or file inventory, "X owns Y") | None: see "The environment is a source" in [SKILL.md](SKILL.md) |
 | Generic coaching, duplicate rule, or stale state | Delete |
 
 Create nested guidance when a distinct boundary or recurring wrong-path work
@@ -26,13 +24,9 @@ justifies it. Prefer fixing the code boundary, type, test, or script when that
 removes the need for prose. Durable rules must state their operative meaning
 without relying on mutable issue wording.
 
-Avoid mandatory broad reading, process quotas, and repeated completion
-checklists. A rule pauses only the affected action when authority or a
-consequential decision is unresolved.
-
-For recurring mistakes that can be checked mechanically, inspect existing
-checks and where they run. Repair a disconnected or silently failing check
-before adding another rule or enforcement mechanism.
+Scope required reading to the paths a rule governs. Give each step one
+completion criterion instead of a recurring checklist. When authority or a
+consequential decision is unresolved, pause only the action it affects.
 
 ## Cut an existing network
 

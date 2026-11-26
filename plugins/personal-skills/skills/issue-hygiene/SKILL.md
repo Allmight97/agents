@@ -1,6 +1,6 @@
 ---
 name: issue-hygiene
-description: Draft, publish, label, refresh, or close a GitHub issue so its body is resume-ready and every write is authorized. Use when an issue is written, edited, labeled, or closed, or when work an issue references lands.
+description: Draft, publish, label, refresh, or close a GitHub issue so its body is resume-ready and every write is authorized; also when work an issue references lands.
 ---
 
 # Issue Hygiene
@@ -25,12 +25,14 @@ for the writes that outcome needs.
   verification. Then the single next action or decision.
 - Evidence may be long: measurements, tables, verified file facts. Options
   and checklists may not. One open fork per issue, with a default. A decision
-  for the owner is one question in the next-action line, never a checklist of
+  for the user is one question in the next-action line, never a checklist of
   boxes.
 - Evidence lives in the repository or in the issue. Not on an agent's machine,
   not in a git-ignored folder, not in this chat.
 - Never write a placeholder `#<n>`: GitHub links it to an unrelated issue.
-  Add cross-references once the real numbers exist.
+  In prose (chat, issue bodies, comments), cross-reference an issue by its
+  linked title, added once the issue exists; numbers stay in `Closes #n` and
+  native relationships.
 - No agent or model names in a body or comment. A recommendation an agent
   wrote is a recommendation, never a decision.
 - Plan, verification, and the open fork follow when the work is substantial.
@@ -46,7 +48,7 @@ for the writes that outcome needs.
 
 Read the repository's label meanings before applying any (`gh label list`).
 Apply a "ready for an agent" label only when a fresh agent can act without chat
-context: current truth and the affected owner are explicit, scope and ordered
+context: current truth and the owning code are explicit, scope and ordered
 dependencies are stated, proof is located, and no human decision remains; any
 open fork has a default and an escalation trigger. Never pair it with a label
 that says a human answer or more information is still needed.

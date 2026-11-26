@@ -1,6 +1,6 @@
 ---
 name: retro
-description: "Retrospective on a coding session: environment, check, and guidance improvements with session evidence; nothing changes until you pick candidates."
+description: "Retrospective on a coding session: environment, check, and guidance improvements backed by session evidence."
 ---
 
 # Retro
@@ -14,10 +14,12 @@ user picks candidates.
 1. Load `writing-for-agents` for the writing guidance.
 2. Read the primary sources for the session the user names, such as session
    logs on this machine. Default to the current session.
-3. Look for candidates in the categories below. Use a category only when its
-   trigger applies.
+3. Test every category's trigger below against the session; report which fired
+   and which did not.
 4. Present the candidates in order of severity. Give each one the evidence
    from the session and the smallest change that fixes it.
+5. Apply only the picked candidates, each with its check proven to fail on the
+   cited instance.
 
 ## Categories
 
@@ -30,35 +32,27 @@ user picks candidates.
   do not reinvent it. A repository with no pre-commit hook and no CI job for
   lint, typecheck, and tests is itself a finding. Use when an automated check
   could have caught a mistake, or the repository has no guardrail.
-- **Coding standards.** Should the reviewer be given a new rule, or should an
-  existing rule change? For a recurring mistake, propose the strongest check
-  that works: a structure that removes the wrong path, then a type, then a lint
-  whose error names the fix, then a test. Propose a standard or docs last, only
-  for judgement calls no check can decide. Name a past instance of the mistake
-  that the check must fail on. Use when the reviewer missed a mistake.
-- **Always-loaded guidance.** Move steering lines that belong in a coding
-  standard or an automated check out of the instruction files, in the
-  repository and in the user's global scope. Use when those files are large.
+- **Coding standards.** Should `code-review` be given a new rule, or should an
+  existing rule change? Apply writing-for-agents' "Should the line exist"
+  order; name a past instance of the mistake the check must fail on. Use when
+  `code-review` missed a mistake.
+- **Always-loaded guidance.** Find lines in the instruction files, in the
+  repository and in the user's global scope, that belong in a check or state
+  what the agent does by default; move or delete them. Use when a line in an
+  always-loaded file failed to steer the session or states what the agent does
+  by default.
 - **Tool economy.** Did the agent make expensive tool calls that a better tool
   or script would avoid? Use when a call cost a lot of context or time.
-- **No-ops.** Find instructions the agent already obeys by default; delete
-  them. Use when the instruction files are large.
 - **Information access.** Would the agent have decided better with more
   information, such as dev server logs or read-only access to a service? Use
   when a crucial fact was out of reach.
 
 ## Where each fix lives
 
-Work has two stages: implementation and review. The implementation agent has
-the most context pressure: it explores, writes code, and debugs. The review
-agent receives a diff and needs no exploration, so it can enforce standards.
-Put standards in the reviewer's path, not the implementer's.
+Review runs through `code-review`, which reads the `AGENTS.md` chain along the
+changed paths. Put a judgement rule there, in the nearest nested file; put a
+mechanical one in a check.
 
-- Always-loaded instruction files reach every agent on every turn. Keep them
-  to navigation pointers and rules that change decisions.
-- A coding-standards file is read during review, not implementation.
 - Docs are reference files that other files point to. Look for an existing doc
   before writing a new one.
-- A skill description is always loaded; a user-invoked skill costs nothing
-  until called. Use a skill for reference material or for a user-invoked
-  command.
+- Use a skill for reference material or a user-invoked command.

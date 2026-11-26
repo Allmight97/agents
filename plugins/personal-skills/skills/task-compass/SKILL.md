@@ -1,13 +1,11 @@
 ---
 name: task-compass
-description: "Set the primary outcome and proportionate proof for a mixed or rambling request, and park the rest."
+description: "Set the primary outcome and proof budget for a mixed or rambling request, and park the rest."
 ---
 
 # Task Compass
 
 Reduce the executive-function load of starting and steering the current task.
-This is a compact control layer, not productivity coaching or a new system the
-user must maintain.
 
 ## Orient
 
@@ -23,7 +21,7 @@ Infer these from the user's request instead of asking them to fill out a form:
    - **Systematize** when completion means creating or improving a reusable
      workflow, tool, skill, or automation. Require evidence of repeated friction
      unless the user explicitly wants a speculative prototype.
-4. The verification budget:
+4. The proof budget:
    - **High** for customer or production systems, credentials, deletion,
      firmware, billing, external communication, sensitive data, or changes that
      are hard to reverse. Inspect current state, preserve recovery where useful,
@@ -37,20 +35,21 @@ Infer these from the user's request instead of asking them to fill out a form:
    primary outcome.
 
 The mode identifies the primary completion condition; it does not ban useful
-supporting work from another mode. The verification budget controls depth, not
+supporting work from another mode. The proof budget controls depth, not
 safety, authorization, or explicit user requirements.
 
 ## Act
 
-- When the request is safely inferable, choose the likely mode and verification
-  budget and proceed. Do not ask the user to classify the task or rewrite the
-  prompt.
+- When the request is safely inferable, choose the likely mode and proof budget
+  and proceed. Do not ask the user to classify the task or rewrite the prompt.
 - Show a one-line compass only when it resolves real ambiguity or changes the
-  work, for example: `Compass: Solve; medium proof; park the reusable wrapper.`
+  work, for example:
+  `Compass: Solve; medium proof budget; park the reusable wrapper.`
   Otherwise keep the framing internal.
-- Ask at most the smallest action-changing question when different plausible
-  interpretations would materially change the outcome, authority, or risk.
-  Recommend a default. Do not open a full decision interview.
+- Ask at most one question, the smallest that changes the action, when
+  different plausible interpretations would materially change the outcome,
+  authority, or risk. Recommend a default. Do not open a full decision
+  interview.
 - Treat typos, dictation artifacts, restarts, and conversational phrasing as
   normal. Recover intent from the whole request, preserve concrete nouns and
   constraints, and raise only genuine contradictions.
@@ -67,7 +66,7 @@ When a later message or discovered fact introduces more work:
 - Otherwise keep it as a conversational parking item and finish the primary
   outcome first. Mention the parked item once when needed; do not maintain a
   visible ledger or create durable state unless asked.
-- Reorient explicitly when the primary mode or verification budget changes.
+- Reorient explicitly when the primary mode or proof budget changes.
   Do not silently turn a solve task into a redesign, a learning task into an
   implementation, or a local fix into a reusable system.
 
@@ -78,12 +77,7 @@ When a later message or discovered fact introduces more work:
   executable direction.
 - `field-depth` owns the ambition type and the Depth opener once the current
   task is in view. Task Compass decides what the current task is.
-- `wayfinder` owns durable roadmaps for large or materially foggy work. Task
-  Compass does not create issues or planning artifacts by itself.
-- `whittle` owns simplifying an implementation. Task Compass decides what the
-  current task is before implementation strategy takes over.
-- Do not diagnose the user, moralize about focus, or turn an accessibility aid
-  into another obligation.
+- Keep the compass invisible work: it adds no task for the user.
 
-At handoff, report the achieved outcome and proof. Mention a parked objective
-only when preserving it helps the user decide what to do next.
+When the task ends, report the achieved outcome and proof. Mention a parked
+objective only when preserving it helps the user decide what to do next.

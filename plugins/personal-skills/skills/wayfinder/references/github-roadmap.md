@@ -1,9 +1,5 @@
 # GitHub Roadmap Publication
 
-Read this reference only after Wayfinder has chosen an existing or new parent
-issue and the destination plus current decision frontier are clear enough to
-publish.
-
 ## Parent Body
 
 ```markdown
@@ -60,10 +56,9 @@ unblock a decision.
 
 ## Relationships
 
-Prepare the parent, children, and blocking edges before publishing. Resolve
-material content choices; existing publication authority does not need another
-approval. Verify the live CLI supports the operations below, then use native
-GitHub relationships:
+Prepare the parent, children, and blocking edges before publishing. Use native
+GitHub relationships. If `gh` rejects a flag below, report the output of
+`gh --version` and stop before publishing:
 
 - create children with `gh issue create --parent <parent>`;
 - wire dependencies during creation with `--blocked-by` or afterward with
@@ -71,7 +66,4 @@ GitHub relationships:
 - inspect `parent`, `subIssues`, `blockedBy`, and `blocking` with
   `gh issue view --json`.
 
-Operate without assignments for a solo user. Give each parallel agent the
-number of its issue in the command that starts it; name issues by title in
-prose. Add a claim mechanism only after a real concurrency
-collision demonstrates the need.
+Give each parallel agent its issue number in the command that starts it.

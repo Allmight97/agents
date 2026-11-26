@@ -1,24 +1,21 @@
 ---
 name: code-review
-description: "Review a PR, branch, diff, or worktree for correctness, security, requested behavior, and missing proof, and give a merge verdict."
+description: "Merge-readiness review of changed code: correctness, security, requested behavior, and missing proof, ending in a merge verdict. Use when the owner asks to review a change or whether it is ready to merge, or another skill requests a code review."
 ---
 
 # Code Review
 
 Review the changed behavior and lead with material findings or the requested
-merge decision. A review-only request leaves code unchanged. If the user already
-authorized review and fixes, finish the assessment and carry supported fixes
-through the owning implementation checks. Fix a security finding one finding
-or tight cluster at a time, in its own commit; name any behavior change first,
-and ask before a fix that breaks current behavior.
+merge decision. A review-only request leaves code, comments, tests, issues, and
+review threads unchanged; fixes follow the Fixes section when authorized.
 
 ## Select the Review Owner
 
 Choose one route before reviewing:
 
 - **Changed code, PR, branch, diff, or merge readiness** → continue here.
-- **Whittle invocation** → `whittle` review mode. For an unnamed
-  simplification review, assess concrete complexity against the requested scope.
+- **Simplification review** (Whittle named or not) → `whittle` review mode;
+  stop.
 - **Repository-wide refactor targets or structural scan** →
   `improve-codebase-architecture`; stop.
 - **Threat model of a repository or path** → `security-threat-model`; stop.
@@ -33,8 +30,8 @@ architecture review automatically.
 
 Resolve the target before judging code:
 
-1. For a PR, read live base/head metadata and confirm the code under review
-   matches the live head. Do not prove a stale local checkout.
+1. For a PR, read live base/head metadata and review the live head; fetch it
+   when the local checkout differs.
 2. Use a fixed point the user supplied when present.
 3. For branch work, infer the upstream default branch and verify the merge-base
    before asking the user.
@@ -53,8 +50,8 @@ Inspect, in order:
 1. every applicable `AGENTS.md`, `CLAUDE.md`, or repository guidance file
    along the changed paths, from the root down, not only the nearest;
 2. originating issue, PR body, spec, acceptance criteria, or user request;
-3. changed code plus enough callers, tests, and owner surfaces to understand
-   the real behavior;
+3. changed code plus every caller and test of each changed signature, return
+   value, error, and default;
 4. documented verification commands for the affected owner.
 
 Infer the originating source from PR metadata, commit messages, branch names,
@@ -75,18 +72,17 @@ Review in this order so style and tidiness cannot mask behavior:
    skipped owner checks, or evidence that cannot falsify the claim.
 5. **Maintainability introduced by the diff** — only concrete complexity likely
    to cause defects or repeated change. Keep a dedicated simplification review
-   distinct from a merge verdict; use `whittle` when explicitly invoked.
+   distinct from a merge verdict.
 
 Trace affected paths beyond the diff when needed. Run targeted read-only checks
 when they can falsify a finding or merge claim. When the change's safety rests
 on one fact, prove that fact by running the real code (a scratch script or test
-outside the source tree); a written argument is not proof. Do not modify code, comments,
-tests, issues, or review threads during a review-only request.
+outside the source tree); a written argument is not proof.
 
 Use parallel reviewers when delegation is authorized and the diff contains
 independent surfaces that benefit from separate scrutiny. Give each a bounded
-axis or owned path. The root reviewer deduplicates and reranks every finding; subagent reports are evidence, not the
-final verdict.
+axis or owned path. The root reviewer deduplicates and reranks every finding;
+subagent reports are evidence, not the final verdict.
 
 ## Search the Diff
 
@@ -105,13 +101,10 @@ Judge whole touched functions, not only changed lines. Then search on purpose:
   code. Use current official docs for the stack and label general knowledge.
 - **Resource handoff,** when the diff passes a resource between owners: a
   temp file to its final path, a worker aborted while still writing, cleanup
-  registration and removal, or a retry. Trace the concrete path values through
-  registration, removal, draining, and every overlapping guard; a removal call
-  alone does not show that ownership ended. For cleanup after durable work,
-  answer two questions: if the work succeeded and the cleanup failed, which
-  outcome reaches the user; and which owner keeps or reacquires the failed
-  path for retry. A retry backstop can limit residue while the reported
-  outcome stays wrong.
+  registration and removal, or a retry. Trace the path value through every
+  register and remove call; a removal call alone does not show that ownership
+  ended. State which outcome the user sees when the work succeeds but cleanup
+  fails, and which owner retries the leftover path.
 
 Verify each candidate before reporting it: **confirmed** (the trigger is shown
 or proven), **plausible** (a credible trigger, not proven; label it), or
@@ -124,8 +117,10 @@ diff once more for areas no candidate touched.
 Rank findings by merge impact:
 
 - **P0 — stop:** catastrophic loss, compromise, or unusable release.
-- **P1 — blocker:** concrete correctness, safety, security, or regression bug.
-- **P2 — should fix:** material contract/spec gap, scope error, or missing proof.
+- **P1 — blocker:** concrete correctness, safety, security, or regression bug,
+  or missing proof for a consequential claim.
+- **P2 — should fix:** material contract/spec gap, scope error, or other
+  missing proof.
 - **P3 — follow-up:** bounded maintainability risk with a credible failure path;
   omit preferences and speculative cleanup.
 
@@ -137,16 +132,17 @@ Each finding must include:
 - evidence from code, contract, or failing proof;
 - smallest credible correction or proof needed.
 
-Do not report formatting, naming taste, generic best practices, or issues that
-tooling already enforces. If no material finding survives verification, say so.
+Report only findings that fit P0–P3; leave anything tooling already enforces to
+the tooling. If no material finding survives verification, say so.
 
 ## Output
 
 For merge-readiness requests, lead with one verdict:
 
-- **DO NOT MERGE** — unresolved P0/P1 or missing proof for a consequential claim.
-- **MERGE WITH CHANGES** — no blocker, but material P2 work remains.
-- **MERGE** — no material finding; state residual uncertainty and skipped proof.
+- **DO NOT MERGE** — unresolved P0/P1.
+- **MERGE WITH CHANGES** — no P0/P1, but P2 work remains.
+- **MERGE** — no P0–P2 finding; list P3 follow-ups, residual uncertainty, and
+  skipped proof.
 
 For other reviews, lead with the highest-impact finding or no material findings.
 Include only applicable sections:
@@ -154,7 +150,14 @@ Include only applicable sections:
 1. severity-ordered findings;
 2. proof run and proof still missing;
 3. scope/spec mismatches;
-4. routed follow-up, only when another owner is genuinely needed.
+4. routed follow-up, only when another owner is needed.
 
-Do not bury the verdict beneath process narration. A clean review is:
-`MERGE — no material findings`, followed by proof and residual risk.
+A clean review is `MERGE — no material findings`, followed by proof and
+residual risk.
+
+## Fixes
+
+When the user authorized review and fixes, finish the assessment first, then
+carry supported fixes through the owning implementation checks. Fix a security
+finding one finding or tight cluster at a time, in its own commit; name any
+behavior change first, and ask before a fix that breaks current behavior.

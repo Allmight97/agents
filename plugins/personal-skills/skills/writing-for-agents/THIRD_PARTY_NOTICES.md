@@ -1,15 +1,14 @@
 # Third-Party Notices
 
 This skill is informed by and adapts concepts from `writing-for-agents` in
-[`mattpocock/skills`](https://github.com/mattpocock/skills/tree/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76/skills/productivity/writing-for-agents).
+[`mattpocock/skills`](https://github.com/mattpocock/skills/tree/5863806/skills/productivity/writing-for-agents).
 
 The guidance on repairing existing automated checks is also informed by
 [`retro`](https://github.com/mattpocock/skills/blob/0243b6e/skills/in-progress/retro/SKILL.md).
 
 - Upstream path: `skills/productivity/writing-for-agents` in
   [`mattpocock/skills`](https://github.com/mattpocock/skills).
-- Last reviewed upstream commit: `5863806` (2026-11-13). That path is
-  unchanged since `6654f6b`.
+- Last reviewed upstream commit: `5863806` (2026-11-13).
 - The handoff guidance is adapted from `skills/productivity/handoff` in the
   same repository, reviewed at `5863806`.
 - Upstream `retro` moved to `skills/engineering/retro` with no content change

@@ -1,8 +1,6 @@
 # Process Audit
 
-Use when the owner asks to audit a repository's guidance, checks, hooks, CI,
-or workflows for work a machine should do. Shared writing guidance lives in
-[SKILL.md](SKILL.md).
+Shared writing guidance lives in [SKILL.md](SKILL.md).
 
 Find rules that live only in prose, checks that go green without proving
 anything, and steps that wait on a human. Output is a ranked report. Change
@@ -13,13 +11,12 @@ nothing.
 Report only. Do not add tools, harnesses, scripts, PRs, issues, or rule
 changes, and do not start apps or desktop harnesses, without the owner's yes.
 Read-only commands and read-only API calls are fine. A check you run must not
-touch the working tree. Why: an audit once started an unrequested desktop
-harness.
+touch the working tree. Why: starting an app or harness changes the owner's
+machine.
 
 ## Three lenses, all required
 
-Run all three. One audit that found only pace problems missed every proof
-problem.
+Run all three. Each lens finds problems the others miss.
 
 **Prose that should be a check.** Sort each rule in the guidance by the three
 questions in [SKILL.md](SKILL.md). A rule a fixed pattern decides, enforced
@@ -61,8 +58,6 @@ End with what you did not check.
 
 Claude and Codex audit independently. Then each fact-checks the other's
 findings against sources and marks each `confirmed`, `refuted`, or
-`unverifiable`. Different models catch different things; the owner keeps Codex
-as a second opinion. From Claude Code, Cursor, or Grok Build, run Codex
-through the `codex-review` skill when it is installed; otherwise run
-`codex exec ... </dev/null` (stdin closed). Merge into one report. If only one
-model is available, say so at the top of the report.
+`unverifiable`. Run Codex through the `codex-review` skill. Merge into one
+report. If `codex-review` is not installed, audit with one model and say so at
+the top of the report.

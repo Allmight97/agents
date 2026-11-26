@@ -1,19 +1,20 @@
 ---
 name: security-threat-model
-description: "Build a threat model of this repository: assets, trust boundaries, attacker capabilities, ranked abuse paths, and mitigations."
+description: "Threat model a repository or path: assets, trust boundaries, attacker capabilities, ranked abuse paths, and mitigations."
 ---
 
 # Repository Threat Model
 
 Produce a threat model specific to the system's real exposure and usage.
-Anchor architectural claims in source, configuration, and existing owner docs;
-keep assumptions and recommended controls distinct from verified behavior.
+Anchor architectural claims in source, configuration, and existing owner docs.
 
 ## Scope And Context
 
+Read [the report guide](references/report-guide.md) before modelling; its
+evidence contract governs every claim.
+
 Identify the requested repository or path, intended usage, deployment model,
-sensitive assets, authentication expectations, and external entrypoints. Reuse
-existing evidence rather than requiring a separate repository-summary artifact.
+sensitive assets, authentication expectations, and external entrypoints.
 Separate runtime behavior from build/CI tooling and tests where their authority
 or attacker access differs.
 
@@ -31,20 +32,17 @@ realistic attacker capabilities, including capabilities the attacker lacks.
 
 Describe supported abuse paths from entrypoint through the relevant controls to
 impact. Rank them by qualitative likelihood and impact, accounting for existing
-mitigations. Avoid quotas that manufacture threats or force every boundary to
-have a vulnerability.
+mitigations.
 
-For material threats, distinguish existing controls, gaps, recommended changes,
-and residual risk. Tie recommendations to their owning source or configuration.
 A threat model does not by itself prove a vulnerability or authorize remediation.
 
 ## Report And Check
 
-Read [the report guide](references/prompt-template.md) for the evidence and
-output contract. Use [controls and assets](references/security-controls-and-assets.md)
-only when the system needs a broader category check.
+Use [controls and assets](references/security-controls-and-assets.md) when the
+repository's assets or controls do not map cleanly to the boundaries you found.
 
-Verify the major in-scope entrypoints and boundaries were considered, the
+The model is done when every entrypoint and trust boundary found in Scope And
+Context appears as an abuse path or as considered with its controls named, the
 ranking reflects exposure, and unresolved assumptions remain visible. Default
 to a chat report for a small scope. Use a user-specified or repository-owned
 location for a requested durable file; otherwise use OS temp when a file helps.

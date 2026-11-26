@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Validate every SKILL.md with the pinned Agent Skills validator.
+"""Validate every SKILL.md with the pinned Agent Skills validator, and every
+relative link in a skill's Markdown files.
 
 Frontmatter stays within the specification plus `CLAUDE_KEYS`; see AGENTS.md.
 """
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -15,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_REF_PIN = "git+https://github.com/agentskills/agentskills.git@217be548739f21d6008915c29aefe320ea1a90af#subdirectory=skills-ref"
 CLAUDE_KEYS = {"disable-model-invocation: true"}
+LINK = re.compile(r"\]\(([^)\s]+)\)")
 
 
 def skills_ref() -> list[str]:
@@ -34,10 +37,23 @@ def spec_copy(skill_dir: Path, scratch: Path) -> Path:
     return copy
 
 
+def broken_links(skill_dirs: list[Path]) -> list[str]:
+    broken = []
+    for doc in sorted(p for d in skill_dirs for p in d.rglob("*.md")):
+        for target in LINK.findall(doc.read_text()):
+            path = target.split("#", 1)[0]
+            if path and not path.startswith(("http://", "https://", "mailto:")) and not (doc.parent / path).exists():
+                broken.append(f"{doc.relative_to(ROOT)}: link to {target} does not resolve; fix the path or drop the link")
+    return broken
+
+
 def main() -> int:
     command = skills_ref()
     skill_dirs = sorted(p.parent for p in (ROOT / "plugins").rglob("SKILL.md"))
-    failed = 0
+    broken = broken_links(skill_dirs)
+    for line in broken:
+        print(line)
+    failed = len(broken)
     with tempfile.TemporaryDirectory() as scratch:
         for skill_dir in skill_dirs:
             result = subprocess.run([*command, "validate", str(spec_copy(skill_dir, Path(scratch)))], capture_output=True, text=True)

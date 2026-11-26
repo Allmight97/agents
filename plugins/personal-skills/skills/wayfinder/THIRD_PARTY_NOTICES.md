@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-This skill is adapted from `wayfinder` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder).
+This skill is adapted from `wayfinder` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4ae2317/skills/engineering/wayfinder).
 
 - Upstream path: `skills/engineering/wayfinder` in [`mattpocock/skills`](https://github.com/mattpocock/skills).
 - Last reviewed upstream commit: `4ae2317` (2026-10-31).

@@ -1,42 +1,29 @@
 ---
 name: ratchet-files
-description: "Ratchet source file size so every file stays small enough for an agent to read whole: find every file over a token budget, split oversized files by concept, and set up the pre-commit ratchet that stops them from growing. Use when a commit is blocked because a file is over the size budget, when asked to find or split oversized/long/god files, when a file you need to change is too large to read in one pass, or when asked to add a file-size limit or hook to a repository."
+description: "Ratchet source file size so every file stays small enough for an agent to read whole. Use when a commit is blocked by the file-size budget, when asked to find or split oversized files, when a file you must change is too large to read in one pass, or when asked to add a file-size limit or hook."
 ---
 
 # Ratchet Files
 
 A source file is over budget when it is past what an agent can read in one
-pass (8,000 tokens, counted as bytes / 4, unless the repository sets
-another). [`scripts/check-file-size.mjs`](scripts/check-file-size.mjs) owns
+pass. [`scripts/check-file-size.mjs`](scripts/check-file-size.mjs) owns
 what counts as source, the budget, the ratchet, and the split rules; run it
 with `--help` before anything else.
 
 ## Splitting
 
 1. Run the script with `--all` from the repository root, passing the
-   repository's `--max-tokens` if its hook sets one. Its list is the backlog.
+   repository's `--max-tokens` if its hook sets one. If the repository lacks
+   `linguist-languages`, run it from a scratch copy as in step 1 of Setting up
+   the ratchet. Its list is the backlog.
 2. Pick the files to split: the one blocking the work in front of you, or
    with no blocker, the largest ones a change is about to touch.
-3. Split each one by the rules the script prints. A seam is a concept the
-   file already owns, not a line count; when
-   [refactor-clean](../refactor-clean/SKILL.md) is installed, use it to find
-   them.
+3. Split each one by the rules the script prints.
 4. Prove the split changed no behaviour with the repository's own checks,
    and commit it alone, before the change that needed the room.
 
-A file whose every split would cost more than it saves (one table or state
-machine that only reads whole) may opt out instead. Put
-`@ratchet-files-ignore` in a comment within its first 10 lines, in the
-file's own comment syntax, followed by why splitting fails:
-
-```js
-// @ratchet-files-ignore: one opcode table; split, each half reads without the other.
-```
-
-The check then skips the file entirely, even as it grows, so opt out only
-after looking for a seam and finding none worth its cost, never to get past a
-refusal. Tell the user each file you opt out and why. `--all` counts
-opted-out files so they stay visible.
+Opt a file out only by the script's opt-out rules, after looking for a concept
+to split out; tell the user each file and why.
 
 Done when every file you picked is under budget in its own commit, the
 behaviour checks pass, and `--all` no longer lists those files.
@@ -102,5 +89,6 @@ Commit the setup through the new hook, without `--no-verify`.
 
 Done when the setup commit passed the hook, and the installed hook refuses
 `git commit` both of a staged new source file over the budget (a `.js` file
-of more than four bytes per token of budget) and of a line added to a file the audit
-listed, printing the split rules. Unstage and discard both probes afterwards.
+larger than 4 × the budget in bytes: 32,001 bytes at the default) and, when the
+audit listed any file, of a line added to one of them, printing the split
+rules. Unstage and discard both probes afterwards.

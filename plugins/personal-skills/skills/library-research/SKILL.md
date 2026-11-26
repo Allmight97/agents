@@ -5,8 +5,8 @@ description: "Answer a version-sensitive question about a third-party library fr
 
 # Library Research
 
-Answer the active library question for the version this project actually runs,
-and return the answer to the code that owns the decision.
+Answer the library question for the version this project actually runs, and
+return the answer to the code that owns the decision.
 
 ## Evidence
 
@@ -39,7 +39,8 @@ remove it after use.
 Report the behavior, the owning code it constrains, any constraint that
 changes the implementation, and the version and source evidence, with the
 commit SHA when upstream source was used. When the evidence falls short or
-conflicts, label the answer current-only, version-mismatched, or unproven, and
+conflicts, label the answer: current-only (evidence from a newer release only),
+version-mismatched (evidence contradicts the locked version), or unproven; and
 state the decision left to the project's owner.
 
 Stop when the question is answered with evidence for the locked version, or

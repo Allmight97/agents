@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: "Diagnose and fix a reported bug, failing or flaky test, or performance regression by reproducing it and testing the cause. Use for debugging requests."
+description: "Diagnose and fix a reported bug, failing or flaky test, or performance regression by reproducing it and testing the cause."
 ---
 
 # Diagnose
@@ -34,14 +34,18 @@ specific access or artifact needed when it blocks further progress. Production
 instrumentation and access changes require their own authorization.
 
 Use [the human-assisted loop template](scripts/hitl-loop.template.sh) when the
-trigger requires manual interaction and a repeatable capture would help. Keep
-captured content to what the diagnosis needs.
+trigger requires manual interaction and a repeatable capture would help. Copy
+it and have the user run it in their own terminal, or run it in a terminal tab
+they can type into; then read the printed `KEY=VALUE` lines. Keep captured
+content to what the diagnosis needs.
+
+This step is done when one command or captured trace fails on the user's
+symptom, or you have labelled reproduction unavailable (above).
 
 ## Test The Cause
 
 State the leading explanation and its falsifiable prediction. Consider credible
-alternatives when evidence is ambiguous; a fixed hypothesis count adds no proof.
-Choose the next inspection or probe that distinguishes them and update the
+alternatives when evidence is ambiguous. Choose the next inspection or probe that distinguishes them and update the
 explanation when evidence contradicts it. When several fixes have failed, write
 down the premise they all share and test that premise before trying another.
 
@@ -57,8 +61,9 @@ unique prefix, such as `[DIAG-x7k2]`.
 Fix the owning cause and affected sibling paths within scope. When a useful
 regression test can exercise the real failure, make it fail before the fix and
 pass afterward. If you forced the failure by editing code or a fixture, diff
-against a clean copy to prove the edit took before you trust the red. Choose the lowest test tier that reaches the bug; an assertion
-that bypasses the failed handoff cannot prove it.
+against a clean copy to prove the edit took before you trust the red. Choose
+the lowest test tier that reaches the bug; an assertion that bypasses the
+failed handoff cannot prove it.
 
 Recheck the original scenario and run the owning project's required checks.
 Grep for the instrumentation prefix; it must return nothing before you finish.

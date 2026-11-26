@@ -5,18 +5,19 @@ judgment and guardrails remain in [SKILL.md](SKILL.md).
 
 ## Pin The Scope
 
-Choose the target the user named:
+Choose the target the user named; with no target named, use the current diff:
 
-- **Diff**: inspect the current change in diff order.
-- **Path or repository**: rank concrete cuts by expected reduction in concepts,
+- **Diff**: inspect the changed files in the rank's order.
+- **Path or repository**: order findings by expected reduction in concepts,
   dependencies, maintenance, and change surface.
 - **Tests**: judge each test or shared group by the contract it protects, as
   [SKILL.md](SKILL.md) says, and measure runtime or flakiness when that cost
   is part of the finding.
 
 Exclude generated, vendored, and dependency trees. Inspect active owner and
-boundary guidance, then trace enough of each call path to distinguish accidental
-indirection from load-bearing policy. Apply nothing during review mode.
+boundary guidance, then trace each call path until every caller of the code
+you would cut is listed with whether it still works after the cut. Apply
+nothing during review mode.
 
 ## Finding Standard
 
@@ -40,15 +41,12 @@ Use the tag that identifies the mechanism:
 
 A test takes the same tags: `delete` one that protects nothing a broader test
 does not; `collapse` duplicates of one contract; `reuse` one whose contract
-belongs in another proof tier, whether an existing test there proves it or the
-test moves there; `shrink` one to its contract. A test worth keeping as it is
-gets no finding. For a test, the coverage slot names the test that still proves
-the contract, or the protection the cut loses. When the code blocks the broader
+belongs at another test level (unit, integration, end-to-end), whether an
+existing test there proves it or the test moves there; `shrink` one to its
+contract. A test worth keeping as it is gets no finding. For a test, the
+_why behavior remains covered_ part names the test that still proves the
+contract, or the protection the cut loses. When the code blocks the broader
 proof, name the refactor that would allow it.
-
-Do not report correctness, security, performance, or merge-readiness findings
-as Whittle findings. Route a material observation to its specialist owner and
-keep it separate from the deletion audit.
 
 ## Stop And Summarize
 

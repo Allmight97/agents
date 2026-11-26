@@ -1,6 +1,6 @@
 ---
 name: writing-for-agents
-description: "Write or audit guidance that agents read: SKILL.md files, AGENTS.md or CLAUDE.md, issues, specs, and handoffs. Use when the task is instruction clarity, rule placement, skill triggers, or a process audit of checks and workflows."
+description: "Write or audit guidance that agents read: SKILL.md files, AGENTS.md or CLAUDE.md, specs, and handoffs. Use when the task is instruction clarity, rule placement, skill triggers, or a process audit of checks and workflows."
 ---
 
 # Writing for Agents
@@ -13,15 +13,16 @@ every run.
 Read the branch that matches the job:
 
 - [Skill mechanics](SKILL-MECHANICS.md) when the document is a skill:
-  invocation, router skills, client metadata, behavioral proof.
+  invocation, router skills, descriptions, portability, behavioral proof.
 - [Instruction networks](INSTRUCTION-NETWORK-MECHANICS.md) when deciding where
   a rule belongs, or cutting down an existing set of rules.
 - [Process audit](PROCESS-AUDIT.md) when the owner asks to audit a
   repository's guidance, checks, hooks, CI, or workflows for work a machine
   should do.
 
-An audit of guidance reports each finding with its evidence and a proposed
-disposition; it edits only when fixes are authorized.
+An audit applies every section below to every file in scope and reports each
+finding with its evidence and a proposed disposition; it edits only when fixes
+are authorized.
 
 ## Should the line exist
 
@@ -38,12 +39,9 @@ A rule is mechanical when a fixed pattern decides it: a banned import or API, a
 file location, a required shape. Enforce it with the strongest check that
 works, in this order: a structure that removes the wrong path, a type, a lint
 whose error names the fix, a test, then CI or a repository rule. Reuse what the
-repository already runs. Prove the check fails on a violation, then cut the
-prose to one line that names it. Prose keeps judgement calls and the reason a
-check exists.
-
-A line that restates what code does is a second copy; it goes stale when the
-code moves. A rule that makes every code change edit guidance restates code.
+repository already runs; repair a disconnected or silently failing check before
+adding another. Prove the check fails on a violation, then cut the prose to one
+line that names it. Prose keeps judgement calls and the reason a check exists.
 
 ## Context pointers
 
@@ -56,14 +54,14 @@ sharpen the pointer first; inline the material only if that fails.
 A pointer states what the material is and lists its branches: the distinct
 cases that should trigger it.
 
-- Front-load the leading word.
+- Front-load the leading word (see Leading words).
 - Write one trigger per branch. Synonyms for one branch are that branch
   written twice.
 - Cut identity the body already carries.
 
 ## The two loads
 
-Every document and pointer spends one of two budgets.
+Every document and pointer spends from two budgets.
 
 - **Context load** falls on the agent: every always-loaded line (an
   `AGENTS.md` line, a model-invoked skill description) costs tokens and
@@ -87,8 +85,8 @@ needs it:
    pointer fires.
 
 Branching is the disclosure test: inline what every branch needs; disclose
-what only some branches reach. Reference left inline buries the steps around
-it.
+what only some branches reach. Reference that only some branches need, left
+inline, buries the steps around it.
 
 Co-locate: keep a concept's definition, rules, and caveats under one heading,
 so reading one part brings its neighbours. Scattering fragments one meaning
@@ -119,6 +117,8 @@ Split a document only when the cut earns the load it spends.
 
 - **By sequence:** split off later steps when they tempt the agent to rush
   the current one. Merging sequences does the reverse.
+- **By branch:** move what only some branches reach behind a pointer (see
+  Information hierarchy).
 - **By invocation:** see [Skill mechanics](SKILL-MECHANICS.md).
 
 ## Leading words
@@ -140,10 +140,12 @@ pair it with the positive target.
 
 - **Single source of truth.** Each meaning has one owner, so a change is a
   one-place edit. Duplication costs upkeep and inflates a meaning's rank.
-- **The environment is a source.** Scripts, config, the directory layout, and
-  `--help` own their facts. A document that restates them is a cache that goes
-  stale. Write what looking cannot find: the unwritten convention, the reason,
-  the gotcha. Add a pointer only when a search would not find its target.
+- **The environment is a source.** Code, tests, scripts, config, the directory
+  layout, and `--help` own their facts. A document that restates them is a
+  cache that goes stale when they move; a rule that makes every code change
+  edit guidance restates code. Write what looking cannot find: the unwritten
+  convention, the reason, the gotcha. Add a pointer only when a search would
+  not find its target.
 - **Relevance.** A line loses relevance when it never bears on the task or
   when what it describes changes. Without pruning, stale layers settle as
   sediment. After a decision, rewrite around the new state; do not append
@@ -155,12 +157,13 @@ pair it with the positive target.
 
 ## Issues, specs, and handoffs
 
-Lead with current state and the next decision. Include scope, constraints,
-open choices, and completion evidence where they change the next action. Label
-facts, proposals, and unverified claims. A document for both a human and an
-agent makes the human decision readable and keeps execution requirements
-explicit. Use [visual-brief](../visual-brief/SKILL.md) when substantial
-material needs a visual orientation.
+For a GitHub issue, follow `issue-hygiene`. For a spec or handoff, lead with
+current state and the next decision. Include scope, constraints, open choices,
+and completion evidence where they change the next action. Label facts,
+proposals, and unverified claims. A document for both a human and an agent
+makes the human decision readable and keeps execution requirements explicit.
+Use the `visual-brief` skill when substantial material needs a visual
+orientation.
 
 A handoff lets a fresh agent continue the work:
 

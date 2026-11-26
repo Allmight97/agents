@@ -5,7 +5,7 @@ The tool proves source integrity, target identity, exact raw-byte readback, and 
 For real acceptance, boot the target machine in the firmware mode required by the publisher and record:
 
 - the firmware boot entry and the exact menu or installer shown;
-- one representative diagnostic or live image loaded from the menu;
+- the boot entry or installer screen the image reaches;
 - the display path used, especially when a discrete GPU is present;
 - any firmware, Secure Boot, USB-port, or kernel error;
 - whether the machine reaches the image's documented first usable state.

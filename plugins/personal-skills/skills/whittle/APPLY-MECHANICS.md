@@ -5,34 +5,29 @@ judgment and guardrails remain in [SKILL.md](SKILL.md).
 
 ## Apply The Cut
 
-1. Inspect the target, its owner guidance, the real flow, and existing proof.
+1. Inspect the target, its owner guidance, the real flow, and existing proof;
+   done when you can name the code to cut and every caller and test that
+   reaches it.
 2. Name the requirement and the complexity that does not help satisfy it.
-3. Choose the earliest shared ladder option that fully preserves the outcome.
+3. Choose the first option in [SKILL.md](SKILL.md)'s Find The Smallest Owner
+   list that fully preserves the outcome.
 4. Make the smallest coherent change, including cleanup made obsolete by it:
    tests that exercised only the removed code, and every reference that
-   `python3 scripts/leftover_refs.py [removed names]` lists (run from the target
-   repository, path relative to this skill). After cutting tests, recheck
+   `python3 <this skill's directory>/scripts/leftover_refs.py [names a diff
+   cannot show, such as config keys]` lists, run with the target repository as
+   the working directory; done when it exits 0. Exit 2 means no removed
+   definition was found: pass the removed names. After cutting tests, recheck
    the production code they called: a seam left with no other caller goes
    too, on the terms in [SKILL.md](SKILL.md). Moved or merged code keeps its
    validation and error handling.
-5. Run proof proportionate to the changed owner and inspect the final diff.
+5. Run the repository's checks for the changed owner and inspect the final
+   diff; done when those checks pass and every hunk serves the named
+   requirement.
 
-Prefer deletion and existing owners over new layers. Do not introduce a new
-interface, factory, configuration surface, dependency, or extension point
-without a present requirement whose benefit exceeds its upkeep.
-
-Smallness is a design result:
-
-- A direct expression is better than a ceremony-heavy one when both are equally
-  clear and correct; one line is not inherently better than five.
-- A narrow diff is better when it localizes the invariant; do not preserve the
-  wrong owner merely to touch fewer files.
-- Focused proof is better than test expansion; match proof to plausible
-  regression risk and the repository's owning boundary.
+Do not preserve the wrong owner merely to touch fewer files.
 
 ## Output
 
-Lead with the implemented result and proof. Name a rejected alternative only
-when its tradeoff affects the user's decision.
-Give a fuller explanation when the user asked for one or the tradeoff genuinely
-affects their next decision.
+Lead with the implemented result and proof. Add a rejected alternative or
+fuller explanation only when the user asked or its tradeoff changes their next
+decision.

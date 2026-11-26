@@ -1,6 +1,6 @@
 # Threat Model Report Guide
 
-Read when preparing the model's output. The workflow and scope are owned by
+Read before modelling. The workflow and scope are owned by
 [SKILL.md](../SKILL.md); this guide defines what makes the result reviewable.
 
 ## Evidence Contract
@@ -35,7 +35,5 @@ include only tables and diagrams that make the evidence easier to assess.
 6. **Next evidence or review:** concrete paths or checks that would validate a
    consequential assumption, plus any unanswered context question.
 
-Before finalizing, check coverage of major in-scope entrypoints and boundaries.
 A boundary with adequate controls can be recorded as considered without
-inventing a threat. Explain missing evidence rather than filling a numeric
-quota with speculative findings.
+inventing a threat. Where evidence is missing, say what is missing.

@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-This skill is adapted from `codebase-design` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4588b32/skills/engineering/codebase-design).
+This skill is adapted from `codebase-design` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4ae2317/skills/engineering/codebase-design).
 
 - Upstream path: `skills/engineering/codebase-design` in [`mattpocock/skills`](https://github.com/mattpocock/skills).
 - Last reviewed upstream commit: `4ae2317` (2026-10-31).

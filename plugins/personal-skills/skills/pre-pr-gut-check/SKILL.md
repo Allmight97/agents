@@ -1,6 +1,6 @@
 ---
 name: pre-pr-gut-check
-description: "Gut-check finished work before it lands on the default branch or a PR opens: architecture, whittle, code-review with security, and guidance lenses, then apply the fixes that earn their keep."
+description: "Gut-check finished work before it lands on the default branch or a PR opens, and apply the fixes that earn their keep."
 ---
 
 # Pre-PR Gut Check
@@ -11,10 +11,11 @@ bring the work to its intended end state. Run it before the work is pushed to
 the default branch, or before a PR opens or goes ready when the work needs one.
 
 Fully load each composed skill, including the mechanics files it names for the
-mode in use. Loading a skill here is the explicit invocation it may require.
-The skill tool refuses user-only skills, so read
-[improve-codebase-architecture](../improve-codebase-architecture/SKILL.md) and
-[code-review](../code-review/SKILL.md) from their files. A skill that is unavailable is a skipped lens; report it as skipped.
+mode in use.
+Load [improve-codebase-architecture](../improve-codebase-architecture/SKILL.md)
+and [code-review](../code-review/SKILL.md) from these paths, not by bare name,
+which can resolve to a built-in skill. A skill that is unavailable is a skipped
+lens; report it as skipped.
 
 ## Establish the review
 
@@ -43,8 +44,8 @@ criteria do not blur into another's.
   to the modules the diff touches. Its candidates feed the dispositions below
   in place of its report and candidate selection.
 - **whittle** in review mode on the diff.
-- **code-review** on the changed behavior, including its security search,
-  unless the user drops it.
+- **code-review** on the changed behavior, including its security search;
+  skip the security search only when the user says so.
 
 ## Decide and apply
 
@@ -52,8 +53,8 @@ Merge candidates from every lens and drop duplicates. Give each one
 disposition, written as one plain sentence: what it is, whether a user would
 notice, and whether it is a real bug or tidiness. Judge severity apart from
 disposition: a defect a user would notice is a real bug even when it predates
-this work or is deferred, and a structural change that also removes one is a
-bug fix.
+this work or is deferred, and a structural change that also removes such a
+defect is a bug fix.
 
 - **fix**: changes behavior, prevents a person or agent from acting wrongly,
   or is needed to reach the end state; stays within this work; and can be
@@ -71,8 +72,9 @@ before correctness fixes, so later fixes land on code that survives.
 
 Run these on the diff after shape fixes, since they judge what the code became:
 
-- **The repository's test-value skill**, if it has one: whether tests pin
-  required behavior of the final shape, including assumptions the fixes removed.
+- **A test-review skill in the target repository's own skills**, if one
+  exists (look under its `.claude/skills/`): whether tests pin required
+  behavior of the final shape, including assumptions the fixes removed.
 - **writing-for-agents** on the guidance and documents the work affects:
   stale rules, pointers, or interface lists, and new invariants without an
   owner. Each skill the work adds or changes gets its own check.
@@ -91,8 +93,3 @@ Re-run the repository's verification for the touched owners. Report:
   and its blast radius.
 
 If nothing earns a fix, say so in one line.
-
-When no gut-check fixes remain uncommitted, record the reviewed commit so a
-reminder hook can tell the check is current:
-`git rev-parse HEAD > "$(git rev-parse --git-dir)/pre-pr-gut-check"`.
-Otherwise skip the record and say so.

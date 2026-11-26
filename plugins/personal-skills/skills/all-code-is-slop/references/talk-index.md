@@ -2,6 +2,12 @@
 
 Lauren Tan (@poteto), "All Code Is Slop (Except Mine)", AI Engineer Code Summit 2026: [video](https://www.youtube.com/watch?v=O_zcc6Xl12g). Slide numbers in SKILL.md refer to this table.
 
+## Reported results
+
+The talk's Grok Bot team numbers: comments fell from 65,824 to 1,227 (24), about 11k PRs merged in October (42), and the revert rate was 0.47% in October (45). Performance improved against a May baseline on startup and typing (47). Use these to justify the approach, not as targets.
+
+## Slides
+
 | Slide | Time | Title |
 |---|---|---|
 | 1 | [0:21](https://www.youtube.com/watch?v=O_zcc6Xl12g&t=21s) | Title |

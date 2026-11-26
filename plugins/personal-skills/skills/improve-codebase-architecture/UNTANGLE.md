@@ -22,7 +22,6 @@ Useful aids:
 - Script a dependency graph of what imports what, and rerun it as you go.
 - Use git history as evidence of how often pieces change and what changes
   together.
-- Start where the most problems meet.
 
 ## 2. Redesign from first principles
 
@@ -39,22 +38,31 @@ changes less. Write each fix in the log above the problems it solves:
   - `ui/SettingsDialog.tsx:61` sets a global `skipRefocus` flag to stop that.
 ```
 
+Done when every problem line sits under a fix or is marked kept, with its
+reason.
+
 ## 3. Fix everything on the list
 
-Apply the fixes. Remove the special cases the redesign makes unnecessary and
-keep the ones the system still needs. Do not hunt for bugs separately; a
-structural fix may remove some, and the report names them.
+Start where the most problems meet. Apply the fixes. Remove the special cases
+the redesign makes unnecessary and keep the ones the system still needs. Do
+not hunt for bugs separately; a structural fix may remove some, and the report
+in step 5 names them.
 
 ## 4. Check and repeat until done
 
-Have fresh subagents search the result for special cases, hidden links,
-needless links, and surplus, then fix what they find. Stop only when:
+Search the result for special cases, hidden links, needless links, and
+surplus, then fix what they find: use fresh subagents where the client
+supports them, otherwise a fresh pass from the log alone. Stop only when:
 
-- as few special cases remain as possible; the count is the measure of
-  progress;
+- every remaining special case is in the log with the requirement that keeps
+  it;
 - a typical change lands in one place;
-- every import is reasonable, and nothing imports something more volatile than
-  itself;
-- the subagents find nothing left worth fixing;
+- no import points at a module more volatile than itself;
+- the fresh pass finds nothing left worth fixing;
 - intended behavior is the same as at the start, apart from bugs the refactor
   fixed, proven by the repository's checks at the end.
+
+## 5. Report
+
+Report the log path, the fixes applied, the special-case count before and
+after, and the bugs the refactor removed.

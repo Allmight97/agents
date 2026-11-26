@@ -5,14 +5,12 @@ Use for multiple candidates or comparisons that benefit from diagrams. Read
 delivery workflow; keep the architecture evidence below in this owner.
 
 Lead with the recommended candidate and the evidence behind it. For each
-candidate, include location, the problems it removes, proposed owner,
-benefits, preserved obligations, proof, and migration risk. Use before/after
-diagrams when they make ownership or call flow clearer; prose is appropriate for details a diagram
-cannot carry.
+candidate, include the fields listed in [SKILL.md](SKILL.md)'s Recommend step.
+Use before/after diagrams when they make ownership or call flow clearer; prose
+is appropriate for details a diagram cannot carry.
 
-Use project terms and plain language. The shared `codebase-design` vocabulary
-is a reasoning aid, not a required list of words. Distinguish observed facts,
-proposed designs, and unresolved assumptions visually or in their labels.
+Use project terms and plain language. Distinguish observed facts, proposed
+designs, and unresolved assumptions visually or in their labels.
 
 Keep the source evidence sufficient for another agent to check the
 recommendation without reconstructing the conversation.

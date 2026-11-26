@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-The table, comparison, and plan shape notes in this skill are adapted from the
+The table, comparison, and plan rows of this skill's view table adapt the
 playbooks in [`kunchenguid/lavish-axi`](https://github.com/kunchenguid/lavish-axi/blob/69bf309/src/playbooks.js),
 and the narrow-width overflow check follows its layout warnings.
 

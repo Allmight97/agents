@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-This skill is adapted from `diagnosing-bugs` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4588b32/skills/engineering/diagnosing-bugs).
+This skill is adapted from `diagnosing-bugs` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4ae2317/skills/engineering/diagnosing-bugs).
 
 - Upstream path: `skills/engineering/diagnosing-bugs` in [`mattpocock/skills`](https://github.com/mattpocock/skills).
 - Last reviewed upstream commit: `4ae2317` (2026-10-31).

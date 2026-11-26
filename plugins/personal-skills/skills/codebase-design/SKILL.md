@@ -1,13 +1,12 @@
 ---
 name: codebase-design
-description: "Design criteria for modules and the state they hold: caller burden, depth, seams, locality, explicit state. Use when designing a feature's modules or data model, consolidating modules, placing a dependency seam, or weighing testability."
+description: "Module and data-model design criteria. Use when designing a feature's modules or data model, consolidating modules, placing a dependency seam, or weighing testability."
 ---
 
 # Codebase Design
 
 Reduce what callers must know while keeping behavior and its governing rules
-in an accountable owner. A smaller method count or a larger implementation is
-not evidence of a better design by itself.
+in an accountable owner.
 
 ## Vocabulary
 
@@ -59,20 +58,21 @@ accident. Examples: a record with an optional audio file and a list of PDFs,
 where "no file, one PDF" means PDF-only; a cleanup list that stores leftover
 files under invented keys such as `unimported:0`.
 
-Introduce a seam for a present need: real variation, deterministic proof,
-lifecycle ownership, isolation, or an external contract. Two useful adapters
-are evidence, not a minimum count; do not invent a test adapter to justify an
-otherwise unnecessary interface.
+Introduce a seam for a present need: real variation, lifecycle ownership,
+isolation, an external contract, or deterministic proof. Deterministic proof
+means isolating a real side effect (clock, randomness, network, filesystem,
+process) so tests are deterministic. A seam that exists only so tests can reach
+internals is not justified.
 
 Keep pure decisions separate from effects when that makes behavior easier to
 prove. Let an effectful owner manage its dependencies and resources explicitly;
-inject only dependencies whose substitution or ownership matters. Keep private
-test seams private and retain public handoff tests where composition can fail.
+inject only dependencies whose substitution or ownership matters. Test through
+the public interface, and keep a test at each point where two owners pass data
+or control, since composition fails there.
 
 ## Focused References
 
 - When consolidating existing modules, read [DEEPENING.md](DEEPENING.md) for
   dependency and test migration decisions.
 - When comparing consequential interface alternatives, read
-  [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md). Use materially different designs to
-  test the decision; this does not require parallel agents.
+  [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md).

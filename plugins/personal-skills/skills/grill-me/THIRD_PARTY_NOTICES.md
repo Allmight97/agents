@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-This skill is adapted from `grill-me` and `grilling` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4588b32/skills/productivity/grill-me).
+This skill is adapted from `grill-me` and `grilling` in [`mattpocock/skills`](https://github.com/mattpocock/skills/tree/4ae2317/skills/productivity/grill-me).
 
 - Upstream path: `skills/productivity/grill-me` in [`mattpocock/skills`](https://github.com/mattpocock/skills).
 - Last reviewed upstream commit: `4ae2317` (2026-10-31).
