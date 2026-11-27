@@ -40,12 +40,13 @@ def main() -> int:
     assert len(set(widths)) == 1, f"every row must fill the same number of columns: {widths}"
     assert page.count('class="step finish"') == 1, "exactly one final cell"
     assert re.search(r'class="step finish" rowspan="9"', page), "final step spans every ingredient row"
-    assert '<span class="callout">350°F</span>' in page, "temperatures are called out"
+    assert '<span class="callout">175°C</span>' in page, "temperatures are called out"
     assert '<span class="callout">10–15 min</span>' in page, "time ranges are called out"
 
     md = run(str(EXAMPLE), "--format", "md")
     assert md.returncode == 0, md.stderr
     steps = re.findall(r"^\d+\. \*\*([^*]+)\*\*", md.stdout, re.M)
+    assert not re.search(r"°F|\d\s*(?:cups?|tbsp|tsp|oz|lb|inch)\b", md.stdout), "example output is metric"
     assert steps[0] == "CUT" and steps[-1] == "BAKE", steps
     assert steps.index("MELT") < steps.index("SAUTÉ") < steps.index("TOSS"), "inputs come before the step that uses them"
 

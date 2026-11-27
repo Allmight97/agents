@@ -22,21 +22,41 @@ derives every row, column and span from it, so never place spans by hand.
   `recipeInstructions`, `recipeYield`) over the page prose.
 - Photo or scan: transcribe it, write `?` for an unreadable quantity, and tell
   the user which ones.
-- Keep the source's quantities, units, temperatures, times and doneness cues
-  word for word. Convert units only when the user asks.
+- Keep the source's times and doneness cues word for word. Convert units to
+  metric (see Metric below) unless the user asks for the original units.
 
 Done when every source ingredient and instruction is listed and each unclear
 item is flagged.
+
+### Metric
+
+Convert every quantity, temperature and length, in ingredients, notes and
+`meta` alike, and show only the metric value.
+
+| Source | Metric | Round to |
+| --- | --- | --- |
+| cup, tbsp, tsp, fl oz | 1 cup = 237 mL, 1 tbsp = 15 mL, 1 tsp = 5 mL, 1 fl oz = 30 mL | 5 mL below 100 mL, 10 mL to 1 L, then L to one decimal |
+| oz, lb | 1 oz = 28 g, 1 lb = 454 g | 5 g below 100 g, 10 g to 1 kg, then kg to two decimals |
+| butter by volume or stick | 1 cup = 227 g, 1 stick = 113 g | grams, as above |
+| oven °F | °C = (°F − 32) × 5⁄9 | nearest 5 °C (350 °F → 175 °C, 425 °F → 220 °C) |
+| internal or candy °F | same formula | nearest 1 °C (165 °F → 74 °C) |
+| inch | 2.54 cm | 0.5 cm (¾ in → 2 cm) |
+| pan size | 8 in square → 20 cm, 9 in round → 23 cm, 9×13 in → 23×33 cm, 9×5 in loaf → 23×13 cm | nearest common metric pan |
+
+Keep counts (`3 large eggs`), `to taste`, `as needed`, `pinch`, and named
+vessels whose size is a count (`12-cup muffin tin`) as they are. Convert
+other dry ingredients by volume to mL; convert them to grams only when the
+source gives a weight.
 
 ## 2. Build the tree
 
 Shape, as in [examples/stuffing-muffins.json](examples/stuffing-muffins.json):
 
 ```json
-{"title": "…", "meta": ["Makes 12", "Oven 350°F"], "notes": [], "source": "…",
+{"title": "…", "meta": ["Makes 12", "Oven 175°C"], "notes": [], "source": "…",
  "dish": {"step": "Bake", "note": "…", "inputs": [
    {"step": "Whisk", "kind": "combine", "inputs": [
-     {"qty": "3", "item": "large eggs"}, {"qty": "½ cup", "item": "whole milk"}]}]}}
+     {"qty": "3", "item": "large eggs"}, {"qty": "120 mL", "item": "whole milk"}]}]}}
 ```
 
 - **Root:** the last action (Bake, Serve, Chill). A step's inputs are the
@@ -89,18 +109,19 @@ is yours to check.
 
 ## Worked example
 
-Source: "Melt the butter in a skillet, add onion and celery, and cook over
-medium-low 10–15 minutes until very soft. Toss with the bread cubes."
+Source: "Melt ½ cup butter in a skillet, add 1–1½ cups diced onion and 2 cups
+diced celery, and cook over medium-low 10–15 minutes until very soft. Toss
+with 12 cups of bread in ¾-inch cubes."
 
 ```json
 {"step": "Toss", "note": "gently, in a large bowl", "inputs": [
-  {"step": "Cut", "note": "¾-inch cubes", "inputs": [
-    {"qty": "12 cups", "item": "slightly stale bread"}]},
+  {"step": "Cut", "note": "2 cm cubes", "inputs": [
+    {"qty": "2.8 L", "item": "slightly stale bread"}]},
   {"step": "Sauté", "note": "medium-low, 10–15 min, very soft, no browning", "inputs": [
     {"step": "Melt", "note": "in skillet", "inputs": [
-      {"qty": "½ cup", "item": "butter (1 stick)"}]},
-    {"qty": "1–1½ cups", "item": "onion, diced"},
-    {"qty": "2 cups", "item": "celery, diced"}]}]}
+      {"qty": "113 g", "item": "butter (1 stick)"}]},
+    {"qty": "240–360 mL", "item": "onion, diced"},
+    {"qty": "475 mL", "item": "celery, diced"}]}]}
 ```
 
 Rendered: bread gets its own row with Cut beside it; butter's row has Melt;
