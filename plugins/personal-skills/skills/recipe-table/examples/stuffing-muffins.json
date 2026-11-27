@@ -1,0 +1,37 @@
+{
+  "title": "Stuffing Muffins",
+  "meta": ["Makes 12 (regular 12-cup muffin tin)", "Oven 350°F"],
+  "dish": {
+    "step": "Bake",
+    "note": "350°F, 25–35 min, until edges golden and center of largest hits 165°F. Rest 5 min before removing.",
+    "inputs": [
+      {"step": "Fill", "note": "cups to the top; press gently just to hold", "kind": "combine", "inputs": [
+        {"step": "Moisten", "note": "add ½ cup broth; rest 10 min; add more a little at a time until it holds when squeezed, no pooling", "kind": "combine", "inputs": [
+          {"step": "Pour & mix", "note": "egg mixture over bread; mix gently", "kind": "combine", "inputs": [
+            {"step": "Toss", "note": "gently, in a large bowl", "inputs": [
+              {"step": "Cut", "note": "¾-inch cubes", "inputs": [
+                {"qty": "12 cups", "item": "slightly stale bread"}
+              ]},
+              {"step": "Sauté", "note": "medium-low, 10–15 min, very soft, no browning", "inputs": [
+                {"step": "Melt", "note": "in skillet", "inputs": [
+                  {"qty": "½ cup", "item": "butter (1 stick)"}
+                ]},
+                {"qty": "1–1½ cups", "item": "onion, diced"},
+                {"qty": "2 cups", "item": "celery, diced"}
+              ]}
+            ]},
+            {"step": "Whisk", "inputs": [
+              {"qty": "3", "item": "large eggs"},
+              {"qty": "½ cup", "item": "whole milk"}
+            ]}
+          ]},
+          {"qty": "½–1 cup", "item": "chicken broth"},
+          {"qty": "to taste", "item": "salt & black pepper"}
+        ]},
+        {"step": "Grease", "note": "12-cup muffin tin, generously", "inputs": [
+          {"qty": "as needed", "item": "butter, for tin"}
+        ]}
+      ]}
+    ]
+  }
+}
